@@ -1,0 +1,2570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIE2008 Analog to Digital Conversion Study Guide</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']],
+        processEscapes: true
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090f;
+      --panel: #101722;
+      --panel-2: #121b29;
+      --panel-3: #0d131d;
+      --text: #e8f4ff;
+      --muted: #a8bad0;
+      --cyan: #27f5d4;
+      --blue: #63c7ff;
+      --pink: #ff5cc8;
+      --violet: #b388ff;
+      --amber: #ffd166;
+      --green: #9cff9c;
+      --red: #ff6b6b;
+      --line: rgba(99, 199, 255, 0.24);
+      --shadow: rgba(0, 0, 0, 0.45);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(90deg, rgba(39, 245, 212, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(99, 199, 255, 0.035) 1px, transparent 1px),
+        var(--bg);
+      background-size: 42px 42px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    a {
+      color: var(--cyan);
+      text-decoration: none;
+    }
+
+    a:hover {
+      color: var(--pink);
+    }
+
+    .page-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      min-height: 64vh;
+      display: grid;
+      align-items: center;
+      padding: 48px 0 32px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 32px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 12px;
+      color: var(--cyan);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 42px;
+      height: 2px;
+      background: var(--pink);
+      box-shadow: 0 0 16px rgba(255, 92, 200, 0.75);
+    }
+
+    h1, h2, h3, h4 {
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 820px;
+      font-size: clamp(2.3rem, 7vw, 5.7rem);
+    }
+
+    h2 {
+      color: var(--cyan);
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      margin-bottom: 18px;
+    }
+
+    h3 {
+      color: var(--blue);
+      font-size: 1.35rem;
+      margin: 26px 0 10px;
+    }
+
+    h4 {
+      color: var(--amber);
+      font-size: 1rem;
+      margin: 18px 0 8px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul, ol {
+      margin: 10px 0 18px;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    code, .mono {
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .hero-copy {
+      max-width: 780px;
+    }
+
+    .hero-copy .lead {
+      max-width: 760px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .hero-visual {
+      min-height: 360px;
+      border: 1px solid rgba(39, 245, 212, 0.28);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(16, 23, 34, 0.94), rgba(10, 15, 23, 0.96));
+      box-shadow: 0 24px 80px var(--shadow);
+      padding: 22px;
+      display: grid;
+      align-items: center;
+    }
+
+    .signal-card {
+      display: grid;
+      gap: 18px;
+    }
+
+    .wave-svg {
+      width: 100%;
+      min-height: 210px;
+      border: 1px solid rgba(99, 199, 255, 0.22);
+      border-radius: 8px;
+      background: #08111b;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chip {
+      border: 1px solid rgba(99, 199, 255, 0.28);
+      background: rgba(99, 199, 255, 0.08);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--text);
+      font-size: 0.86rem;
+    }
+
+    .toc {
+      margin: 22px 0 36px;
+      padding: 18px;
+      border: 1px solid rgba(39, 245, 212, 0.25);
+      border-radius: 8px;
+      background: rgba(16, 23, 34, 0.72);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .toc strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--amber);
+    }
+
+    .toc nav {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .toc a {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: rgba(39, 245, 212, 0.06);
+      border: 1px solid rgba(39, 245, 212, 0.16);
+      color: var(--text);
+      font-weight: 650;
+      font-size: 0.92rem;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      padding: 34px 0;
+      border-bottom: 1px solid rgba(99, 199, 255, 0.14);
+    }
+
+    .section-kicker {
+      color: var(--pink);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel,
+    .example,
+    .derivation,
+    .trap,
+    .formula-card,
+    .term-card {
+      border: 1px solid rgba(99, 199, 255, 0.22);
+      border-radius: 8px;
+      background: rgba(16, 23, 34, 0.9);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.24);
+      padding: 18px;
+    }
+
+    .panel.highlight {
+      border-color: rgba(255, 92, 200, 0.38);
+      background: linear-gradient(180deg, rgba(255, 92, 200, 0.08), rgba(16, 23, 34, 0.9));
+    }
+
+    .panel.good {
+      border-color: rgba(156, 255, 156, 0.34);
+    }
+
+    .panel.warn {
+      border-color: rgba(255, 209, 102, 0.38);
+    }
+
+    .concept-flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 18px 0 24px;
+    }
+
+    .concept-card {
+      border: 1px solid rgba(39, 245, 212, 0.28);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(39, 245, 212, 0.11), rgba(16, 23, 34, 0.92));
+      padding: 16px;
+      min-height: 188px;
+      display: grid;
+      align-content: start;
+      gap: 9px;
+    }
+
+    .concept-card:nth-child(2) {
+      border-color: rgba(255, 92, 200, 0.34);
+      background: linear-gradient(180deg, rgba(255, 92, 200, 0.1), rgba(16, 23, 34, 0.92));
+    }
+
+    .concept-card:nth-child(3) {
+      border-color: rgba(255, 209, 102, 0.34);
+      background: linear-gradient(180deg, rgba(255, 209, 102, 0.1), rgba(16, 23, 34, 0.92));
+    }
+
+    .concept-badge {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: #07111a;
+      background: var(--cyan);
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    .concept-card:nth-child(2) .concept-badge {
+      background: var(--pink);
+    }
+
+    .concept-card:nth-child(3) .concept-badge {
+      background: var(--amber);
+    }
+
+    .concept-card h3 {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .concept-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .intuition-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 22px 0;
+    }
+
+    .intuition-box {
+      border: 1px solid rgba(99, 199, 255, 0.24);
+      border-radius: 8px;
+      background: rgba(16, 23, 34, 0.9);
+      padding: 15px;
+      min-height: 290px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .intuition-box:nth-child(1) {
+      border-color: rgba(39, 245, 212, 0.34);
+    }
+
+    .intuition-box:nth-child(2) {
+      border-color: rgba(255, 92, 200, 0.34);
+    }
+
+    .intuition-box:nth-child(3) {
+      border-color: rgba(255, 209, 102, 0.34);
+    }
+
+    .intuition-box h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.08rem;
+    }
+
+    .intuition-box p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .mini-svg {
+      width: 100%;
+      min-height: 132px;
+      border: 1px solid rgba(99, 199, 255, 0.18);
+      border-radius: 8px;
+      background: #08111b;
+    }
+
+    .visual-break-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+
+    .visual-break-card {
+      border: 1px solid rgba(99, 199, 255, 0.22);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(99, 199, 255, 0.08), rgba(16, 23, 34, 0.9));
+      padding: 13px;
+      min-height: 128px;
+    }
+
+    .visual-break-card strong {
+      display: block;
+      color: var(--cyan);
+      margin-bottom: 5px;
+    }
+
+    .visual-break-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .callout {
+      border-left: 4px solid var(--cyan);
+      background: rgba(39, 245, 212, 0.08);
+      padding: 14px 16px;
+      border-radius: 8px;
+      margin: 14px 0;
+    }
+
+    .danger {
+      border-left-color: var(--red);
+      background: rgba(255, 107, 107, 0.08);
+    }
+
+    .math-box {
+      overflow-x: auto;
+      margin: 12px 0;
+      padding: 16px;
+      border: 1px solid rgba(39, 245, 212, 0.18);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(7, 17, 26, 0.96), rgba(13, 19, 29, 0.96));
+      box-shadow: inset 3px 0 0 rgba(39, 245, 212, 0.28);
+    }
+
+    .derivation {
+      border-color: rgba(39, 245, 212, 0.2);
+    }
+
+    .derivation:nth-of-type(2n) {
+      border-color: rgba(255, 92, 200, 0.22);
+    }
+
+    .derivation h4 {
+      width: fit-content;
+      margin-top: 20px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      color: #07111a;
+      background: var(--green);
+      font-size: 0.9rem;
+    }
+
+    .derivation-guide {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .derivation-tip {
+      border: 1px solid rgba(99, 199, 255, 0.22);
+      border-radius: 8px;
+      background: rgba(99, 199, 255, 0.07);
+      padding: 13px;
+      color: var(--muted);
+    }
+
+    .derivation-tip strong {
+      display: block;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+
+    .visual-panel {
+      border: 1px solid rgba(39, 245, 212, 0.28);
+      border-radius: 8px;
+      background: rgba(8, 17, 27, 0.92);
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .canvas-wrap {
+      position: relative;
+      min-height: 320px;
+      width: 100%;
+      margin: 12px 0 14px;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 320px !important;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--cyan);
+    }
+
+    .readout {
+      color: var(--amber);
+      font-weight: 750;
+    }
+
+    .status-line {
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr auto 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .pipe-node {
+      min-height: 94px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 12px;
+      border: 1px solid rgba(39, 245, 212, 0.34);
+      border-radius: 8px;
+      background: rgba(39, 245, 212, 0.08);
+      color: var(--text);
+      font-weight: 750;
+    }
+
+    .pipe-arrow {
+      color: var(--pink);
+      font-weight: 900;
+      font-size: 1.4rem;
+    }
+
+    .pcm-note {
+      margin-top: 12px;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid rgba(99, 199, 255, 0.25);
+    }
+
+    th, td {
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(99, 199, 255, 0.16);
+    }
+
+    th {
+      background: rgba(39, 245, 212, 0.12);
+      color: var(--cyan);
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(99, 199, 255, 0.04);
+    }
+
+    .example {
+      border-color: rgba(255, 209, 102, 0.35);
+    }
+
+    .example h3 {
+      color: var(--amber);
+    }
+
+    .step-list {
+      counter-reset: steps;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .step-list[start="2"] {
+      counter-reset: steps 1;
+    }
+
+    .step-list[start="3"] {
+      counter-reset: steps 2;
+    }
+
+    .step-list[start="4"] {
+      counter-reset: steps 3;
+    }
+
+    .step-list[start="5"] {
+      counter-reset: steps 4;
+    }
+
+    .step-list li {
+      counter-increment: steps;
+      position: relative;
+      padding-left: 44px;
+      min-height: 32px;
+    }
+
+    .step-list li::before {
+      content: counter(steps);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: rgba(39, 245, 212, 0.18);
+      color: var(--cyan);
+      font-weight: 800;
+      border: 1px solid rgba(39, 245, 212, 0.34);
+    }
+
+    .trap {
+      border-color: rgba(255, 107, 107, 0.32);
+    }
+
+    .trap strong {
+      color: var(--red);
+    }
+
+    .terms-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .term-card strong {
+      color: var(--cyan);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .revision-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .delta-caption-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .delta-caption {
+      border: 1px solid rgba(255, 209, 102, 0.32);
+      border-radius: 8px;
+      background: rgba(255, 209, 102, 0.08);
+      padding: 12px;
+    }
+
+    .delta-caption strong {
+      color: var(--amber);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .revision-hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .revision-focus {
+      border: 1px solid rgba(39, 245, 212, 0.3);
+      border-radius: 8px;
+      background: linear-gradient(180deg, rgba(39, 245, 212, 0.1), rgba(16, 23, 34, 0.88));
+      padding: 20px;
+    }
+
+    .formula-stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .formula-pill {
+      border: 1px solid rgba(255, 92, 200, 0.34);
+      border-radius: 8px;
+      background: rgba(255, 92, 200, 0.08);
+      padding: 11px 12px;
+      color: var(--text);
+      font-weight: 750;
+    }
+
+    .revision-card-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .revision-card {
+      border: 1px solid rgba(99, 199, 255, 0.24);
+      border-radius: 8px;
+      background: rgba(16, 23, 34, 0.9);
+      padding: 14px;
+      min-height: 176px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .revision-card span {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #07111a;
+      background: var(--cyan);
+      font-weight: 900;
+    }
+
+    .revision-card h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 1.06rem;
+    }
+
+    .revision-card p {
+      color: var(--muted);
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .revision-card:nth-child(2) span {
+      background: var(--pink);
+    }
+
+    .revision-card:nth-child(3) span {
+      background: var(--amber);
+    }
+
+    .revision-card:nth-child(4) span {
+      background: var(--green);
+    }
+
+    .solution-box {
+      margin-top: 10px;
+      border: 1px solid rgba(39, 245, 212, 0.24);
+      border-radius: 8px;
+      background: rgba(8, 17, 27, 0.82);
+      overflow: hidden;
+    }
+
+    .solution-box summary {
+      cursor: pointer;
+      padding: 11px 13px;
+      color: var(--cyan);
+      font-weight: 800;
+      list-style-position: inside;
+    }
+
+    .solution-box[open] summary {
+      border-bottom: 1px solid rgba(39, 245, 212, 0.18);
+      background: rgba(39, 245, 212, 0.08);
+    }
+
+    .solution-content {
+      padding: 13px;
+    }
+
+    .practice-panel {
+      margin-top: 18px;
+      border-color: rgba(255, 209, 102, 0.42);
+    }
+
+    .practice-panel ol {
+      display: grid;
+      gap: 12px;
+      padding-left: 22px;
+    }
+
+    .practice-panel li {
+      padding: 10px 12px;
+      border: 1px solid rgba(255, 209, 102, 0.18);
+      border-radius: 8px;
+      background: rgba(255, 209, 102, 0.045);
+    }
+
+    .footer {
+      padding: 26px 0 8px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .fallback {
+      display: none;
+      color: var(--amber);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 960px) {
+      .hero-grid,
+      .grid-2,
+      .grid-3,
+      .concept-flow,
+      .intuition-grid,
+      .visual-break-grid,
+      .derivation-guide,
+      .revision-grid,
+      .revision-hero,
+      .revision-card-grid,
+      .delta-caption-grid,
+      .terms-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .toc nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+
+      .pipe-arrow {
+        transform: rotate(90deg);
+        justify-self: center;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .page-shell {
+        width: min(100% - 20px, 1180px);
+      }
+
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-visual {
+        min-height: 260px;
+        padding: 14px;
+      }
+
+      .toc nav {
+        grid-template-columns: 1fr;
+      }
+
+      .panel,
+      .example,
+      .derivation,
+      .trap,
+      .formula-card,
+      .term-card,
+      .visual-panel {
+        padding: 14px;
+      }
+
+      canvas {
+        height: 280px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page-shell">
+    <header class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">KIE2008 Chapter 4 Study Guide</p>
+          <h1>Analog to Digital Conversion</h1>
+          <p class="lead">A physical-first guide to sampling, quantization, encoding, PCM, companding, DPCM, delta modulation, and exam-style calculations. The flow follows the lecture slides: convert a smooth analog waveform into timed samples, round each amplitude, encode each rounded value into bits, then manage distortion and bandwidth.</p>
+          <div class="chip-row" aria-label="Topic chips">
+            <span class="chip">Sampling theorem</span>
+            <span class="chip">Aliasing</span>
+            <span class="chip">SQNR</span>
+            <span class="chip">PCM</span>
+            <span class="chip">Companding</span>
+            <span class="chip">Delta modulation</span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-label="Analog to digital conversion visual">
+          <div class="signal-card">
+            <svg class="wave-svg" viewBox="0 0 620 280" role="img" aria-label="Analog signal sampled, quantized, and encoded">
+              <defs>
+                <linearGradient id="lineGrad" x1="0" x2="1">
+                  <stop offset="0" stop-color="#27f5d4"/>
+                  <stop offset="0.55" stop-color="#63c7ff"/>
+                  <stop offset="1" stop-color="#ff5cc8"/>
+                </linearGradient>
+                <filter id="glow">
+                  <feGaussianBlur stdDeviation="3.2" result="coloredBlur"/>
+                  <feMerge>
+                    <feMergeNode in="coloredBlur"/>
+                    <feMergeNode in="SourceGraphic"/>
+                  </feMerge>
+                </filter>
+              </defs>
+              <rect x="0" y="0" width="620" height="280" fill="#08111b"/>
+              <line x1="36" y1="216" x2="584" y2="216" stroke="#a8bad0" stroke-width="1"/>
+              <line x1="54" y1="34" x2="54" y2="240" stroke="#a8bad0" stroke-width="1"/>
+              <path d="M54,165 C98,62 140,70 184,150 C225,228 272,220 314,125 C357,28 405,48 445,140 C486,232 526,228 570,148" fill="none" stroke="url(#lineGrad)" stroke-width="4" filter="url(#glow)"/>
+              <g stroke="#63c7ff" stroke-width="1.5" stroke-dasharray="6 6">
+                <line x1="106" y1="85" x2="106" y2="216"/>
+                <line x1="170" y1="124" x2="170" y2="216"/>
+                <line x1="234" y1="218" x2="234" y2="216"/>
+                <line x1="298" y1="156" x2="298" y2="216"/>
+                <line x1="362" y1="45" x2="362" y2="216"/>
+                <line x1="426" y1="96" x2="426" y2="216"/>
+                <line x1="490" y1="214" x2="490" y2="216"/>
+                <line x1="554" y1="171" x2="554" y2="216"/>
+              </g>
+              <g fill="#ffd166" stroke="#07090f" stroke-width="2">
+                <circle cx="106" cy="85" r="6"/>
+                <circle cx="170" cy="124" r="6"/>
+                <circle cx="234" cy="218" r="6"/>
+                <circle cx="298" cy="156" r="6"/>
+                <circle cx="362" cy="45" r="6"/>
+                <circle cx="426" cy="96" r="6"/>
+                <circle cx="490" cy="214" r="6"/>
+                <circle cx="554" cy="171" r="6"/>
+              </g>
+              <path d="M106,88 H170 V124 H234 V216 H298 V156 H362 V46 H426 V96 H490 V216 H554 V172" fill="none" stroke="#ff5cc8" stroke-width="3"/>
+              <text x="54" y="265" fill="#a8bad0" font-size="15">sample -> quantize -> encode</text>
+              <text x="392" y="265" fill="#27f5d4" font-size="15">0110 1001 0011 ...</text>
+            </svg>
+            <p class="status-line">Big picture: sampling chooses the times, quantization chooses the allowed amplitudes, and encoding names those amplitudes using bits.</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <aside class="toc" aria-label="Table of contents">
+      <strong>Table of Contents</strong>
+      <nav>
+        <a href="#concept">1. Concept Explanation</a>
+        <a href="#interactive">2. Interactive Visuals</a>
+        <a href="#derivations">3. Mathematical Derivations</a>
+        <a href="#examples">4. Worked Examples</a>
+        <a href="#traps">5. Misconceptions</a>
+        <a href="#formula-glossary">6. Formula Glossary</a>
+        <a href="#terms">7. Key Terms</a>
+        <a href="#summary">8. Revision Notes</a>
+      </nav>
+    </aside>
+
+    <section id="concept">
+      <p class="section-kicker">Section 1</p>
+      <h2>Concept Explanation</h2>
+      <div class="grid-2">
+        <div class="panel highlight">
+          <h3>The physical story</h3>
+          <p>An analog communication signal is like a continuous hand-drawn curve. It has a value at every instant, which is beautiful but awkward for a digital machine: there are infinitely many instants and infinitely many possible amplitudes.</p>
+          <p>Analog-to-digital conversion makes two controlled sacrifices. First, it only looks at the signal at regularly spaced instants. Second, it rounds each measured amplitude to one of a finite set of allowed values.</p>
+          <p>The design question is not "Can we avoid all loss?" The question is "How much sampling rate, how many quantization levels, and how much bit rate are needed so the loss is acceptable?"</p>
+        </div>
+        <div class="panel good">
+          <h3>The three operations</h3>
+          <ol>
+            <li><strong>Sampling:</strong> converts \(x(t)\) into a sequence \(x(nT_s)\). Time becomes discrete, but amplitude is still continuous.</li>
+            <li><strong>Quantization:</strong> maps each sample to \(Q(x)\). Amplitude becomes discrete, so the sequence can be represented by a finite number of bits.</li>
+            <li><strong>Encoding:</strong> assigns a binary word to each quantization level. If \(N = 2^v\), each sample uses \(v\) bits.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="concept-flow" aria-label="Analog to digital conversion concept cards">
+        <article class="concept-card">
+          <span class="concept-badge">Time</span>
+          <h3>Sampling asks: when do we look?</h3>
+          <p>Pick sample times close enough together that the waveform cannot hide fast changes between samples.</p>
+          <div class="math-box">\[
+          f_s \ge 2W
+          \]</div>
+        </article>
+        <article class="concept-card">
+          <span class="concept-badge">Amplitude</span>
+          <h3>Quantization asks: how precise?</h3>
+          <p>Round every sample to one of \(N\) allowed levels. More levels mean smaller error, but more bits.</p>
+          <div class="math-box">\[
+          D=E[(X-Q(X))^2]
+          \]</div>
+        </article>
+        <article class="concept-card">
+          <span class="concept-badge">Bits</span>
+          <h3>Encoding asks: what name?</h3>
+          <p>Give each level a binary label. Once \(N=2^v\), every sample needs \(v\) bits.</p>
+          <div class="math-box">\[
+          R=vf_s
+          \]</div>
+        </article>
+      </div>
+
+      <div class="intuition-grid" aria-label="Physical intuition cards">
+        <article class="intuition-box">
+          <svg class="mini-svg" viewBox="0 0 360 160" role="img" aria-label="Sampling intuition diagram">
+            <rect width="360" height="160" fill="#08111b"/>
+            <line x1="24" y1="120" x2="336" y2="120" stroke="#a8bad0"/>
+            <path d="M24,104 C65,28 104,30 143,90 C184,150 220,142 258,78 C294,22 318,52 336,78" fill="none" stroke="#27f5d4" stroke-width="4"/>
+            <g stroke="#63c7ff" stroke-dasharray="5 5">
+              <line x1="62" y1="48" x2="62" y2="120"/>
+              <line x1="112" y1="55" x2="112" y2="120"/>
+              <line x1="162" y1="118" x2="162" y2="120"/>
+              <line x1="212" y1="132" x2="212" y2="120"/>
+              <line x1="262" y1="72" x2="262" y2="120"/>
+              <line x1="312" y1="47" x2="312" y2="120"/>
+            </g>
+            <g fill="#ffd166" stroke="#07090f" stroke-width="2">
+              <circle cx="62" cy="48" r="5"/>
+              <circle cx="112" cy="55" r="5"/>
+              <circle cx="162" cy="118" r="5"/>
+              <circle cx="212" cy="132" r="5"/>
+              <circle cx="262" cy="72" r="5"/>
+              <circle cx="312" cy="47" r="5"/>
+            </g>
+          </svg>
+          <h3>Sampling intuition</h3>
+          <p>Sampling is like taking evenly spaced photographs of a moving object. Frequent photos preserve the motion; sparse photos can make fast motion look slow.</p>
+          <p>The clean rule is \(f_s\ge2W\). In practice, a guard band gives real filters room to roll off.</p>
+        </article>
+
+        <article class="intuition-box">
+          <svg class="mini-svg" viewBox="0 0 360 160" role="img" aria-label="Quantization intuition diagram">
+            <rect width="360" height="160" fill="#08111b"/>
+            <line x1="32" y1="128" x2="328" y2="128" stroke="#a8bad0"/>
+            <line x1="50" y1="22" x2="50" y2="140" stroke="#a8bad0"/>
+            <path d="M50,118 H96 V96 H142 V74 H188 V52 H234 V30 H300" fill="none" stroke="#ff5cc8" stroke-width="4"/>
+            <path d="M50,128 L300,24" fill="none" stroke="#63c7ff" stroke-width="2" stroke-dasharray="7 6"/>
+            <g stroke="#ffd166" stroke-dasharray="4 5">
+              <line x1="96" y1="96" x2="96" y2="128"/>
+              <line x1="142" y1="74" x2="142" y2="128"/>
+              <line x1="188" y1="52" x2="188" y2="128"/>
+              <line x1="234" y1="30" x2="234" y2="128"/>
+            </g>
+            <text x="214" y="146" fill="#a8bad0" font-size="14">round to levels</text>
+          </svg>
+          <h3>Quantization intuition</h3>
+          <p>Quantization replaces a smooth amplitude ruler with a staircase. Every input inside one region is rounded to the same output level.</p>
+          <p>More steps reduce the rounding error. Fewer steps reduce the bit rate but increase distortion.</p>
+        </article>
+
+        <article class="intuition-box">
+          <svg class="mini-svg" viewBox="0 0 360 160" role="img" aria-label="Waveform encoding intuition diagram">
+            <rect width="360" height="160" fill="#08111b"/>
+            <g fill="none" stroke-width="3">
+              <rect x="24" y="55" width="70" height="46" rx="8" stroke="#27f5d4"/>
+              <rect x="122" y="55" width="82" height="46" rx="8" stroke="#ff5cc8"/>
+              <rect x="232" y="55" width="84" height="46" rx="8" stroke="#ffd166"/>
+            </g>
+            <g stroke="#a8bad0" stroke-width="2">
+              <line x1="94" y1="78" x2="122" y2="78"/>
+              <line x1="204" y1="78" x2="232" y2="78"/>
+            </g>
+            <text x="39" y="83" fill="#e8f4ff" font-size="14">sample</text>
+            <text x="137" y="83" fill="#e8f4ff" font-size="14">quantize</text>
+            <text x="250" y="83" fill="#e8f4ff" font-size="14">encode</text>
+            <text x="95" y="132" fill="#63c7ff" font-size="16">0101 1110 0010...</text>
+          </svg>
+          <h3>Waveform encoding intuition</h3>
+          <p>PCM encodes the waveform directly. Nonuniform PCM reshapes amplitudes first, which is useful for speech-like signals.</p>
+          <p>DPCM encodes differences. Delta modulation is a one-bit version, and ADM changes the step size when the slope changes.</p>
+        </article>
+      </div>
+
+      <div class="grid-3">
+        <div class="panel">
+          <h3>Sampling controls time</h3>
+          <p>Main design variable: \(f_s\). Too low causes aliasing; higher rates cost more samples per second.</p>
+        </div>
+        <div class="panel">
+          <h3>Quantization controls amplitude</h3>
+          <p>Main design variable: \(N\) or \(v\). More levels reduce distortion but increase the bit rate.</p>
+        </div>
+        <div class="panel">
+          <h3>Encoding controls bits</h3>
+          <p>Main design variable: \(R = vf_s\). This links source quality to transmission bandwidth.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="interactive">
+      <p class="section-kicker">Section 2</p>
+      <h2>Interactive Visuals &amp; Diagrams &#9889;</h2>
+
+      <div class="visual-panel">
+        <h3>Interactive 1: Sampling, Nyquist, and aliasing</h3>
+        <p>Move the signal frequency and sampling frequency. When the sampling frequency drops below twice the signal frequency, the samples can describe a lower false frequency.</p>
+        <div class="canvas-wrap">
+          <canvas id="samplingChart" aria-label="Sampling chart"></canvas>
+        </div>
+        <div class="controls">
+          <label>Signal frequency \(f_0\): <span class="readout" id="signalFreqOut">5 Hz</span>
+            <input id="signalFreq" type="range" min="1" max="18" value="5" step="1">
+          </label>
+          <label>Sampling frequency \(f_s\): <span class="readout" id="sampleFreqOut">16 Hz</span>
+            <input id="sampleFreq" type="range" min="4" max="40" value="16" step="1">
+          </label>
+          <label>Displayed duration: <span class="readout" id="durationOut">1.0 s</span>
+            <input id="duration" type="range" min="0.5" max="2" value="1" step="0.1">
+          </label>
+        </div>
+        <p id="aliasStatus" class="status-line"></p>
+        <p class="fallback" id="chartFallback">Chart.js did not load. Check internet access and reload the page.</p>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px;">
+        <div class="visual-panel">
+          <h3>Interactive 2: Uniform quantizer staircase</h3>
+          <p>Increase the number of levels and the staircase becomes finer. The quantization error shrinks, so SQNR improves.</p>
+          <div class="canvas-wrap">
+            <canvas id="quantChart" aria-label="Quantization chart"></canvas>
+          </div>
+          <div class="controls">
+            <label>Levels \(N\): <span class="readout" id="levelsOut">8</span>
+              <input id="levels" type="range" min="2" max="32" value="8" step="2">
+            </label>
+            <label>Peak amplitude \(x_{max}\): <span class="readout" id="xmaxOut">1.0</span>
+              <input id="xmax" type="range" min="0.5" max="3" value="1" step="0.1">
+            </label>
+            <label>Input \(x\): <span class="readout" id="inputOut">0.37</span>
+              <input id="inputX" type="range" min="-1" max="1" value="0.37" step="0.01">
+            </label>
+          </div>
+          <p id="quantStatus" class="status-line"></p>
+        </div>
+
+        <div class="visual-panel">
+          <h3>Interactive 3: Companding curves</h3>
+          <p>Companders give more resolution to small amplitudes and compress large amplitudes before uniform quantization.</p>
+          <div class="canvas-wrap">
+            <canvas id="companderChart" aria-label="Compander chart"></canvas>
+          </div>
+          <div class="controls">
+            <label>Mu-law \(\mu\): <span class="readout" id="muOut">255</span>
+              <input id="mu" type="range" min="0" max="255" value="255" step="5">
+            </label>
+            <label>A-law \(A\): <span class="readout" id="aLawOut">87.6</span>
+              <input id="aLaw" type="range" min="1" max="100" value="87.6" step="0.5">
+            </label>
+            <label>Curve density: <span class="readout">smooth</span>
+              <input type="range" min="1" max="1" value="1" disabled>
+            </label>
+          </div>
+          <p id="companderStatus" class="status-line"></p>
+        </div>
+      </div>
+
+      <div class="visual-panel" style="margin-top:18px;">
+        <h3>PCM pipeline diagram</h3>
+        <p>This recreates the slide's central PCM block flow: sampler, quantizer, encoder, and binary output.</p>
+        <div class="pipeline" aria-label="PCM block diagram">
+          <div class="pipe-node">Analog input<br>\(x(t)\)</div>
+          <div class="pipe-arrow">-&gt;</div>
+          <div class="pipe-node">Sampler<br>\(\{x_n\}\)</div>
+          <div class="pipe-arrow">-&gt;</div>
+          <div class="pipe-node">Quantizer<br>\(\{\hat{x}_n\}\)</div>
+          <div class="pipe-arrow">-&gt;</div>
+          <div class="pipe-node">Encoder<br>0110...</div>
+        </div>
+        <p class="pcm-note">Sampler design is governed by bandwidth \(W\). Quantizer design is governed by distortion \(D\) and levels \(N\). Encoder design is governed by bits per sample \(v = \log_2 N\).</p>
+      </div>
+
+      <div class="visual-panel" style="margin-top:18px;">
+        <h3>Delta modulation step-size intuition</h3>
+        <svg class="wave-svg" viewBox="0 0 900 300" role="img" aria-label="Delta modulation granular noise and slope overload using the same input wave">
+          <rect width="900" height="320" fill="#08111b"/>
+          <defs>
+            <path id="dmInputWave" d="M30,150 C70,134 108,130 142,134 C164,136 174,88 198,56 C224,20 260,34 286,52 C312,70 318,134 338,170 C354,198 368,174 374,150"/>
+          </defs>
+          <g transform="translate(34 28)">
+            <rect x="0" y="0" width="400" height="224" rx="8" fill="#0b1622" stroke="rgba(255,209,102,0.35)"/>
+            <text x="22" y="22" fill="#ffd166" font-size="18" font-weight="700">Large Δ</text>
+            <line x1="24" y1="176" x2="374" y2="176" stroke="#a8bad0"/>
+            <line x1="30" y1="28" x2="30" y2="194" stroke="#a8bad0"/>
+            <use href="#dmInputWave" fill="none" stroke="#27f5d4" stroke-width="4"/>
+            <path d="M30,168 H56 V122 H82 V168 H108 V122 H134 V168 H160 V122 H186 V76 H212 V30 H238 V76 H264 V30 H290 V76 H316 V122 H342 V168 H368 V122 H374" fill="none" stroke="#ff5cc8" stroke-width="3"/>
+            <g stroke="rgba(255,107,107,0.52)" stroke-dasharray="4 4">
+              <line x1="58" y1="122" x2="58" y2="140"/>
+              <line x1="86" y1="168" x2="86" y2="133"/>
+              <line x1="114" y1="122" x2="114" y2="131"/>
+              <line x1="142" y1="168" x2="142" y2="133"/>
+              <line x1="338" y1="122" x2="338" y2="142"/>
+            </g>
+            <text x="128" y="200" fill="#a8bad0" font-size="12">Jumps Around Gentle Regions</text>
+          </g>
+          <g transform="translate(466 28)">
+            <rect x="0" y="0" width="400" height="224" rx="8" fill="#0b1622" stroke="rgba(255,92,200,0.35)"/>
+            <text x="22" y="22" fill="#ffd166" font-size="18" font-weight="700">Small Δ</text>
+            <line x1="24" y1="176" x2="374" y2="176" stroke="#a8bad0"/>
+            <line x1="30" y1="28" x2="30" y2="194" stroke="#a8bad0"/>
+            <use href="#dmInputWave" fill="none" stroke="#27f5d4" stroke-width="4"/>
+            <path d="M30,168 H50 V156 H70 V144 H90 V132 H110 V120 H130 V108 H150 V96 H170 V84 H190 V72 H210 V60 H230 V48 H250 V60 H270 V72 H290 V84 H310 V96 H330 V108 H350 V120 H374" fill="none" stroke="#ff5cc8" stroke-width="3"/>
+            <g stroke="rgba(255,107,107,0.54)" stroke-dasharray="5 4">
+              <line x1="184" y1="84" x2="184" y2="88"/>
+              <line x1="206" y1="72" x2="206" y2="58"/>
+              <line x1="228" y1="60" x2="228" y2="34"/>
+              <line x1="338" y1="96" x2="338" y2="138"/>
+              <line x1="360" y1="108" x2="360" y2="174"/>
+            </g>
+            <text x="140" y="200" fill="#a8bad0" font-size="12">Lags On Steep Regions</text>
+          </g>
+          <text x="350" y="272" fill="#63c7ff" font-size="12">Cyan = Identical Input Wave</text>
+          <text x="350" y="288" fill="#63c7ff" font-size="12">Pink = Staircase Changes With Δ</text>
+        </svg>
+        <div class="delta-caption-grid">
+          <div class="delta-caption">
+            <strong>Step too large</strong>
+            The staircase jumps above and below a slowly changing input, so the error sounds/looks like granular noise.
+          </div>
+          <div class="delta-caption">
+            <strong>Step too small</strong>
+            The staircase changes gently, but it cannot keep up with a steep input slope, so slope overload appears.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="derivations">
+      <p class="section-kicker">Section 3</p>
+      <h2>Mathematical Derivations</h2>
+      <div class="derivation-guide" aria-label="How to read the derivations">
+        <div class="derivation-tip">
+          <strong>Read the sentence first</strong>
+          Each derivation starts with the physical move before the algebra.
+        </div>
+        <div class="derivation-tip">
+          <strong>Use the green chips</strong>
+          They mark the parts where skipped lecture-slide steps are filled in.
+        </div>
+        <div class="derivation-tip">
+          <strong>Track the design variable</strong>
+          Most results answer one question: \(f_s\), \(D\), \(SQNR\), \(R\), or \(BW_T\).
+        </div>
+      </div>
+      <div class="visual-break-grid" aria-label="Derivation visual map">
+        <div class="visual-break-card">
+          <strong>1. Copies in frequency</strong>
+          <p>Sampling repeats \(X(f)\) every \(f_s\). No overlap means no aliasing.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>2. Filter the center</strong>
+          <p>Reconstruction keeps the middle copy and removes the shifted copies.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>3. Error is area</strong>
+          <p>Quantization distortion is the area of squared error weighted by the PDF.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>4. Bits set bandwidth</strong>
+          <p>More levels improve SQNR, but \(R=vf_s\) increases transmission bandwidth.</p>
+        </div>
+      </div>
+
+      <article class="derivation">
+        <h3>1. Sampling theorem and spectrum replication</h3>
+        <p>Assume \(x(t)\) is bandlimited to \(W\), meaning \(X(f) = 0\) for \(|f| \ge W\). Sampling with impulse train spacing \(T_s\) gives:</p>
+        <div class="math-box">
+          \[
+          x_\delta(t) = \sum_{n=-\infty}^{\infty} x(nT_s)\delta(t-nT_s)
+          = x(t)\sum_{n=-\infty}^{\infty}\delta(t-nT_s)
+          \]
+        </div>
+        <p>The Fourier transform of an impulse train is another impulse train:</p>
+        <div class="math-box">
+          \[
+          \mathcal{F}\left\{\sum_{n=-\infty}^{\infty}\delta(t-nT_s)\right\}
+          = \frac{1}{T_s}\sum_{n=-\infty}^{\infty}\delta\left(f-\frac{n}{T_s}\right)
+          \]
+        </div>
+        <p>Multiplication in time becomes convolution in frequency:</p>
+        <div class="math-box">
+          \[
+          X_\delta(f)
+          = X(f) * \frac{1}{T_s}\sum_{n=-\infty}^{\infty}\delta\left(f-\frac{n}{T_s}\right)
+          = \frac{1}{T_s}\sum_{n=-\infty}^{\infty}X\left(f-\frac{n}{T_s}\right)
+          \]
+        </div>
+        <p>This is the key idea: sampling creates shifted replicas of the original spectrum every \(f_s = 1/T_s\) Hz.</p>
+        <div class="callout">
+          For perfect reconstruction, the replicas must not overlap. Since the original spectrum occupies \(-W\) to \(+W\), the spacing must satisfy \(f_s \ge 2W\).
+        </div>
+        <h4>Missing steps made explicit</h4>
+        <ol class="step-list">
+          <li>Define the sampling impulse train as \(p(t)=\sum_{n=-\infty}^{\infty}\delta(t-nT_s)\).</li>
+          <li>Multiplying by \(p(t)\) keeps only the values of \(x(t)\) at the impulse locations.</li>
+        </ol>
+        <div class="math-box">
+          \[
+          x(t)\delta(t-nT_s)=x(nT_s)\delta(t-nT_s)
+          \]
+          \[
+          x_\delta(t)=x(t)p(t)
+          =\sum_{n=-\infty}^{\infty}x(nT_s)\delta(t-nT_s)
+          \]
+        </div>
+        <ol class="step-list" start="3">
+          <li>The Fourier transform of the sampling train is found from its Fourier-series expansion.</li>
+        </ol>
+        <div class="math-box">
+          \[
+          p(t)=\frac{1}{T_s}\sum_{n=-\infty}^{\infty}e^{j2\pi nt/T_s}
+          \quad\Longrightarrow\quad
+          P(f)=\frac{1}{T_s}\sum_{n=-\infty}^{\infty}\delta\left(f-\frac{n}{T_s}\right)
+          \]
+        </div>
+        <ol class="step-list" start="4">
+          <li>Now substitute \(P(f)\) into \(X_\delta(f)=X(f)*P(f)\) and use the shifting property of convolution with an impulse.</li>
+        </ol>
+        <div class="math-box">
+          \[
+          X(f)*\delta(f-f_0)=X(f-f_0)
+          \]
+          \[
+          X_\delta(f)
+          =\frac{1}{T_s}\sum_{n=-\infty}^{\infty}
+          \left[X(f)*\delta\left(f-\frac{n}{T_s}\right)\right]
+          =\frac{1}{T_s}\sum_{n=-\infty}^{\infty}
+          X\left(f-\frac{n}{T_s}\right)
+          \]
+        </div>
+        <ol class="step-list" start="5">
+          <li>For no aliasing, the baseband copy ending at \(W\) must not touch the first positive shifted copy starting at \(f_s-W\).</li>
+        </ol>
+        <div class="math-box">
+          \[
+          W\le f_s-W
+          \quad\Longrightarrow\quad
+          f_s\ge2W
+          \]
+        </div>
+      </article>
+
+      <article class="derivation">
+        <h3>2. Reconstruction formula</h3>
+        <p>At the Nyquist condition or above, an ideal lowpass reconstruction filter keeps the central spectrum and removes the shifted replicas. The time-domain interpolation formula is:</p>
+        <div class="math-box">
+          \[
+          x(t) = \sum_{n=-\infty}^{\infty}x(nT_s)\operatorname{sinc}\left(\frac{t}{T_s}-n\right)
+          \]
+        </div>
+        <p>Using the lecture's bandwidth notation \(T_s = 1/(2W)\), this is equivalently:</p>
+        <div class="math-box">
+          \[
+          x(t) = \sum_{n=-\infty}^{\infty} x(nT_s)\operatorname{sinc}\left(2Wt-n\right)
+          \]
+        </div>
+        <h4>Where the sinc pulse comes from</h4>
+        <ol class="step-list">
+          <li>The sampled spectrum has a scale factor \(1/T_s\), so the ideal reconstruction filter must multiply the central copy by \(T_s\).</li>
+        </ol>
+        <div class="math-box">
+          \[
+          H(f)=
+          \begin{cases}
+          T_s, & |f|\le W\\
+          0, & |f|>W
+          \end{cases}
+          \]
+        </div>
+        <ol class="step-list" start="2">
+          <li>Take the inverse Fourier transform of the ideal lowpass rectangle.</li>
+        </ol>
+        <div class="math-box">
+          \[
+          h(t)=T_s\int_{-W}^{W}e^{j2\pi ft}\,df
+          =T_s\left[\frac{e^{j2\pi ft}}{j2\pi t}\right]_{-W}^{W}
+          \]
+          \[
+          =T_s\frac{e^{j2\pi Wt}-e^{-j2\pi Wt}}{j2\pi t}
+          =T_s\frac{2j\sin(2\pi Wt)}{j2\pi t}
+          \]
+        </div>
+        <ol class="step-list" start="3">
+          <li>At the Nyquist rate \(T_s=1/(2W)\), so \(T_s(2W)=1\).</li>
+        </ol>
+        <div class="math-box">
+          \[
+          h(t)=T_s(2W)\frac{\sin(2\pi Wt)}{2\pi Wt}
+          =\operatorname{sinc}(2Wt)
+          \]
+        </div>
+        <ol class="step-list" start="4">
+          <li>Filtering each weighted impulse shifts the impulse response to that sample time.</li>
+        </ol>
+        <div class="math-box">
+          \[
+          x_r(t)=x_\delta(t)*h(t)
+          =\sum_{n=-\infty}^{\infty}x(nT_s)\left[\delta(t-nT_s)*h(t)\right]
+          \]
+          \[
+          =\sum_{n=-\infty}^{\infty}x(nT_s)h(t-nT_s)
+          =\sum_{n=-\infty}^{\infty}x(nT_s)\operatorname{sinc}\left(2W(t-nT_s)\right)
+          \]
+        </div>
+        <p>The sinc pulse is the mathematically ideal interpolation pulse. Linear interpolation is easier to draw, but sinc interpolation is what gives exact reconstruction under the theorem's assumptions.</p>
+      </article>
+
+      <article class="derivation">
+        <h3>3. Quantization distortion and SQNR</h3>
+        <p>A scalar quantizer maps every input value \(x\) in region \(\mathcal{R}_i\) to a reproduction level \(\hat{x}_i\):</p>
+        <div class="math-box">
+          \[
+          Q(x) = \hat{x}_i,\quad x \in \mathcal{R}_i
+          \]
+        </div>
+        <p>The instantaneous squared error is:</p>
+        <div class="math-box">
+          \[
+          d(x,\hat{x}) = [x-Q(x)]^2 = \tilde{x}^2
+          \]
+        </div>
+        <p>For a random input \(X\), the average distortion is mean squared error:</p>
+        <div class="math-box">
+          \[
+          D = E\left[(X-Q(X))^2\right]
+          = \sum_{i=1}^{N}\int_{\mathcal{R}_i}(x-\hat{x}_i)^2f_X(x)\,dx
+          \]
+        </div>
+        <p>Signal-to-quantization-noise ratio compares useful signal power to quantization distortion:</p>
+        <div class="math-box">
+          \[
+          SQNR = \frac{E[X^2]}{D} = \frac{P_X}{D}
+          \]
+        </div>
+        <h4>Region-by-region distortion expansion</h4>
+        <p>For an \(N\)-level scalar quantizer, the regions are usually written as \(\mathcal{R}_1=(-\infty,a_1]\), \(\mathcal{R}_i=(a_{i-1},a_i]\), and \(\mathcal{R}_N=(a_{N-1},\infty)\). Therefore the expectation expands into one integral per region:</p>
+        <div class="math-box">
+          \[
+          D=
+          \int_{-\infty}^{a_1}(x-\hat{x}_1)^2f_X(x)\,dx
+          +\sum_{i=2}^{N-1}\int_{a_{i-1}}^{a_i}(x-\hat{x}_i)^2f_X(x)\,dx
+          +\int_{a_{N-1}}^{\infty}(x-\hat{x}_N)^2f_X(x)\,dx
+          \]
+        </div>
+        <ol class="step-list">
+          <li>If the problem gives \(a_i\), \(\hat{x}_i\), and \(f_X(x)\), plug them directly into these integrals.</li>
+          <li>If the problem gives a table value for normalized Gaussian distortion, scale it by the actual variance: \(D_{actual}=\sigma^2D_{table}\).</li>
+          <li>Convert SQNR to decibels only after computing the ratio: \(SQNR_{dB}=10\log_{10}(P_X/D)\).</li>
+        </ol>
+      </article>
+
+      <article class="derivation">
+        <h3>4. Uniform PCM SQNR</h3>
+        <p>For uniform PCM with input range \([-x_{max},x_{max}]\) and \(N=2^v\) levels, the step size is:</p>
+        <div class="math-box">
+          \[
+          \Delta = \frac{2x_{max}}{N} = \frac{x_{max}}{2^{v-1}}
+          \]
+        </div>
+        <p>With many small quantization intervals, the quantization error is modeled as uniform on \((-\Delta/2,\Delta/2]\), so:</p>
+        <div class="math-box">
+          \[
+          D = E[\tilde{X}^2] = \frac{\Delta^2}{12}
+          = \frac{x_{max}^2}{3N^2}
+          \]
+        </div>
+        <h4>Do not skip the noise-power integral</h4>
+        <p>The \(\Delta^2/12\) result comes from treating the quantization error \(\tilde{X}\) as uniformly distributed over one quantization cell:</p>
+        <div class="math-box">
+          \[
+          f_{\tilde{X}}(\tilde{x})=
+          \begin{cases}
+          \frac{1}{\Delta}, & -\frac{\Delta}{2}<\tilde{x}\le\frac{\Delta}{2}\\
+          0, & \text{otherwise}
+          \end{cases}
+          \]
+          \[
+          E[\tilde{X}^2]
+          =\int_{-\Delta/2}^{\Delta/2}\tilde{x}^2\frac{1}{\Delta}\,d\tilde{x}
+          =\frac{1}{\Delta}\left[\frac{\tilde{x}^3}{3}\right]_{-\Delta/2}^{\Delta/2}
+          \]
+          \[
+          =\frac{1}{\Delta}\left(\frac{\Delta^3}{24}-\left[-\frac{\Delta^3}{24}\right]\right)
+          =\frac{\Delta^2}{12}
+          \]
+        </div>
+        <p>Therefore:</p>
+        <div class="math-box">
+          \[
+          SQNR = \frac{P_X}{D}
+          = \frac{3N^2P_X}{x_{max}^2}
+          = \frac{3\cdot 4^v P_X}{x_{max}^2}
+          \]
+        </div>
+        <p>In decibels, using \(N=2^v\):</p>
+        <div class="math-box">
+          \[
+          SQNR_{dB}
+          =10\log_{10}\left(\frac{3\cdot4^vP_X}{x_{max}^2}\right)
+          \]
+          \[
+          =10\log_{10}\left(\frac{P_X}{x_{max}^2}\right)
+          +10\log_{10}(3)
+          +10\log_{10}(4^v)
+          \]
+          \[
+          \approx 10\log_{10}\left(\frac{P_X}{x_{max}^2}\right)+4.8+6v
+          \]
+        </div>
+        <p>This is why each extra bit improves SQNR by about 6 dB.</p>
+      </article>
+
+      <article class="derivation">
+        <h3>5. Optimal nonuniform quantizer conditions</h3>
+        <p>For mean squared error, the optimal boundary between two adjacent reproduction levels sits halfway between those levels:</p>
+        <div class="math-box">
+          \[
+          a_i = \frac{\hat{x}_i+\hat{x}_{i+1}}{2}
+          \]
+        </div>
+        <p>That midpoint rule comes from differentiating the two distortion terms that touch boundary \(a_i\):</p>
+        <div class="math-box">
+          \[
+          D_i=\int_{a_{i-1}}^{a_i}(x-\hat{x}_i)^2f_X(x)\,dx
+          +\int_{a_i}^{a_{i+1}}(x-\hat{x}_{i+1})^2f_X(x)\,dx
+          \]
+          \[
+          \frac{\partial D_i}{\partial a_i}
+          =(a_i-\hat{x}_i)^2f_X(a_i)
+          -(a_i-\hat{x}_{i+1})^2f_X(a_i)
+          \]
+          \[
+          \frac{\partial D_i}{\partial a_i}=0
+          \quad\Longrightarrow\quad
+          (a_i-\hat{x}_i)^2=(a_i-\hat{x}_{i+1})^2
+          \quad\Longrightarrow\quad
+          a_i=\frac{\hat{x}_i+\hat{x}_{i+1}}{2}
+          \]
+        </div>
+        <p>For a fixed region, the best reproduction level is the conditional mean of the input inside that region:</p>
+        <div class="math-box">
+          \[
+          \hat{x}_i =
+          \frac{\int_{a_{i-1}}^{a_i} x f_X(x)\,dx}
+          {\int_{a_{i-1}}^{a_i} f_X(x)\,dx}
+          \]
+        </div>
+        <p>The centroid rule comes from differentiating the region distortion with respect to \(\hat{x}_i\):</p>
+        <div class="math-box">
+          \[
+          D_i=\int_{a_{i-1}}^{a_i}(x-\hat{x}_i)^2f_X(x)\,dx
+          \]
+          \[
+          \frac{\partial D_i}{\partial \hat{x}_i}
+          =\int_{a_{i-1}}^{a_i}-2(x-\hat{x}_i)f_X(x)\,dx=0
+          \]
+          \[
+          \int_{a_{i-1}}^{a_i}xf_X(x)\,dx
+          =\hat{x}_i\int_{a_{i-1}}^{a_i}f_X(x)\,dx
+          \]
+          \[
+          \therefore\quad
+          \hat{x}_i =
+          \frac{\int_{a_{i-1}}^{a_i}xf_X(x)\,dx}
+          {\int_{a_{i-1}}^{a_i}f_X(x)\,dx}
+          \]
+        </div>
+        <p>The lecture describes the standard alternating method: start with regions, compute reproduction values, update boundaries, and repeat until distortion changes very little.</p>
+      </article>
+
+      <article class="derivation">
+        <h3>6. Bit rate and transmission bandwidth</h3>
+        <p>If there are \(N = 2^v\) quantization levels, each sample uses \(v=\log_2N\) bits. With \(f_s\) samples per second:</p>
+        <div class="math-box">
+          \[
+          R = vf_s \quad \text{bits/s}
+          \]
+        </div>
+        <ol class="step-list">
+          <li>Bandwidth gives the minimum sampling rate: \(f_s=2W\), or \(f_s=2W+W_G\) if a guard band is specified.</li>
+          <li>Quantization levels give bits per sample: \(v=\log_2N\).</li>
+          <li>Multiplying those two gives bit rate: \(R=vf_s\).</li>
+        </ol>
+        <p>For binary baseband transmission in the lecture examples, the minimum transmission bandwidth is taken as:</p>
+        <div class="math-box">
+          \[
+          BW_T = \frac{R}{2} = \frac{vf_s}{2}
+          \]
+        </div>
+        <div class="callout">
+          This is why a single design change can ripple through the whole system: increasing \(N\) improves SQNR, but it increases \(v\), which increases \(R\), which increases the required transmission bandwidth.
+        </div>
+      </article>
+
+      <article class="derivation">
+        <h3>7. Companding laws, DPCM, DM, and ADM</h3>
+        <p>The lecture gives two common compressor functions for speech coding:</p>
+        <div class="math-box">
+          \[
+          g_\mu(x)=\operatorname{sgn}(x)\frac{\log(1+\mu |x|)}{\log(1+\mu)}
+          \]
+          \[
+          g_A(x)=\operatorname{sgn}(x)\frac{1+\log(A|x|)}{1+\log A}
+          \]
+        </div>
+        <p>DPCM quantizes a prediction error rather than the sample itself:</p>
+        <div class="math-box">
+          \[
+          Y_n = X_n - Y'_{n-1}
+          \]
+        </div>
+        <p>The receiver reconstructs by adding the quantized difference back to the same prediction:</p>
+        <div class="math-box">
+          \[
+          \hat{Y}_n=Q(Y_n)
+          \]
+          \[
+          Y'_n=Y'_{n-1}+\hat{Y}_n
+          \]
+        </div>
+        <ol class="step-list">
+          <li>If adjacent samples are highly correlated, \(X_n\approx Y'_{n-1}\), so \(Y_n\) has smaller dynamic range than \(X_n\).</li>
+          <li>A smaller dynamic range can be quantized with fewer bits for similar distortion.</li>
+          <li>That is the core reason DPCM can beat direct PCM at lower bit rates.</li>
+        </ol>
+        <p>Delta modulation uses only a one-bit quantizer with output \(\pm\Delta\). The staircase estimate is updated by moving one step up or down:</p>
+        <div class="math-box">
+          \[
+          e_n=x(nT_s)-\hat{x}_{n-1}
+          \]
+          \[
+          b_n=\operatorname{sgn}(e_n)\in\{+1,-1\}
+          \]
+          \[
+          \hat{x}_n=\hat{x}_{n-1}+\Delta b_n
+          \]
+        </div>
+        <p>Adaptive delta modulation changes \(\Delta\) based on recent quantizer signs:</p>
+        <div class="math-box">
+          \[
+          \Delta_n = \Delta_{n-1}K^{\epsilon_n\epsilon_{n-1}},\quad K>1
+          \]
+        </div>
+        <p>If two signs are the same, \(\epsilon_n\epsilon_{n-1}=+1\), so \(\Delta_n=\Delta_{n-1}K\) and the modulator reacts faster. If the signs alternate, \(\epsilon_n\epsilon_{n-1}=-1\), so \(\Delta_n=\Delta_{n-1}/K\) and granular noise is reduced.</p>
+      </article>
+    </section>
+
+    <section id="examples">
+      <p class="section-kicker">Section 4</p>
+      <h2>Worked Examples</h2>
+      <div class="visual-break-grid" aria-label="Worked example strategy">
+        <div class="visual-break-card">
+          <strong>Find \(W\)</strong>
+          <p>Bandwidth comes first because it decides the sampling rate.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Find \(v\)</strong>
+          <p>Convert \(N\) levels into bits using \(v=\log_2N\).</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Find power</strong>
+          <p>Use PSD area, \(R_X(0)\), or the given distribution.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Finish units</strong>
+          <p>Check Hz, bps, dB, and transmission bandwidth at the end.</p>
+        </div>
+      </div>
+
+      <article class="example">
+        <h3>Example 1: Guard-band sampling rate</h3>
+        <p><strong>Problem:</strong> A bandlimited signal has bandwidth \(W = 3400\) Hz. What sampling rate guarantees a guard band of \(W_G = 1200\) Hz?</p>
+        <ol class="step-list">
+          <li>Start with Nyquist sampling: \(f_s = 2W\).</li>
+          <li>Add the requested guard band: \(f_s = 2W + W_G\).</li>
+          <li>Substitute values: \(f_s = 2(3400) + 1200 = 8000\) Hz.</li>
+        </ol>
+        <div class="math-box">\[
+        \boxed{f_s = 8000\ \text{samples/s}}
+        \]</div>
+        <p>The extra 1200 Hz gives the reconstruction filter room to roll off instead of requiring an ideal vertical edge.</p>
+      </article>
+
+      <article class="example">
+        <h3>Example 2: Offset sampling interpolation</h3>
+        <p><strong>Problem:</strong> Samples are taken every \(T_s\), but the first sample occurs at \(0&lt;t_0&lt;T_s\). Determine the interpolation relation.</p>
+        <ol class="step-list">
+          <li>Define a shifted signal \(y(t)=x(t+t_0)\). Its samples at \(kT_s\) are \(y(kT_s)=x(t_0+kT_s)\).</li>
+          <li>Apply the sampling theorem to \(y(t)\):</li>
+        </ol>
+        <div class="math-box">\[
+        y(t)=\sum_{k=-\infty}^{\infty}y(kT_s)\operatorname{sinc}\left(2W(t-kT_s)\right)
+        \]</div>
+        <ol class="step-list" start="3">
+          <li>Substitute back \(y(kT_s)=x(t_0+kT_s)\):</li>
+        </ol>
+        <div class="math-box">\[
+        x(t+t_0)=\sum_{k=-\infty}^{\infty}x(t_0+kT_s)\operatorname{sinc}\left(2W(t-kT_s)\right)
+        \]</div>
+        <p>This says offset samples still reconstruct the signal if they are uniformly spaced and the sampling theorem condition is satisfied.</p>
+      </article>
+
+      <article class="example">
+        <h3>Example 3: Gaussian source rate and distortion</h3>
+        <p><strong>Problem:</strong> A zero-mean stationary Gaussian source has \(S_X(f)=2\) for \(|f|&lt;100\) Hz and 0 otherwise. It is sampled at Nyquist rate and quantized using 8 levels. Find the rate and distortion.</p>
+        <ol class="step-list">
+          <li>The bandwidth is \(W=100\) Hz, so \(f_s=2W=200\) Hz.</li>
+          <li>There are \(N=8\) levels, so \(v=\log_2 8=3\) bits/sample.</li>
+          <li>The bit rate is \(R=vf_s=3(200)=600\) bps.</li>
+          <li>The variance equals area under the PSD:</li>
+        </ol>
+        <div class="math-box">\[
+        \sigma_X^2 = \int_{-100}^{100}2\,df = 400
+        \]</div>
+        <ol class="step-list" start="5">
+          <li>Use the given boundaries and reproduction values to integrate squared error region by region:</li>
+        </ol>
+        <div class="math-box">\[
+        D=\sum_{i=1}^{8}\int_{\mathcal{R}_i}(x-\hat{x}_i)^2f_X(x)\,dx \approx 33.38
+        \]</div>
+        <p><strong>Answer:</strong> \(R=600\) bps and \(D\approx33.38\). The lecture reports an SQNR around \(15.23\) dB.</p>
+      </article>
+
+      <article class="example">
+        <h3>Example 4: Optimal uniform quantizer scaling</h3>
+        <p><strong>Problem:</strong> For the Gaussian source with \(\sigma^2=400\), design an 8-level optimal uniform quantizer using the table values \(\Delta=0.5860\) and \(D=0.03744\) for a unit-variance source.</p>
+        <ol class="step-list">
+          <li>The standard deviation is \(\sigma=20\).</li>
+          <li>Scale the normalized step size: \(\Delta = 20(0.5860)=11.72\).</li>
+          <li>The symmetric reconstruction levels are:</li>
+        </ol>
+        <div class="math-box">\[
+        \hat{x}_1=-41.02,\ \hat{x}_2=-29.30,\ \hat{x}_3=-17.58,\ \hat{x}_4=-5.86
+        \]
+        \[
+        \hat{x}_5=5.86,\ \hat{x}_6=17.58,\ \hat{x}_7=29.30,\ \hat{x}_8=41.02
+        \]</div>
+        <ol class="step-list" start="4">
+          <li>Scale normalized distortion by variance:</li>
+        </ol>
+        <div class="math-box">\[
+        D = \sigma^2(0.03744)=400(0.03744)=14.98
+        \]</div>
+        <p>The optimal uniform quantizer improves distortion compared with the earlier fixed quantizer.</p>
+      </article>
+
+      <article class="example">
+        <h3>Example 5: Optimal nonuniform quantizer comparison</h3>
+        <p><strong>Problem:</strong> Use an 8-level optimal nonuniform quantizer for the same \(\sigma^2=400\) Gaussian source. Table value: \(D=0.03454\).</p>
+        <ol class="step-list">
+          <li>Scale normalized reproduction values by \(\sigma=20\).</li>
+          <li>The lecture's symmetric reconstruction levels are approximately \(\pm43.04,\ \pm26.88,\ \pm15.12,\ \pm4.902\).</li>
+          <li>The corresponding boundaries are approximately \(\pm34.96,\ \pm21.00,\ \pm10.012,\ 0\).</li>
+          <li>Scale distortion:</li>
+        </ol>
+        <div class="math-box">\[
+        D = 400(0.03454)=13.816
+        \]</div>
+        <p><strong>Interpretation:</strong> Nonuniform quantization does better because it spends more levels where the Gaussian source is more likely to occur.</p>
+      </article>
+
+      <article class="example">
+        <h3>Example 6: PCM SQNR for a uniform source</h3>
+        <p><strong>Problem:</strong> A signal is uniformly distributed on \([-1,1]\). Uniform PCM uses 256 levels. Find the resulting SQNR.</p>
+        <ol class="step-list">
+          <li>Signal power for uniform \([-1,1]\) is:</li>
+        </ol>
+        <div class="math-box">\[
+        P_X=\int_{-1}^{1}x^2\frac{1}{2}\,dx=\frac{1}{3}
+        \]</div>
+        <ol class="step-list" start="2">
+          <li>\(N=256=2^8\), so \(v=8\).</li>
+          <li>Use \(SQNR = 3\cdot4^vP_X/x_{max}^2\), with \(x_{max}=1\):</li>
+        </ol>
+        <div class="math-box">\[
+        SQNR=3(4^8)\left(\frac{1}{3}\right)=4^8=65536
+        \]</div>
+        <div class="math-box">\[
+        SQNR_{dB}=10\log_{10}(65536)\approx48.16\ \text{dB}
+        \]</div>
+      </article>
+
+      <article class="example">
+        <h3>Example 7: Full PCM rate, bandwidth, and SQNR design</h3>
+        <p><strong>Problem:</strong> A zero-mean WSS process has triangular PSD over \(|f|\le5000\) Hz and maximum amplitude \(x_{max}=600\). Find power, sampling rate with 2 kHz guard band, SQNR and rate for 256 levels, transmission bandwidth, then increase SQNR by at least 25 dB.</p>
+        <ol class="step-list">
+          <li>Power is the area under the triangular PSD: \(P_X=5000\) W.</li>
+          <li>Sampling rate with guard band:</li>
+        </ol>
+        <div class="math-box">\[
+        f_s=2W+W_G=2(5000)+2000=12\ \text{kHz}
+        \]</div>
+        <ol class="step-list" start="3">
+          <li>For \(N=256\), \(v=8\). Compute SQNR:</li>
+        </ol>
+        <div class="math-box">\[
+        SQNR_{dB}=10\log_{10}\left(\frac{5000}{600^2}\right)+6(8)+4.8=34.2\ \text{dB}
+        \]</div>
+        <ol class="step-list" start="4">
+          <li>Bit rate and binary transmission bandwidth:</li>
+        </ol>
+        <div class="math-box">\[
+        R=vf_s=8(12\text{k})=96\ \text{kbps},\quad BW_T=\frac{R}{2}=48\ \text{kHz}
+        \]</div>
+        <ol class="step-list" start="5">
+          <li>At roughly 6 dB per bit, a 25 dB improvement needs 5 extra bits. Thus \(v=13\) and \(N=2^{13}=8192\).</li>
+          <li>New SQNR and bandwidth:</li>
+        </ol>
+        <div class="math-box">\[
+        SQNR_{dB}=34.2+6(5)=64.2\ \text{dB},\quad BW_T=\frac{13(12\text{k})}{2}=78\ \text{kHz}
+        \]</div>
+      </article>
+    </section>
+
+    <section id="traps">
+      <p class="section-kicker">Section 5</p>
+      <h2>Misconceptions &amp; Exam Traps</h2>
+      <div class="visual-break-grid" aria-label="Trap categories">
+        <div class="visual-break-card">
+          <strong>Time mistake</strong>
+          <p>Using \(W\) where \(f_s\) belongs, or forgetting \(T_s=1/f_s\).</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Level mistake</strong>
+          <p>Confusing \(N\) levels with \(v\) bits per sample.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Noise mistake</strong>
+          <p>Using PCM SQNR when the problem asks for exact quantizer distortion.</p>
+        </div>
+        <div class="visual-break-card">
+          <strong>Step mistake</strong>
+          <p>For DM, large \(\Delta\) and small \(\Delta\) fail in different ways.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="trap">
+          <h3><strong>Trap 1:</strong> Confusing \(W\), \(f_s\), and \(T_s\)</h3>
+          <p>\(W\) is signal bandwidth. \(f_s\) is samples per second. \(T_s=1/f_s\) is the time between samples. The Nyquist condition is \(f_s\ge2W\), equivalently \(T_s\le1/(2W)\).</p>
+        </div>
+        <div class="trap">
+          <h3><strong>Trap 2:</strong> Thinking linear interpolation is exact</h3>
+          <p>The lecture shows linear interpolation as an intuitive approximation. Exact reconstruction under the sampling theorem uses ideal sinc interpolation or an ideal lowpass reconstruction filter.</p>
+        </div>
+        <div class="trap">
+          <h3><strong>Trap 3:</strong> Forgetting the guard band</h3>
+          <p>If a problem says "guard band," do not answer only \(2W\). Use \(f_s = 2W + W_G\) when the guard band is specified as an added frequency gap.</p>
+        </div>
+        <div class="trap">
+          <h3><strong>Trap 4:</strong> Mixing up quantization levels and bits</h3>
+          <p>\(N\) is the number of levels. \(v\) is bits per sample. They are related by \(N=2^v\). For 256 levels, \(v=8\), not 256 bits.</p>
+        </div>
+        <div class="trap">
+          <h3><strong>Trap 5:</strong> Using one SQNR formula blindly</h3>
+          <p>The simple uniform PCM SQNR formula assumes many levels and approximately uniform quantization error. For fixed nonuniform regions or Gaussian-optimal quantizers, use the distortion integral or table-scaled distortion.</p>
+        </div>
+        <div class="trap">
+          <h3><strong>Trap 6:</strong> Choosing delta modulation step size by one criterion only</h3>
+          <p>Large \(\Delta\) helps track steep slopes but causes granular noise. Small \(\Delta\) reduces granular noise but can create slope overload. ADM exists because the best step size changes with the signal.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="formula-glossary">
+      <p class="section-kicker">Section 6</p>
+      <h2>Formula &amp; Equation Glossary &#9889;</h2>
+      <p>This table is intentionally exam-facing: formula, meaning, variables, and when to use it.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Equation</th>
+            <th>Variables</th>
+            <th>Use Context</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>\(f_s=\frac{1}{T_s}\)</td>
+            <td>\(f_s\): sampling frequency, \(T_s\): sampling interval</td>
+            <td>Convert between time spacing and samples per second.</td>
+          </tr>
+          <tr>
+            <td>\(f_s\ge2W\)</td>
+            <td>\(W\): signal bandwidth</td>
+            <td>Nyquist condition for perfect reconstruction of a bandlimited lowpass signal.</td>
+          </tr>
+          <tr>
+            <td>\(f_s=2W+W_G\)</td>
+            <td>\(W_G\): guard band</td>
+            <td>Sampling rate when a guard band is requested.</td>
+          </tr>
+          <tr>
+            <td>\(x_\delta(t)=\sum x(nT_s)\delta(t-nT_s)\)</td>
+            <td>\(x_\delta(t)\): impulse-sampled signal</td>
+            <td>Mathematical model of ideal sampling.</td>
+          </tr>
+          <tr>
+            <td>\(X_\delta(f)=\frac{1}{T_s}\sum X(f-\frac{n}{T_s})\)</td>
+            <td>\(X_\delta(f)\): sampled spectrum</td>
+            <td>Shows spectrum replication and explains aliasing.</td>
+          </tr>
+          <tr>
+            <td>\(x(t)=\sum x(nT_s)\operatorname{sinc}(\frac{t}{T_s}-n)\)</td>
+            <td>\(\operatorname{sinc}\): ideal interpolation pulse</td>
+            <td>Reconstruction formula for bandlimited signals.</td>
+          </tr>
+          <tr>
+            <td>\(Q(x)=\hat{x}_i,\ x\in\mathcal{R}_i\)</td>
+            <td>\(\mathcal{R}_i\): quantization region, \(\hat{x}_i\): reproduction value</td>
+            <td>Scalar quantizer definition.</td>
+          </tr>
+          <tr>
+            <td>\(D=E[(X-Q(X))^2]\)</td>
+            <td>\(D\): mean squared distortion</td>
+            <td>Average quantization error power.</td>
+          </tr>
+          <tr>
+            <td>\(D=\sum_i\int_{\mathcal{R}_i}(x-\hat{x}_i)^2f_X(x)\,dx\)</td>
+            <td>\(f_X(x)\): input PDF</td>
+            <td>Compute distortion for a known quantizer and source distribution.</td>
+          </tr>
+          <tr>
+            <td>\(SQNR=\frac{P_X}{D}\)</td>
+            <td>\(P_X=E[X^2]\): signal power</td>
+            <td>Compare signal power with quantization noise power.</td>
+          </tr>
+          <tr>
+            <td>\(N=2^v,\ v=\log_2N\)</td>
+            <td>\(N\): levels, \(v\): bits/sample</td>
+            <td>Convert quantizer size to encoder word length.</td>
+          </tr>
+          <tr>
+            <td>\(R=vf_s\)</td>
+            <td>\(R\): bit rate</td>
+            <td>PCM output rate in bits per second.</td>
+          </tr>
+          <tr>
+            <td>\(BW_T=\frac{R}{2}\)</td>
+            <td>\(BW_T\): binary transmission bandwidth</td>
+            <td>Used in the lecture's binary transmission examples.</td>
+          </tr>
+          <tr>
+            <td>\(\Delta=\frac{2x_{max}}{N}\)</td>
+            <td>\(\Delta\): quantizer step size</td>
+            <td>Uniform PCM quantizer spacing over \([-x_{max},x_{max}]\).</td>
+          </tr>
+          <tr>
+            <td>\(D\approx\frac{\Delta^2}{12}\)</td>
+            <td>\(\tilde{X}\sim U(-\Delta/2,\Delta/2]\)</td>
+            <td>Approximate uniform quantization noise power.</td>
+          </tr>
+          <tr>
+            <td>\(SQNR_{dB}\approx10\log_{10}(\frac{P_X}{x_{max}^2})+6v+4.8\)</td>
+            <td>\(v\): bits/sample</td>
+            <td>Uniform PCM SQNR in decibels.</td>
+          </tr>
+          <tr>
+            <td>\(a_i=\frac{\hat{x}_i+\hat{x}_{i+1}}{2}\)</td>
+            <td>\(a_i\): region boundary</td>
+            <td>Optimal MSE quantizer boundary condition.</td>
+          </tr>
+          <tr>
+            <td>\(\hat{x}_i=\frac{\int_{a_{i-1}}^{a_i}xf_X(x)\,dx}{\int_{a_{i-1}}^{a_i}f_X(x)\,dx}\)</td>
+            <td>\(\hat{x}_i\): centroid of region</td>
+            <td>Optimal reproduction value for a fixed region.</td>
+          </tr>
+          <tr>
+            <td>\(g_\mu(x)=\operatorname{sgn}(x)\frac{\log(1+\mu|x|)}{\log(1+\mu)}\)</td>
+            <td>\(\mu\): mu-law compression parameter</td>
+            <td>Speech companding for nonuniform PCM.</td>
+          </tr>
+          <tr>
+            <td>\(Y_n=X_n-Y'_{n-1}\)</td>
+            <td>\(Y_n\): prediction error</td>
+            <td>DPCM quantizer input.</td>
+          </tr>
+          <tr>
+            <td>\(\Delta_n=\Delta_{n-1}K^{\epsilon_n\epsilon_{n-1}}\)</td>
+            <td>\(K&gt;1\), \(\epsilon_n\): recent quantizer sign</td>
+            <td>Adaptive delta modulation step-size update.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="terms">
+      <p class="section-kicker">Section 7</p>
+      <h2>Key Terms Glossary</h2>
+      <div class="terms-grid">
+        <div class="term-card"><strong>A-law compander</strong> A logarithmic speech companding curve commonly used to emphasize small amplitudes before uniform quantization.</div>
+        <div class="term-card"><strong>ADM</strong> Adaptive Delta Modulation; delta modulation with a step size that changes according to recent slope behavior.</div>
+        <div class="term-card"><strong>Aliasing</strong> Distortion caused when sampled spectrum replicas overlap, making high-frequency content appear as lower-frequency content.</div>
+        <div class="term-card"><strong>Bandlimited signal</strong> A signal whose frequency-domain content is zero outside a finite bandwidth \(W\).</div>
+        <div class="term-card"><strong>Bit rate</strong> Number of transmitted bits per second, \(R=vf_s\) for PCM.</div>
+        <div class="term-card"><strong>Companding</strong> Compressing amplitudes before quantization and expanding them after decoding to approximate nonuniform quantization.</div>
+        <div class="term-card"><strong>DPCM</strong> Differential PCM; encodes a prediction error between samples instead of encoding each sample directly.</div>
+        <div class="term-card"><strong>Delta modulation</strong> One-bit DPCM-like scheme that tracks the signal using up/down steps of size \(\Delta\).</div>
+        <div class="term-card"><strong>Distortion</strong> Average squared difference between source value and quantized value.</div>
+        <div class="term-card"><strong>Encoding</strong> Assigning binary words to quantization levels.</div>
+        <div class="term-card"><strong>Granular noise</strong> Delta modulation error caused by too large a step size on slowly changing signal regions.</div>
+        <div class="term-card"><strong>Gray code</strong> Binary code in which adjacent quantization levels differ by one bit, reducing the impact of single-bit errors.</div>
+        <div class="term-card"><strong>Guard band</strong> Extra frequency spacing that lets practical filters transition between passband and stopband.</div>
+        <div class="term-card"><strong>Lloyd-Max conditions</strong> The centroid and midpoint conditions for optimal mean squared error scalar quantization.</div>
+        <div class="term-card"><strong>Natural binary code</strong> Binary assignment where increasing binary words correspond to increasing quantizer levels.</div>
+        <div class="term-card"><strong>Nyquist rate</strong> Minimum ideal sampling frequency \(2W\) for a lowpass bandlimited signal.</div>
+        <div class="term-card"><strong>PCM</strong> Pulse Code Modulation; waveform encoding using sampler, quantizer, and encoder.</div>
+        <div class="term-card"><strong>Quantization</strong> Mapping continuous amplitude samples to a finite set of allowed values.</div>
+        <div class="term-card"><strong>Quantization region</strong> A range of input values mapped to the same reproduction level.</div>
+        <div class="term-card"><strong>Reconstruction filter</strong> Lowpass filter used to recover the original signal from sampled spectrum replicas.</div>
+        <div class="term-card"><strong>Sampling</strong> Measuring an analog signal at regularly spaced time instants.</div>
+        <div class="term-card"><strong>Scalar quantization</strong> Quantizing each sample independently.</div>
+        <div class="term-card"><strong>Sinc interpolation</strong> Ideal interpolation method for reconstructing a bandlimited signal from samples.</div>
+        <div class="term-card"><strong>Slope overload</strong> Delta modulation error caused by too small a step size on rapidly changing signal regions.</div>
+        <div class="term-card"><strong>SQNR</strong> Signal-to-quantization-noise ratio, \(P_X/D\).</div>
+        <div class="term-card"><strong>Uniform quantizer</strong> Quantizer with equal interval widths except possibly the two outer overload regions.</div>
+        <div class="term-card"><strong>Vector quantization</strong> Quantizing blocks of samples jointly rather than one sample at a time.</div>
+        <div class="term-card"><strong>WSS process</strong> Wide-sense stationary random process; mean is constant and autocorrelation depends only on time difference.</div>
+      </div>
+    </section>
+
+    <section id="summary">
+      <p class="section-kicker">Section 8</p>
+      <h2>Summary &amp; Revision Notes</h2>
+      <div class="revision-hero">
+        <div class="revision-focus">
+          <h3>Main idea</h3>
+          <p>Think of ADC as a chain of design trades. Sampling protects time information. Quantization controls amplitude error. Encoding turns each chosen level into bits. PCM then asks whether the channel bandwidth can carry those bits.</p>
+          <p>When an exam question feels long, reduce it to this chain: \(W\rightarrow f_s\rightarrow N\rightarrow v\rightarrow R\rightarrow BW_T\rightarrow SQNR\).</p>
+        </div>
+        <div class="formula-stack">
+          <div class="formula-pill">Sampling: \(f_s\ge2W\), or \(f_s=2W+W_G\)</div>
+          <div class="formula-pill">Levels to bits: \(N=2^v\)</div>
+          <div class="formula-pill">Bit rate: \(R=vf_s\)</div>
+          <div class="formula-pill">Uniform PCM: \(SQNR_{dB}\approx10\log_{10}(P_X/x_{max}^2)+6v+4.8\)</div>
+        </div>
+      </div>
+
+      <div class="revision-card-grid">
+        <article class="revision-card">
+          <span>1</span>
+          <h3>Time axis</h3>
+          <p>Sampling turns \(x(t)\) into \(x(nT_s)\). Too slow means spectrum replicas overlap and aliasing appears.</p>
+        </article>
+        <article class="revision-card">
+          <span>2</span>
+          <h3>Amplitude axis</h3>
+          <p>Quantization rounds each sample to \(\hat{x}_i\). More levels reduce \(D\), but cost more bits.</p>
+        </article>
+        <article class="revision-card">
+          <span>3</span>
+          <h3>Bit stream</h3>
+          <p>Encoding maps \(N\) levels into \(v=\log_2N\) bits per sample, so \(R=vf_s\).</p>
+        </article>
+        <article class="revision-card">
+          <span>4</span>
+          <h3>Waveform coding</h3>
+          <p>PCM encodes samples directly. DPCM and DM exploit sample-to-sample correlation to reduce the data burden.</p>
+        </article>
+      </div>
+
+      <div class="revision-grid">
+        <div class="panel good">
+          <h3>Revision checklist</h3>
+          <ul>
+            <li>Given bandwidth: compute \(f_s\) before touching bit rate.</li>
+            <li>Given levels: convert \(N\) to \(v\) immediately.</li>
+            <li>Given PSD: find power by area or integration.</li>
+            <li>Given quantizer regions: use the full distortion integral.</li>
+            <li>Given a required SQNR increase: count bits at roughly 6 dB per added bit.</li>
+            <li>Given delta modulation wording: compare granular noise against slope overload.</li>
+          </ul>
+        </div>
+
+        <div class="panel warn practice-panel">
+          <h3>Practice questions</h3>
+          <ol>
+            <li>
+              \(W=6000\) Hz: find \(f_s\) with no guard band and with a 2000 Hz guard band. For the slide filter with passband to 7000 Hz and stopband after 10000 Hz, find the minimum \(f_s\) and \(K\).
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>No guard band: \(f_s=2W=2(6000)=12000\) Hz.</p>
+                  <p>With a 2000 Hz guard band: \(f_s=2W+W_G=12000+2000=14000\) Hz.</p>
+                  <p>For the given reconstruction filter, the first replica starts at \(f_s-W\). To be fully inside the stopband, require \(f_s-W\ge10000\), so \(f_s\ge16000\) Hz. Because sampled spectra are scaled by \(1/T_s\), the reconstruction gain is \(K=T_s=1/f_s=1/16000\).</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              \(P_X=10\): compare 16-level uniform and nonuniform Gaussian quantizers using the lecture tables.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>For a zero-mean Gaussian source, \(P_X=\sigma^2=10\), so \(\sigma=\sqrt{10}\).</p>
+                  <p>Uniform, \(N=16\): from Table 7.1, \(\Delta=0.3352\) and \(D_{table}=0.01154\). Scale distortion by variance: \(D=10(0.01154)=0.1154\).</p>
+                  <p>Nonuniform, \(N=16\): from Table 7.2, \(D_{table}=0.009497\). Thus \(D=10(0.009497)=0.09497\).</p>
+                  <p>Nonuniform is better because \(0.09497&lt;0.1154\). In SQNR terms, uniform gives \(10\log_{10}(10/0.1154)=19.38\) dB, while nonuniform gives \(10\log_{10}(10/0.09497)=20.22\) dB.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              PCM design: use \(P_X=5000\), \(x_{max}=600\), \(W=5000\) Hz, \(W_G=2000\) Hz, and \(N=256\). Find \(R\), \(BW_T\), and \(SQNR_{dB}\). Then increase SQNR by at least 25 dB.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>Sampling rate: \(f_s=2W+W_G=2(5000)+2000=12000\) Hz.</p>
+                  <p>For \(N=256=2^8\), \(v=8\). Bit rate: \(R=vf_s=8(12000)=96000\) bps. Binary transmission bandwidth: \(BW_T=R/2=48000\) Hz.</p>
+                  <p>\(SQNR_{dB}=10\log_{10}(5000/600^2)+6(8)+4.8=34.2\) dB.</p>
+                  <p>At about 6 dB per extra bit, at least 25 dB needs 5 extra bits. So \(v=13\), \(N=2^{13}=8192\), \(SQNR_{dB}=34.2+30=64.2\) dB, \(R=13(12000)=156000\) bps, and \(BW_T=78000\) Hz.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              Delta modulation: explain what happens when \(\Delta\) is too large and when \(\Delta\) is too small.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>Large \(\Delta\): the staircase can follow steep slopes, but during slow signal changes it jumps too much around the true waveform. That creates granular noise.</p>
+                  <p>Small \(\Delta\): the staircase is smooth during gentle regions, but it cannot climb or fall fast enough when the input slope is large. That creates slope overload distortion.</p>
+                  <p>Adaptive delta modulation reduces this tradeoff by increasing \(\Delta\) after repeated same-sign steps and decreasing \(\Delta\) after alternating signs.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              WSS Gaussian PCM: \(R_X(\tau)=\operatorname{sinc}^2(10^4\tau)\), \(x_{max}=10\), \(N=128\), and guard band \(W_G=2.5\) kHz. Find \(f_s\), bit rate, SQNR, and transmission bandwidth.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>\(\operatorname{sinc}^2(10^4\tau)\) transforms to a triangular spectrum with support \(|f|\le10^4\) Hz, so \(W=10\) kHz. Also \(P_X=R_X(0)=1\).</p>
+                  <p>With \(W_G=2.5\) kHz, \(f_s=2W+W_G=20+2.5=22.5\) kHz.</p>
+                  <p>\(N=128=2^7\), so \(v=7\). Bit rate: \(R=7(22.5\text{ kHz})=157.5\) kbps. Transmission bandwidth: \(BW_T=R/2=78.75\) kHz.</p>
+                  <p>\(SQNR_{dB}=10\log_{10}(1/10^2)+6(7)+4.8=-20+42+4.8=26.8\) dB.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              A sinusoid at \(f_0=7\) kHz is sampled at \(f_s=10\) kHz. Is this alias-free? If not, what alias frequency appears? What is the minimum sampling frequency to avoid aliasing?
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>For a sinusoid at \(f_0=7\) kHz, the Nyquist condition requires \(f_s\ge2f_0=14\) kHz. Since \(10\) kHz is below \(14\) kHz, it is not alias-free.</p>
+                  <p>The apparent alias frequency is the distance to the nearest integer multiple of \(f_s\):</p>
+                  <div class="math-box">\[
+                  f_{alias}=|f_0-1f_s|=|7-10|=3\text{ kHz}
+                  \]</div>
+                  <p>So the sampled sinusoid can look like a \(3\) kHz sinusoid. Minimum alias-free sampling is \(14\) kHz.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              A uniform midrise quantizer covers \([-2,2]\) with \(N=16\) levels. Find \(\Delta\), bits per sample, \(Q(0.70)\), the quantization error, and the approximate quantization-noise power.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>The total range length is \(4\), so:</p>
+                  <div class="math-box">\[
+                  \Delta=\frac{4}{16}=0.25,\qquad v=\log_2(16)=4\text{ bits/sample}
+                  \]</div>
+                  <p>For a midrise quantizer, the level in the interval \([0.50,0.75)\) is the midpoint \(0.625\). Since \(0.70\in[0.50,0.75)\), \(Q(0.70)=0.625\).</p>
+                  <div class="math-box">\[
+                  e=x-Q(x)=0.70-0.625=0.075
+                  \]</div>
+                  <p>Approximate quantization-noise power:</p>
+                  <div class="math-box">\[
+                  D\approx\frac{\Delta^2}{12}=\frac{0.25^2}{12}=0.00521
+                  \]</div>
+                </div>
+              </details>
+            </li>
+            <li>
+              A uniform PCM system has \(P_X=0.25\) and \(x_{max}=1\). How many bits per sample are needed for \(SQNR_{dB}\ge40\) dB? How many levels is that?
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>Use the uniform PCM approximation:</p>
+                  <div class="math-box">\[
+                  SQNR_{dB}\approx10\log_{10}\left(\frac{P_X}{x_{max}^2}\right)+6v+4.8
+                  \]</div>
+                  <p>Substitute \(P_X=0.25\) and \(x_{max}=1\):</p>
+                  <div class="math-box">\[
+                  10\log_{10}(0.25)+6v+4.8=-6.02+6v+4.8=6v-1.22
+                  \]</div>
+                  <p>Require \(6v-1.22\ge40\), so \(v\ge6.87\). Since \(v\) must be an integer, choose \(v=7\).</p>
+                  <div class="math-box">\[
+                  N=2^7=128,\qquad SQNR_{dB}\approx6(7)-1.22=40.78\text{ dB}
+                  \]</div>
+                </div>
+              </details>
+            </li>
+            <li>
+              A PCM system directly quantizes samples over \([-4,4]\). A DPCM system quantizes only prediction errors over \([-0.5,0.5]\). If both use uniform step size \(\Delta=0.25\), compare the bits per sample needed.
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>For direct PCM, the range length is \(8\):</p>
+                  <div class="math-box">\[
+                  N_{PCM}=\frac{8}{0.25}=32,\qquad v_{PCM}=\log_2(32)=5
+                  \]</div>
+                  <p>For DPCM prediction errors, the range length is \(1\):</p>
+                  <div class="math-box">\[
+                  N_{DPCM}=\frac{1}{0.25}=4,\qquad v_{DPCM}=\log_2(4)=2
+                  \]</div>
+                  <p>DPCM saves \(5-2=3\) bits per sample in this setup, because it quantizes a much smaller dynamic range.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              For a normalized positive sample \(x=0.10\), calculate the \(\mu\)-law compressor output using \(\mu=255\). What does the result tell you?
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>For \(x&gt;0\), \(\operatorname{sgn}(x)=1\), so:</p>
+                  <div class="math-box">\[
+                  g_\mu(x)=\frac{\log(1+\mu x)}{\log(1+\mu)}
+                  =\frac{\log(1+255(0.10))}{\log(256)}
+                  =\frac{\log(26.5)}{\log(256)}
+                  \]</div>
+                  <div class="math-box">\[
+                  g_\mu(0.10)\approx\frac{3.277}{5.545}=0.591
+                  \]</div>
+                  <p>A small input amplitude, \(0.10\), is mapped to a much larger compressed-domain value, about \(0.591\). This gives small speech amplitudes more effective quantization resolution.</p>
+                </div>
+              </details>
+            </li>
+            <li>
+              In adaptive delta modulation, let \(K=1.5\), \(\Delta_0=0.10\), and quantizer signs \(\epsilon_0=+1,\epsilon_1=+1,\epsilon_2=-1,\epsilon_3=-1,\epsilon_4=+1\). Use \(\Delta_n=\Delta_{n-1}K^{\epsilon_n\epsilon_{n-1}}\) to find \(\Delta_1\) to \(\Delta_4\).
+              <details class="solution-box">
+                <summary>Show solution</summary>
+                <div class="solution-content">
+                  <p>Same consecutive signs increase the step size. Opposite consecutive signs decrease it.</p>
+                  <div class="math-box">\[
+                  \Delta_1=\Delta_0K^{(+1)(+1)}=0.10(1.5)=0.15
+                  \]</div>
+                  <div class="math-box">\[
+                  \Delta_2=\Delta_1K^{(-1)(+1)}=0.15/1.5=0.10
+                  \]</div>
+                  <div class="math-box">\[
+                  \Delta_3=\Delta_2K^{(-1)(-1)}=0.10(1.5)=0.15
+                  \]</div>
+                  <div class="math-box">\[
+                  \Delta_4=\Delta_3K^{(+1)(-1)}=0.15/1.5=0.10
+                  \]</div>
+                </div>
+              </details>
+            </li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Built from KIE2008 Communication Systems Chapter 4: Analog to Digital Conversion.
+    </footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function makeLineData(freq, duration, samples) {
+      const data = [];
+      for (let i = 0; i <= samples; i += 1) {
+        const t = (duration * i) / samples;
+        const y = Math.sin(2 * Math.PI * freq * t);
+        data.push({ x: t, y });
+      }
+      return data;
+    }
+
+    function makeSampleData(freq, fs, duration) {
+      const data = [];
+      const count = Math.floor(duration * fs);
+      for (let n = 0; n <= count; n += 1) {
+        const t = n / fs;
+        data.push({ x: t, y: Math.sin(2 * Math.PI * freq * t) });
+      }
+      return data;
+    }
+
+    function aliasFrequency(freq, fs) {
+      let alias = Math.abs(freq - Math.round(freq / fs) * fs);
+      if (alias > fs / 2) alias = fs - alias;
+      return Math.abs(alias);
+    }
+
+    function quantize(x, xmax, levels) {
+      const clamped = Math.max(-xmax, Math.min(xmax, x));
+      const delta = (2 * xmax) / levels;
+      let index = Math.floor((clamped + xmax) / delta);
+      index = Math.max(0, Math.min(levels - 1, index));
+      return -xmax + delta * (index + 0.5);
+    }
+
+    function makeQuantData(xmax, levels) {
+      const analog = [];
+      const quantized = [];
+      for (let i = 0; i <= 240; i += 1) {
+        const x = -xmax + (2 * xmax * i) / 240;
+        analog.push({ x, y: x });
+        quantized.push({ x, y: quantize(x, xmax, levels) });
+      }
+      return { analog, quantized };
+    }
+
+    function muLaw(x, mu) {
+      if (mu <= 0) return x;
+      return Math.sign(x) * Math.log(1 + mu * Math.abs(x)) / Math.log(1 + mu);
+    }
+
+    function aLaw(x, A) {
+      if (A <= 1) return x;
+      const abs = Math.abs(x);
+      const sign = Math.sign(x);
+      if (abs < 1 / A) return sign * (A * abs) / (1 + Math.log(A));
+      return sign * (1 + Math.log(A * abs)) / (1 + Math.log(A));
+    }
+
+    function makeCompanderData(mu, A) {
+      const linear = [];
+      const muData = [];
+      const aData = [];
+      for (let i = 0; i <= 220; i += 1) {
+        const x = i / 220;
+        linear.push({ x, y: x });
+        muData.push({ x, y: muLaw(x, mu) });
+        aData.push({ x, y: aLaw(x, A) });
+      }
+      return { linear, muData, aData };
+    }
+
+    const commonScales = {
+      x: {
+        type: 'linear',
+        grid: { color: 'rgba(168,186,208,0.12)' },
+        ticks: { color: '#a8bad0' }
+      },
+      y: {
+        grid: { color: 'rgba(168,186,208,0.12)' },
+        ticks: { color: '#a8bad0' }
+      }
+    };
+
+    function initCharts() {
+      if (!window.Chart) {
+        const fallback = $('chartFallback');
+        if (fallback) fallback.style.display = 'block';
+        return;
+      }
+
+      Chart.defaults.color = '#e8f4ff';
+      Chart.defaults.font.family = 'Inter, system-ui, sans-serif';
+
+      const samplingChart = new Chart($('samplingChart'), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Analog signal',
+              data: makeLineData(5, 1, 500),
+              borderColor: '#27f5d4',
+              backgroundColor: 'rgba(39,245,212,0.08)',
+              pointRadius: 0,
+              borderWidth: 2,
+              showLine: true,
+              tension: 0.25
+            },
+            {
+              label: 'Samples',
+              data: makeSampleData(5, 16, 1),
+              borderColor: '#ffd166',
+              backgroundColor: '#ffd166',
+              pointRadius: 5,
+              showLine: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          parsing: false,
+          scales: {
+            x: { ...commonScales.x, title: { display: true, text: 'time (s)', color: '#a8bad0' } },
+            y: { ...commonScales.y, min: -1.2, max: 1.2, title: { display: true, text: 'amplitude', color: '#a8bad0' } }
+          },
+          plugins: {
+            legend: { labels: { color: '#e8f4ff' } }
+          }
+        }
+      });
+
+      const quantData = makeQuantData(1, 8);
+      const quantChart = new Chart($('quantChart'), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Ideal y=x',
+              data: quantData.analog,
+              borderColor: '#63c7ff',
+              pointRadius: 0,
+              showLine: true,
+              borderWidth: 2
+            },
+            {
+              label: 'Quantized Q(x)',
+              data: quantData.quantized,
+              borderColor: '#ff5cc8',
+              pointRadius: 0,
+              showLine: true,
+              stepped: true,
+              borderWidth: 3
+            },
+            {
+              label: 'Current input',
+              data: [{ x: 0.37, y: quantize(0.37, 1, 8) }],
+              borderColor: '#ffd166',
+              backgroundColor: '#ffd166',
+              pointRadius: 7,
+              showLine: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          parsing: false,
+          scales: {
+            x: { ...commonScales.x, title: { display: true, text: 'input x', color: '#a8bad0' } },
+            y: { ...commonScales.y, title: { display: true, text: 'output Q(x)', color: '#a8bad0' } }
+          },
+          plugins: { legend: { labels: { color: '#e8f4ff' } } }
+        }
+      });
+
+      const companderData = makeCompanderData(255, 87.6);
+      const companderChart = new Chart($('companderChart'), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Linear',
+              data: companderData.linear,
+              borderColor: '#a8bad0',
+              pointRadius: 0,
+              showLine: true,
+              borderWidth: 2
+            },
+            {
+              label: 'mu-law',
+              data: companderData.muData,
+              borderColor: '#27f5d4',
+              pointRadius: 0,
+              showLine: true,
+              borderWidth: 3
+            },
+            {
+              label: 'A-law',
+              data: companderData.aData,
+              borderColor: '#ff5cc8',
+              pointRadius: 0,
+              showLine: true,
+              borderWidth: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          parsing: false,
+          scales: {
+            x: { ...commonScales.x, min: 0, max: 1, title: { display: true, text: '|x|', color: '#a8bad0' } },
+            y: { ...commonScales.y, min: 0, max: 1, title: { display: true, text: 'g(x)', color: '#a8bad0' } }
+          },
+          plugins: { legend: { labels: { color: '#e8f4ff' } } }
+        }
+      });
+
+      function updateSampling() {
+        const f0 = Number($('signalFreq').value);
+        const fs = Number($('sampleFreq').value);
+        const duration = Number($('duration').value);
+        $('signalFreqOut').textContent = `${f0} Hz`;
+        $('sampleFreqOut').textContent = `${fs} Hz`;
+        $('durationOut').textContent = `${duration.toFixed(1)} s`;
+        samplingChart.data.datasets[0].data = makeLineData(f0, duration, 600);
+        samplingChart.data.datasets[1].data = makeSampleData(f0, fs, duration);
+        samplingChart.options.scales.x.min = 0;
+        samplingChart.options.scales.x.max = duration;
+        samplingChart.update();
+        const nyquist = 2 * f0;
+        const alias = aliasFrequency(f0, fs);
+        if (fs >= nyquist) {
+          $('aliasStatus').textContent = `Safe for this sinusoid: fs = ${fs} Hz is at or above 2f0 = ${nyquist} Hz.`;
+        } else {
+          $('aliasStatus').textContent = `Aliasing risk: fs = ${fs} Hz is below 2f0 = ${nyquist} Hz. The samples can look like about ${alias.toFixed(2)} Hz.`;
+        }
+      }
+
+      function updateQuant() {
+        const levels = Number($('levels').value);
+        const xmax = Number($('xmax').value);
+        const inputX = Number($('inputX').value) * xmax;
+        const data = makeQuantData(xmax, levels);
+        const q = quantize(inputX, xmax, levels);
+        const delta = (2 * xmax) / levels;
+        const mse = (delta * delta) / 12;
+        const sqnr = 10 * Math.log10((xmax * xmax / 3) / mse);
+        $('levelsOut').textContent = String(levels);
+        $('xmaxOut').textContent = xmax.toFixed(1);
+        $('inputOut').textContent = inputX.toFixed(2);
+        quantChart.data.datasets[0].data = data.analog;
+        quantChart.data.datasets[1].data = data.quantized;
+        quantChart.data.datasets[2].data = [{ x: inputX, y: q }];
+        quantChart.options.scales.x.min = -xmax;
+        quantChart.options.scales.x.max = xmax;
+        quantChart.options.scales.y.min = -xmax;
+        quantChart.options.scales.y.max = xmax;
+        quantChart.update();
+        $('quantStatus').textContent = `Delta = ${delta.toFixed(3)}, Q(${inputX.toFixed(2)}) = ${q.toFixed(3)}, approximate SQNR = ${sqnr.toFixed(2)} dB for a uniform source.`;
+      }
+
+      function updateCompander() {
+        const mu = Number($('mu').value);
+        const A = Number($('aLaw').value);
+        const data = makeCompanderData(mu, A);
+        $('muOut').textContent = mu.toFixed(0);
+        $('aLawOut').textContent = A.toFixed(1);
+        companderChart.data.datasets[1].data = data.muData;
+        companderChart.data.datasets[2].data = data.aData;
+        companderChart.update();
+        $('companderStatus').textContent = `Higher curve near the origin means small-amplitude samples receive finer effective resolution. Current mu = ${mu.toFixed(0)}, A = ${A.toFixed(1)}.`;
+      }
+
+      ['signalFreq', 'sampleFreq', 'duration'].forEach((id) => $(id).addEventListener('input', updateSampling));
+      ['levels', 'xmax', 'inputX'].forEach((id) => $(id).addEventListener('input', updateQuant));
+      ['mu', 'aLaw'].forEach((id) => $(id).addEventListener('input', updateCompander));
+
+      updateSampling();
+      updateQuant();
+      updateCompander();
+    }
+
+    window.addEventListener('load', initCharts);
+  </script>
+</body>
+</html>
