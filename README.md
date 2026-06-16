@@ -6,7 +6,7 @@ Explanation generated using Antigravity CLI & Codex
 - [Waveform Encoding](https://keweichen123.github.io/KIE2008-Slides-Explanation/40-58.html)
 - [DPCM](https://keweichen123.github.io/KIE2008-Slides-Explanation/DPCM.html)
 
----
+--
 
 ## KIE2008-Chapter5-Explanation
 
