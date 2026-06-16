@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Differential PCM (DPCM) - Master Study Guide</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    
+    <!-- MathJax for Mathematical Formulas -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- Chart.js for Interactive Visuals -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Mermaid.js for Diagrams -->
+    <script type="module">
+      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+      mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+    </script>
+    
+    <style>
+        /* Dark Tech/Galaxy Theme Variables */
+        :root {
+            --bg-base: #0B0C10; /* Deep space black */
+            --bg-panel: #1F2833; /* Dark slate */
+            --text-main: #C5C6C7; /* Soft white/gray */
+            --accent-cyan: #66FCF1; /* Neon Cyan */
+            --accent-teal: #45A29E; /* Muted Teal */
+            --accent-purple: #B829EA; /* Neon Purple */
+            --accent-pink: #F02A71; /* Neon Pink */
+            --accent-yellow: #F2A900; /* Neon Yellow */
+            --accent-orange: #FF7A00; /* Neon Orange */
+        }
+        
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-weight: 800;
+        }
+
+        h1 {
+            color: var(--accent-cyan);
+            font-size: 2.5rem;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-purple);
+            padding-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            color: var(--accent-purple);
+            font-size: 1.8rem;
+            margin-top: 50px;
+            border-left: 5px solid var(--accent-pink);
+            padding-left: 15px;
+        }
+
+        h3 {
+            color: var(--accent-teal);
+            font-size: 1.4rem;
+        }
+
+        p, li {
+            font-size: 1.1rem;
+        }
+
+        /* Table of Contents */
+        .toc {
+            background: var(--bg-panel);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-teal);
+            margin-bottom: 40px;
+            box-shadow: 0 0 20px rgba(69, 162, 158, 0.1);
+        }
+        .toc h3 { margin-top: 0; color: var(--accent-cyan); }
+        .toc ul { list-style-type: none; padding-left: 0; }
+        .toc li { margin-bottom: 10px; }
+        .toc a {
+            color: var(--text-main);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .toc a:hover { color: var(--accent-pink); }
+
+        /* Content Boxes */
+        .section-box {
+            background: var(--bg-panel);
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .intuition-box {
+            border-top: 4px solid var(--accent-cyan);
+        }
+
+        .math-box {
+            border-top: 4px solid var(--accent-purple);
+            background: rgba(31, 40, 51, 0.8);
+        }
+
+        .example-box {
+            background: rgba(184, 41, 234, 0.05);
+            border-left: 4px solid var(--accent-purple);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .trap-box {
+            background: rgba(240, 42, 113, 0.05);
+            border-left: 4px solid var(--accent-pink);
+            padding: 25px;
+            border-radius: 8px;
+        }
+
+        /* Interactive Widgets */
+        .widget-container {
+            background: #121418;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            box-shadow: 0 0 15px rgba(102, 252, 241, 0.15);
+        }
+
+        input[type=range] {
+            width: 100%;
+            cursor: pointer;
+            accent-color: var(--accent-pink);
+        }
+
+        .slider-label {
+            color: var(--accent-cyan);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--bg-panel);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid rgba(69, 162, 158, 0.3);
+            padding: 15px;
+            text-align: left;
+        }
+        th {
+            background-color: rgba(102, 252, 241, 0.1);
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .highlight { color: var(--accent-pink); font-weight: bold; }
+        .code-font { font-family: 'JetBrains Mono', monospace; color: var(--accent-teal); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Differential PCM (DPCM)</h1>
+
+    <div class="toc">
+        <h3>🚀 Table of Contents</h3>
+        <ul>
+            <li><a href="#intuition">1. Concept Explanation (Physical Intuition)</a></li>
+            <li><a href="#interactive1">2. Interactive Visual: Why Difference Matters</a></li>
+            <li><a href="#math">3. Mathematical Derivation & Error Prevention</a></li>
+            <li><a href="#interactive2">4. Interactive Visual: DPCM Architecture Diagram</a></li>
+            <li><a href="#examples">5. Fully Worked Numerical Examples</a></li>
+            <li><a href="#traps">6. Exam Traps & Misconceptions</a></li>
+            <li><a href="#formulas">7. Formula & Equation Glossary</a></li>
+            <li><a href="#terms">8. Key Terms Glossary</a></li>
+            <li><a href="#summary">9. Summary & Revision Notes</a></li>
+        </ul>
+    </div>
+
+    <!-- 1. Physical Intuition -->
+    <div id="intuition" class="section-box intuition-box">
+        <h2>1. Concept Explanation: The Basics & Physical Intuition</h2>
+        
+        <h3>Crash Course: Sampling and Quantization</h3>
+        <p>Before diving into DPCM, let's briefly recap what happens to an analog signal (like a smooth voice wave):</p>
+        <ul>
+            <li><strong>1. Sampling:</strong> We measure the exact height of the wave at regular time intervals. Think of this as taking a snapshot. The value could be anything, like 12.34567V.</li>
+            <li><strong>2. Quantization:</strong> Digital systems can't store infinite decimal places. So, we "round" or snap that exact sampled value to the nearest allowed level on a fixed grid (e.g., snapping 12.34567V to exactly 12.3V).</li>
+            <li><strong>3. Quantization Error:</strong> Because we rounded the number, we lost a tiny bit of precision. <span class="highlight">Quantization Error is simply the rounded value MINUS the exact value</span>. If we snap 12.34567V to 12.3V, our error is -0.04567V. It's just the "rounding error."</li>
+        </ul>
+
+        <h3>Standard PCM vs. DPCM</h3>
+        <p>In standard <strong>PCM</strong>, we sample the wave, round the exact sample, and send it. If we are tracking body temperature, we might send: <strong>38.1°C, 38.2°C, 38.3°C</strong>. We need a large range of bits to cover all possible temperatures from 0°C to 45°C.</p>
+        
+        <p>But notice something: the temperature <span class="highlight">changes very slowly</span>. The adjacent samples are <strong>highly correlated</strong> (similar to each other). What if, instead of sending the full temperature every time, we just send the <em>difference</em>?</p>
+        
+        <p>Your new message becomes: <strong>Start at 38.1°C, then +0.1, +0.1, -0.1</strong>. Because the differences are tiny, you only need a very small range of values (maybe -0.5 to +0.5). A smaller range means you need <strong>fewer quantization levels</strong>, which translates directly to <strong>fewer bits per sample</strong> to transmit.</p>
+        
+        <p><strong>Crucial Distinction for DPCM:</strong> We don't take the difference of already-quantized samples! Instead, we take the <span class="highlight">exact raw sample</span>, subtract our prediction (to get an exact difference), and <strong>THEN</strong> we quantize (round) that difference to send it over the wire. We are quantizing the difference itself.</p>
+    </div>
+
+    <!-- 2. Interactive Visual: Chart.js -->
+    <div id="interactive1" class="widget-container">
+        <h2>2. Interactive Visual: The Power of Correlation</h2>
+        <p>Use the slider below to change the frequency of the signal. <br>
+        <strong>Low Frequency = High Correlation</strong> (Samples are similar).<br>
+        <strong>High Frequency = Low Correlation</strong> (Samples jump wildly).</p>
+        
+        <label class="slider-label" for="freqSlider">Signal Speed (Frequency): <span id="freqVal" style="color:var(--accent-pink);">2</span></label>
+        <input type="range" id="freqSlider" min="1" max="25" value="2">
+        
+        <canvas id="dpcmChart" width="800" height="300" style="margin-top: 20px;"></canvas>
+        <p style="font-size: 0.9rem; color: var(--accent-teal); text-align: center; margin-top: 15px;">
+            <em>Notice how the Difference Signal (Pink) stays small when the Original Signal (Cyan) is smooth. <br>If the signal jumps wildly, the difference can actually become larger than the original!</em>
+        </p>
+    </div>
+
+    <!-- 3. Mathematical Derivation -->
+    <div id="math" class="section-box math-box">
+        <h2>3. The Math & The Symbols: How DPCM Prevents Disaster</h2>
+        <p>You might ask: <em>"If we only send differences, won't a tiny quantization error on one sample ripple forward and mess up every future sample forever?"</em></p>
+        <p>If we just took the difference of raw samples, yes! But DPCM uses a brilliant trick. Before looking at the math, let's look at an analogy.</p>
+
+        <div style="background: rgba(102, 252, 241, 0.1); padding: 15px; border-left: 4px solid var(--accent-cyan); margin-bottom: 20px;">
+            <strong>The Mountain Climber Analogy:</strong><br>
+            Imagine Alice (Encoder) is watching a mountain climber. Bob (Decoder) is far away, drawing the climber's path based on Alice's messages.
+            <ul>
+                <li>Alice can only send rounded differences (e.g., "went up about 10m").</li>
+                <li>If Alice just looks at the real climber and sends differences, Bob's drawing will slowly drift away from reality because of the rounding errors summing up.</li>
+                <li><strong>The Fix:</strong> Alice keeps her own copy of Bob's drawing! She looks at <em>Bob's drawing</em> (the past reconstructed sample) and predicts where he is. Then she looks at the <em>Real Climber</em> and sends the difference: <code>Real Climber - Prediction from Drawing</code>. This forces Bob's next drawing to snap back to the real climber, killing the accumulating errors!</li>
+            </ul>
+        </div>
+
+        <h3>Meet the Symbols</h3>
+        <p>Let's map our analogy to the mathematical symbols from your lecturer's slide:</p>
+        <ul>
+            <li>\( X_n \): <strong>The Real Climber</strong>. The exact, raw analog sample at the current time \( n \).</li>
+            <li>\( \hat{Y}'_{n-1} \): <strong>The Prediction</strong>. Where Alice predicts the climber is, based on <em>past drawings</em>. It is closely related to the previous sample \( X_{n-1} \), but it includes past rounding errors.</li>
+            <li>\( Y_n \): <strong>The Exact Difference</strong>. This is what we <em>want</em> to send. \( Y_n = X_n - \hat{Y}'_{n-1} \).</li>
+            <li>\( \hat{Y}_n \): <strong>The Rounded Difference</strong>. This is what we <em>actually</em> send after quantization. It has a rounding error \( q_n \). So, \( \hat{Y}_n = Y_n + q_n \).</li>
+            <li>\( X'_n \): <strong>The Drawing (Reconstructed Signal)</strong>. This is the final value Bob draws, and the value Alice saves for her next prediction. Bob takes the prediction and adds the message he received: \( X'_n = \hat{Y}'_{n-1} + \hat{Y}_n \).</li>
+        </ul>
+
+        <h3>Step-by-Step Proof: The Magic Cancellation</h3>
+        <p>Let's prove mathematically that the errors don't add up.</p>
+
+        <p><strong>1. How the receiver builds the signal (Bob's Drawing):</strong></p>
+        <p>$$ X'_n = \hat{Y}'_{n-1} + \hat{Y}_n $$</p>
+
+        <p><strong>2. Substitute what we actually transmitted (\( \hat{Y}_n \)):</strong></p>
+        <p>Remember, the transmitted signal is the exact difference plus some rounding error: \( \hat{Y}_n = Y_n + q_n \).</p>
+        <p>$$ X'_n = \hat{Y}'_{n-1} + (Y_n + q_n) $$</p>
+
+        <p><strong>3. Substitute the definition of the Exact Difference (\( Y_n \)):</strong></p>
+        <p>Remember, the exact difference was the Real Climber minus the Prediction: \( Y_n = X_n - \hat{Y}'_{n-1} \).</p>
+        <p>$$ X'_n = \hat{Y}'_{n-1} + (X_n - \hat{Y}'_{n-1}) + q_n $$</p>
+
+        <p><strong>4. The Cancellation!</strong></p>
+        <p>Notice that \( \hat{Y}'_{n-1} \) (the prediction) is added and then subtracted! It completely cancels out.</p>
+        <p style="text-align: center; font-size: 1.3rem; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); padding: 10px; border-radius: 8px;">
+            $$ X'_n = X_n + q_n $$
+        </p>
+
+        <p><strong>Conclusion:</strong> The error in the final reconstructed signal \( X'_n \) is EXACTLY equal to the quantization error of the <em>current</em> difference sample \( q_n \). The past predictions cancel themselves out, meaning <strong>past errors do not accumulate!</strong></p>
+
+        <div style="background: rgba(184, 41, 234, 0.05); border-left: 4px solid var(--accent-purple); padding: 20px; border-radius: 8px; margin-top: 30px;">
+            <h3>Dataset Example: Tracing the Variables</h3>
+            <p>Let's trace these variables with real numbers. Assume our Predictor just copies the last reconstructed sample: \( \hat{Y}'_{n-1} = X'_{n-1} \). Assume our Quantizer rounds to the nearest integer. Let's start with an initial reconstructed value of \( X'_0 = 2.0 \).</p>
+            
+            <p style="margin-bottom: 10px; font-size: 0.95rem;"><strong>Color Legend:</strong><br>
+            <span style="color: var(--accent-yellow);">🟨 Yellow:</span> The prediction is just a direct copy of the previous reconstructed drawing.<br>
+            <span style="color: var(--accent-pink);">🟥 Pink:</span> The rounded difference (the actual message sent over the wire).<br>
+            <span style="color: var(--accent-orange);">🟧 Orange:</span> The quantization error (only used to prove the cancellation check, Bob never sees this number!).</p>
+
+            <div style="overflow-x: auto; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                <table style="text-align: center;">
+                    <tr>
+                        <th style="text-align: left;">Variable / Step</th>
+                        <th>Time 1 (n=1)</th>
+                        <th>Time 2 (n=2)</th>
+                        <th>Time 3 (n=3)</th>
+                        <th>Time 4 (n=4)</th>
+                        <th>Time 5 (n=5)</th>
+                        <th>Time 6 (n=6)</th>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; color: #fff;">Real Climber \( X_n \)</th>
+                        <td style="color: #fff;">3.6</td>
+                        <td style="color: #fff;">4.7</td>
+                        <td style="color: #fff;">5.2</td>
+                        <td style="color: #fff;">4.9</td>
+                        <td style="color: #fff;">3.8</td>
+                        <td style="color: #fff;">2.4</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; color: var(--accent-yellow);">Prediction \( \hat{Y}'_{n-1} \)<br><span style="font-size:0.8rem; font-weight:normal;">(Copies previous Reconstructed)</span></th>
+                        <td style="color: var(--accent-yellow);">2.0</td>
+                        <td style="color: var(--accent-yellow);">4.0</td>
+                        <td style="color: var(--accent-yellow);">5.0</td>
+                        <td style="color: var(--accent-yellow);">5.0</td>
+                        <td style="color: var(--accent-yellow);">5.0</td>
+                        <td style="color: var(--accent-yellow);">4.0</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left;">Exact Diff \( Y_n = X_n - \hat{Y}'_{n-1} \)</th>
+                        <td>1.6</td>
+                        <td>0.7</td>
+                        <td>0.2</td>
+                        <td>-0.1</td>
+                        <td>-1.2</td>
+                        <td>-1.6</td>
+                    </tr>
+                    <tr style="background: rgba(240, 42, 113, 0.1);">
+                        <th style="text-align: left; color: var(--accent-pink);">Rounded Diff \( \hat{Y}_n = \text{round}(Y_n) \)<br><span style="font-size:0.8rem; font-weight:normal;">(Transmitted Message)</span></th>
+                        <td style="color: var(--accent-pink);"><strong>2.0</strong></td>
+                        <td style="color: var(--accent-pink);"><strong>1.0</strong></td>
+                        <td style="color: var(--accent-pink);"><strong>0.0</strong></td>
+                        <td style="color: var(--accent-pink);"><strong>0.0</strong></td>
+                        <td style="color: var(--accent-pink);"><strong>-1.0</strong></td>
+                        <td style="color: var(--accent-pink);"><strong>-2.0</strong></td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; color: var(--accent-orange);">Quant. Error \( q_n = \hat{Y}_n - Y_n \)</th>
+                        <td style="color: var(--accent-orange);">0.4</td>
+                        <td style="color: var(--accent-orange);">0.3</td>
+                        <td style="color: var(--accent-orange);">-0.2</td>
+                        <td style="color: var(--accent-orange);">0.1</td>
+                        <td style="color: var(--accent-orange);">0.2</td>
+                        <td style="color: var(--accent-orange);">-0.4</td>
+                    </tr>
+                    <tr>
+                        <th style="text-align: left; color: var(--accent-yellow);">Drawing (Reconstructed)<br>\( X'_n = \hat{Y}'_{n-1} + \hat{Y}_n \)</th>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">4.0</td>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">5.0</td>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">5.0</td>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">5.0</td>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">4.0</td>
+                        <td style="color: var(--accent-yellow); font-weight:bold;">2.0</td>
+                    </tr>
+                    <tr style="background: rgba(102, 252, 241, 0.05);">
+                        <th style="text-align: left; color: var(--accent-cyan);">Cancellation Check<br>\( X'_n == X_n + \)<span style="color: var(--accent-orange);">\(q_n\)</span></th>
+                        <td style="color: var(--accent-cyan);">4.0 == 3.6 + <span style="color: var(--accent-orange);">0.4</span> ✅</td>
+                        <td style="color: var(--accent-cyan);">5.0 == 4.7 + <span style="color: var(--accent-orange);">0.3</span> ✅</td>
+                        <td style="color: var(--accent-cyan);">5.0 == 5.2 - <span style="color: var(--accent-orange);">0.2</span> ✅</td>
+                        <td style="color: var(--accent-cyan);">5.0 == 4.9 + <span style="color: var(--accent-orange);">0.1</span> ✅</td>
+                        <td style="color: var(--accent-cyan);">4.0 == 3.8 + <span style="color: var(--accent-orange);">0.2</span> ✅</td>
+                        <td style="color: var(--accent-cyan);">2.0 == 2.4 - <span style="color: var(--accent-orange);">0.4</span> ✅</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div style="margin-top: 15px; padding: 15px; border-left: 4px solid var(--accent-pink); background: rgba(240, 42, 113, 0.05);">
+                <strong>What does this dataset actually prove?</strong><br>
+                1. <strong>No Snowball Effect:</strong> Look at Time 6. Bob's drawing is 2.0. The real signal is 2.4. The difference is -0.4, which is <em>exactly</em> the current quantization error. The errors from Time 1 to 5 completely vanished! <br>
+                2. <strong>The Characteristic of DPCM (Small Differences!):</strong> Look at the "Real Climber" row vs the "Rounded Diff" row. The real values jump from <strong>2.4 to 5.2</strong>. But the differences we actually transmitted only range from <strong>-2.0 to +2.0</strong>. The data stays clustered near zero! Because the transmitted numbers are smaller, we can use fewer bits to send them. That is the magic of DPCM.
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Interactive Visual: Mermaid Diagram -->
+    <div id="interactive2" class="widget-container">
+        <h2>4. Interactive Diagram: DPCM Architecture</h2>
+        <p>Notice how the "Predictor" is fed from the <em>Reconstructed</em> signal, not the input. The encoder contains a built-in decoder loop!</p>
+        
+        <div class="mermaid">
+        graph TD
+            Xn["Input Sample Xₙ"] --> Sum1((+))
+            Sum1 --> Yn["Difference Yₙ"]
+            Yn --> Q["Quantizer"]
+            Q --> Yhat["Quantized Diff Ŷₙ"]
+            
+            Yhat --> Channel["=== TRANSMISSION CHANNEL ==="]
+            Channel --> RxSum((+))
+            
+            Yhat --> TxSum((+))
+            TxSum --> XtildeTx["Reconstructed X'ₙ"]
+            XtildeTx --> PTx["Predictor / Delay"]
+            PTx --> XhatTx["Prediction Ŷ'ₙ₋₁"]
+            
+            XhatTx -->|Subtract| Sum1
+            XhatTx -->|Add| TxSum
+            
+            RxSum --> XtildeRx["Output Reconstructed X'ₙ"]
+            XtildeRx --> PRx["Predictor / Delay"]
+            PRx --> XhatRx["Prediction Ŷ'ₙ₋₁"]
+            XhatRx -->|Add| RxSum
+            
+            classDef default fill:#1F2833,stroke:#66FCF1,stroke-width:2px,color:#C5C6C7;
+            classDef highlight fill:#B829EA,stroke:#0B0C10,stroke-width:2px,color:#fff;
+            classDef channel fill:#F02A71,stroke:#0B0C10,stroke-width:2px,color:#fff;
+            class Q,PTx,PRx highlight;
+            class Channel channel;
+        </div>
+    </div>
+
+    <!-- 5. Worked Examples -->
+    <div id="examples" class="section-box">
+        <h2>5. Fully Worked Numerical Examples</h2>
+
+        <div class="example-box" style="border-left: 4px solid var(--accent-cyan);">
+            <h3 style="color: var(--accent-cyan);">Example 1: The Bit-Saving Power of Differences (No Quantization)</h3>
+            <p style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;"><strong>Problem:</strong> You are given a sequence of sampled voltages: \( X = [120V, 122V, 123V, 121V] \). Assume a simple DPCM system where the prediction is just the previous sample: \( \hat{Y}'_{n-1} = X_{n-1} \). Calculate the difference sequence \( Y_n \). Show why DPCM saves bits compared to PCM.</p>
+            
+            <h4 style="border-bottom: 1px solid rgba(102, 252, 241, 0.3); padding-bottom: 5px;">Solution Trace</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="background: var(--bg-base); padding: 15px; border-radius: 8px; border-top: 2px solid var(--accent-teal);">
+                    <strong style="color: var(--accent-cyan);">n=0 (Initialization)</strong><br>
+                    \( X_0 = 120 \)<br>
+                    No prediction.<br>
+                    \( Y_0 = 120 \)
+                </div>
+                <div style="background: var(--bg-base); padding: 15px; border-radius: 8px; border-top: 2px solid var(--accent-teal);">
+                    <strong style="color: var(--accent-cyan);">n=1</strong><br>
+                    \( X_1 = 122 \)<br>
+                    \( \hat{Y}'_0 = 120 \)<br>
+                    \( Y_1 = 122 - 120 = \)<span style="color: var(--accent-pink); font-weight: bold;"> 2</span>
+                </div>
+                <div style="background: var(--bg-base); padding: 15px; border-radius: 8px; border-top: 2px solid var(--accent-teal);">
+                    <strong style="color: var(--accent-cyan);">n=2</strong><br>
+                    \( X_2 = 123 \)<br>
+                    \( \hat{Y}'_1 = 122 \)<br>
+                    \( Y_2 = 123 - 122 = \)<span style="color: var(--accent-pink); font-weight: bold;"> 1</span>
+                </div>
+                <div style="background: var(--bg-base); padding: 15px; border-radius: 8px; border-top: 2px solid var(--accent-teal);">
+                    <strong style="color: var(--accent-cyan);">n=3</strong><br>
+                    \( X_3 = 121 \)<br>
+                    \( \hat{Y}'_2 = 123 \)<br>
+                    \( Y_3 = 121 - 123 = \)<span style="color: var(--accent-pink); font-weight: bold;"> -2</span>
+                </div>
+            </div>
+            
+            <div style="background: rgba(69, 162, 158, 0.1); padding: 15px; border-radius: 8px;">
+                <strong>Result:</strong> Transmitted sequence is \( [120, 2, 1, -2] \).<br><br>
+                <em>Analysis:</em> To transmit the PCM signal (values up to 123), we need a quantizer range covering 0 to 127, requiring <strong>7 bits</strong> per sample. The DPCM difference values only range from -2 to +2. A range of 5 values only requires <strong>3 bits</strong> per sample. We saved 4 bits per sample!
+            </div>
+        </div>
+
+        <div class="example-box">
+            <h3 style="color: var(--accent-purple);">Example 2: Step-by-Step DPCM with Quantization</h3>
+            <p style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;"><strong>Problem:</strong> Given input sequence \( X = [5.0, 6.4, 8.1] \). The predictor copies the last reconstructed sample: \( \hat{Y}'_{n-1} = X'_{n-1} \). The quantizer rounds to the nearest whole integer. Trace the DPCM process.</p>
+            
+            <h4 style="border-bottom: 1px solid rgba(184, 41, 234, 0.3); padding-bottom: 5px;">Solution Trace</h4>
+            
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="background: var(--bg-base); padding: 15px; border-left: 4px solid var(--accent-yellow); border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: var(--accent-yellow);">Time n=0 (Initialization)</h4>
+                    <p style="margin-bottom: 0;">Input: \( X_0 = 5.0 \) &nbsp;&nbsp;➔&nbsp;&nbsp; Set Reconstructed \( X'_0 = 5.0 \)</p>
+                </div>
+                
+                <div style="background: var(--bg-base); padding: 15px; border-left: 4px solid var(--accent-purple); border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: var(--accent-purple);">Time n=1</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>1. Input:</strong> \( X_1 = 6.4 \)</div>
+                        <div><strong>2. Predict:</strong> \( \hat{Y}'_0 = X'_0 = 5.0 \)</div>
+                        <div><strong>3. Exact Diff:</strong> \( Y_1 = 6.4 - 5.0 = 1.4 \)</div>
+                        <div><strong>4. Quantize:</strong> \( \hat{Y}_1 = \text{round}(1.4) = \)<span style="color: var(--accent-pink); font-weight: bold;"> 1.0</span></div>
+                        <div style="grid-column: span 2; margin-top: 5px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px;">
+                            <strong>5. Reconstruct:</strong> \( X'_1 = \hat{Y}'_0 + \hat{Y}_1 = 5.0 + 1.0 = \)<span style="color: var(--accent-yellow); font-weight: bold;"> 6.0</span><br>
+                            <em style="color: var(--accent-orange); font-size: 0.9rem;">(Quantization Error \( q_1 = 1.0 - 1.4 = -0.4 \))</em>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-base); padding: 15px; border-left: 4px solid var(--accent-purple); border-radius: 8px;">
+                    <h4 style="margin-top: 0; color: var(--accent-purple);">Time n=2</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div><strong>1. Input:</strong> \( X_2 = 8.1 \)</div>
+                        <div><strong>2. Predict:</strong> \( \hat{Y}'_1 = X'_1 = 6.0 \)</div>
+                        <div><strong>3. Exact Diff:</strong> \( Y_2 = 8.1 - 6.0 = 2.1 \)</div>
+                        <div><strong>4. Quantize:</strong> \( \hat{Y}_2 = \text{round}(2.1) = \)<span style="color: var(--accent-pink); font-weight: bold;"> 2.0</span></div>
+                        <div style="grid-column: span 2; margin-top: 5px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 5px;">
+                            <strong>5. Reconstruct:</strong> \( X'_2 = \hat{Y}'_1 + \hat{Y}_2 = 6.0 + 2.0 = \)<span style="color: var(--accent-yellow); font-weight: bold;"> 8.0</span><br>
+                            <em style="color: var(--accent-orange); font-size: 0.9rem;">(Quantization Error \( q_2 = 2.0 - 2.1 = -0.1 \))</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: rgba(184, 41, 234, 0.1); padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <strong>Cancellation Check at n=2:</strong> The true value was 8.1. Our reconstructed drawing is 8.0. The distortion is -0.1, exactly matching the quantization error of the <em>current</em> difference signal (\( q_2 = -0.1 \)). The past errors did not accumulate!
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Exam Traps -->
+    <div id="traps" class="section-box trap-box">
+        <h2>6. Misconceptions & Exam Traps ⚠️</h2>
+        <ul>
+            <li><span class="highlight">TRAP 1: "DPCM just takes the difference between raw input samples."</span><br>
+            <strong>Truth:</strong> This is a fatal exam mistake. If you just do \( Y_n = X_n - X_{n-1} \) and quantize that, the receiver will sum up the quantized differences: \( \tilde{X}_n = \tilde{X}_{n-1} + \hat{Y}_n \). Quantization errors will add up to infinity over time! The predictor <em>must</em> use the <em>reconstructed</em> samples \( \tilde{X} \) so both sides track the same error.</li>
+            
+            <li><span class="highlight">TRAP 2: "DPCM is always superior to PCM."</span><br>
+            <strong>Truth:</strong> DPCM relies heavily on <em>correlation</em>. If you try to DPCM-encode white noise (where samples are completely random and uncorrelated), the difference \( X_n - \hat{X}_n \) will actually have a <em>larger</em> variance than the original signal. In this case, DPCM performs worse than standard PCM.</li>
+            
+            <li><span class="highlight">TRAP 3: "DPCM changes the sampling rate."</span><br>
+            <strong>Truth:</strong> The sampling rate \( f_s \) remains identical to PCM. The bit rate reduction comes purely from reducing the number of bits per sample, \( v \). Since Total Bit Rate \( R = v \times f_s \), lowering \( v \) lowers \( R \).</li>
+        </ul>
+    </div>
+
+    <!-- 7. Formula Glossary -->
+    <div id="formulas" class="section-box">
+        <h2>7. Formula & Equation Glossary ⚡</h2>
+        <table>
+            <tr>
+                <th>Equation</th>
+                <th>Variables & Definitions</th>
+                <th>Context / Usage</th>
+            </tr>
+            <tr>
+                <td class="code-font">$$ Y_n = X_n - \hat{Y}'_{n-1} $$</td>
+                <td>\( Y_n \): Difference Signal<br>\( X_n \): True Analog Sample<br>\( \hat{Y}'_{n-1} \): Prediction (from past)</td>
+                <td>Generated at the encoder before entering the quantizer.</td>
+            </tr>
+            <tr>
+                <td class="code-font">$$ \hat{Y}_n = Q(Y_n) = Y_n + q_n $$</td>
+                <td>\( \hat{Y}_n \): Quantized Difference<br>\( q_n \): Quantization Noise</td>
+                <td>The actual discrete value transmitted over the communication channel.</td>
+            </tr>
+            <tr>
+                <td class="code-font">$$ X'_n = \hat{Y}'_{n-1} + \hat{Y}_n $$</td>
+                <td>\( X'_n \): Reconstructed Signal</td>
+                <td>Calculated at both the receiver (for output) and the encoder (to feed the prediction loop).</td>
+            </tr>
+            <tr>
+                <td class="code-font">$$ X'_n = X_n + q_n $$</td>
+                <td>Same as above</td>
+                <td>Proves that final distortion equals the current quantization noise, preventing accumulation.</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- 8. Key Terms Glossary -->
+    <div id="terms" class="section-box">
+        <h2>8. Key Terms Glossary</h2>
+        <ul>
+            <li><strong>Correlation:</strong> A statistical measure of how closely related adjacent samples are. High correlation means the signal is smooth and changes slowly.</li>
+            <li><strong>Prediction / Predictor:</strong> The process of guessing the next sample. Crucially, in DPCM, this guess is based <em>only</em> on past <strong>reconstructed</strong> samples (the "Drawing" from our analogy), never the exact raw past samples. This is required so both the sender and receiver make the exact same guesses and track the same errors.</li>
+            <li><strong>Quantization Noise (or Error):</strong> The unavoidable "rounding error" introduced when continuous analog values are rounded to the nearest discrete level. <span class="highlight">Quantization Error = Quantized Value - Exact Value.</span></li>
+            <li><strong>Reconstructed Signal:</strong> The signal rebuilt by adding the quantized difference back to the prediction. It is an approximation of the original analog signal.</li>
+        </ul>
+    </div>
+
+    <!-- 9. Summary & Revision Notes -->
+    <div id="summary" class="section-box">
+        <h2>9. Summary & Revision Notes</h2>
+        <ul>
+            <li><strong>The "Why":</strong> Adjacent samples in real-world signals (like speech) are highly correlated. Differences are smaller than absolute values.</li>
+            <li><strong>The "How":</strong> DPCM quantizes the difference between the current sample and a prediction, rather than the sample itself.</li>
+            <li><strong>The Benefit:</strong> Smaller amplitude variance allows for fewer quantization levels, meaning fewer bits per sample are needed, resulting in a lower overall transmission bit rate.</li>
+            <li><strong>The Architecture:</strong> To prevent error accumulation, the encoder contains a feedback loop that reconstructs the signal exactly as the receiver will, ensuring predictions are based on the same quantized data.</li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Script for Chart.js Interactivity -->
+<script>
+    const ctx = document.getElementById('dpcmChart').getContext('2d');
+    let chart;
+    
+    function drawChart(freq) {
+        const labels = [];
+        const x_n = [];
+        const y_n = [];
+        
+        let prev_x = 0;
+        // Generate 100 sample points
+        for(let i=0; i<=100; i++) {
+            labels.push(i);
+            // Sine wave formula: amplitude * sin(time * frequency)
+            let current_x = Math.sin(i * freq * 0.05);
+            x_n.push(current_x);
+            
+            // Difference Signal (Y_n)
+            y_n.push(current_x - prev_x);
+            prev_x = current_x;
+        }
+        
+        if(chart) chart.destroy();
+        
+        chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Original Signal (X_n)',
+                        data: x_n,
+                        borderColor: '#66FCF1',
+                        backgroundColor: 'rgba(102, 252, 241, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Difference Signal (Y_n)',
+                        data: y_n,
+                        borderColor: '#F02A71',
+                        backgroundColor: 'rgba(240, 42, 113, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: { duration: 400 },
+                scales: {
+                    y: {
+                        min: -2.5,
+                        max: 2.5,
+                        grid: { color: 'rgba(69, 162, 158, 0.2)' },
+                        ticks: { color: '#C5C6C7' }
+                    },
+                    x: {
+                        grid: { color: 'rgba(69, 162, 158, 0.2)' },
+                        ticks: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#C5C6C7', font: { size: 14 } } }
+                }
+            }
+        });
+    }
+    
+    document.getElementById('freqSlider').addEventListener('input', function(e) {
+        document.getElementById('freqVal').textContent = e.target.value;
+        drawChart(e.target.value);
+    });
+    
+    // Initial draw
+    drawChart(2);
+</script>
+
+</body>
+</html>
