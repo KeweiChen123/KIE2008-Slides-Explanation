@@ -10,3 +10,6 @@ Explanation generated using Antigravity CLI & Codex
 
 - [Claude Chapter 5](https://keweichen123.github.io/KIE2008-Slides-Explanation/C5_Claude.html)
 - [Gemini Chapter 5](https://keweichen123.github.io/KIE2008-Slides-Explanation/C5_Gemini.html)
+
+# Others
+- [General Random Process](https://keweichen123.github.io/KIE2008-Slides-Explanation/General_Random_Process.html)
