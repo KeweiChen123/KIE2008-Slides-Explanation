@@ -3,7 +3,8 @@ Explanation generated using Antigravity CLI & Codex
 
 - [Gemini Chapter 4](https://keweichen123.github.io/KIE2008-Slides-Explanation/index.html)
 - [Codex GPT-5.5 Chapter 4](https://keweichen123.github.io/KIE2008-Slides-Explanation/C4_Codex.html)
-- [Waveform Encoding (Pages 40–58)](https://keweichen123.github.io/KIE2008-Slides-Explanation/40-58.html)
+- [Waveform Encoding](https://keweichen123.github.io/KIE2008-Slides-Explanation/40-58.html)
+- [DPCM](https://keweichen123.github.io/KIE2008-Slides-Explanation/DPCM.html)
 
 
 # KIE2008-Chapter5-Explanation
