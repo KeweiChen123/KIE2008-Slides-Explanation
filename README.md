@@ -10,6 +10,18 @@
 
 - [Claude Chapter 5](https://keweichen123.github.io/KIE2008-Slides-Explanation/C5_Claude.html)
 - [Gemini Chapter 5](https://keweichen123.github.io/KIE2008-Slides-Explanation/C5_Gemini.html)
+- [Gram–Schmidt](https://keweichen123.github.io/KIE2008-Slides-Explanation/Gram_Schmidt_Study_Guide.html)
+- [Binary Antipodal](https://keweichen123.github.io/KIE2008-Slides-Explanation/Binary_Antipodal_Signaling.html)
+- [B-ASK](https://keweichen123.github.io/KIE2008-Slides-Explanation/Binary_ASK_StudyGuide.html)
+- [B-FSK](https://keweichen123.github.io/KIE2008-Slides-Explanation/Binary_FSK_StudyGuide.html)
+- [Example 3](https://keweichen123.github.io/KIE2008-Slides-Explanation/Example3_OrthogonalSignaling.html)
+- [Optimum Receiver](https://keweichen123.github.io/KIE2008-Slides-Explanation/OptimumReceiver_Comprehensive.html)
+- [M-Ary PAM](https://keweichen123.github.io/KIE2008-Slides-Explanation/MAry_Modulations_StudyGuide.html)
+- [M-Ary PSK](https://keweichen123.github.io/KIE2008-Slides-Explanation/Mary_PSK_StudyGuide.html)
+- [QAM](https://keweichen123.github.io/KIE2008-Slides-Explanation/QAM_StudyGuide.html)
+
+## *KIE2008-Chapter6-Explanation*
+- [Chapter 6 Vague](https://keweichen123.github.io/KIE2008-Slides-Explanation/InformationTheory_StudyGuide.html)
 
 ## *Others*
 - [General Random Process](https://keweichen123.github.io/KIE2008-Slides-Explanation/General_Random_Process.html)
