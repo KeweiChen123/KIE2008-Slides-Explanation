@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optimum Receiver & Error Probability</title>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      }
+    };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #e6edf3;
+            --accent-cyan: #66fcf1;
+            --accent-green: #3fb950;
+            --accent-purple: #9d4edd;
+            --accent-orange: #ff7b00;
+            --accent-red: #ff3366;
+            --accent-yellow: #f2cc8f;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 95%; /* Used more left and right space */
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8em;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 50px;
+        }
+
+        .box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 40px 30px; /* Added more vertical padding */
+            margin-bottom: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .box-title {
+            position: absolute;
+            top: -15px;
+            left: 30px;
+            background: var(--bg-color);
+            padding: 0 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 20px;
+        }
+
+        /* Flowchart Styles */
+        .flowchart {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 60px; /* Increased to prevent label cutoff */
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+            gap: 60px 20px; /* Added massive vertical gap for wrapping safety */
+        }
+
+        .flow-node {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #555;
+            border-radius: 12px;
+            padding: 20px 10px;
+            flex: 1;
+            min-width: 150px;
+            max-width: 220px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .flow-node:hover {
+            transform: translateY(-5px);
+        }
+
+        .flow-node.tx { border-color: var(--accent-cyan); box-shadow: 0 0 20px rgba(102, 252, 241, 0.2); }
+        .flow-node.channel { border-color: var(--accent-red); box-shadow: 0 0 20px rgba(255, 51, 102, 0.2); }
+        .flow-node.demod { border-color: var(--accent-purple); box-shadow: 0 0 20px rgba(157, 78, 221, 0.2); }
+        .flow-node.detector { border-color: var(--accent-green); box-shadow: 0 0 20px rgba(63, 185, 80, 0.2); }
+        .flow-node.decision { border-color: var(--accent-yellow); box-shadow: 0 0 20px rgba(242, 204, 143, 0.2); }
+
+        .flow-arrow {
+            font-size: 2em;
+            color: #555;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.3; transform: scale(0.9); }
+        }
+
+        .flow-label {
+            position: absolute;
+            top: -35px; /* Pushed up slightly */
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.9em;
+            color: #ccc;
+            white-space: nowrap;
+            background: var(--bg-color);
+            padding: 2px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .math-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: monospace;
+            text-align: center;
+            margin: 15px 0;
+            overflow-x: auto;
+        }
+        
+        hr {
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            margin: 40px 0;
+        }
+
+        .bullet-list li {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Optimum Receiver & Error Probability</h1>
+
+    <div style="background: rgba(102, 252, 241, 0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(102, 252, 241, 0.2); max-width: 900px; margin: 0 auto 50px auto; text-align: center; box-shadow: 0 0 20px rgba(102, 252, 241, 0.1);">
+        <strong style="color: var(--accent-cyan); font-size: 1.2em; display: block; margin-bottom: 10px;">The Sudden Shift to Hardware</strong>
+        <p style="font-size: 1.1em; color: #ccc; margin: 0; line-height: 1.6;">
+            After 27 slides of abstract vector math, the slides suddenly throw you into hardware architecture. Why? Because we need to figure out how to physically <strong style="color: var(--accent-yellow);">catch</strong> the signal out of thin air, clean off the noise, and guess what was sent.
+        </p>
+    </div>
+
+    <!-- THE AWGN CHANNEL -->
+    <div class="box" style="border-top: 4px solid var(--accent-red);">
+        <div class="box-title" style="color: var(--accent-red); border: 1px solid var(--accent-red);">1. The AWGN Channel (The Real World)</div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px;">
+            <div>
+                <p style="font-size: 1.1em; color: #fff;">Signals don't survive the real world untouched.</p>
+                <p style="color: #ccc;">When your beautiful signal $s_m(t)$ flies through the air, heat, cosmic radiation, and electronics bombard it with static. We model this as an <strong>AWGN channel</strong>.</p>
+                
+                <ul class="bullet-list" style="color: #ccc; line-height: 1.6; margin-top: 25px;">
+                    <li><strong style="color: var(--accent-cyan);">A (Additive):</strong> The noise physically stacks on top of our signal.</li>
+                    <li><strong style="color: var(--accent-yellow);">W (White):</strong> It has energy at <em>every single frequency</em> (like white light).</li>
+                    <li><strong style="color: var(--accent-green);">G (Gaussian):</strong> The noise amplitude follows a Bell Curve probability.</li>
+                    <li><strong style="color: var(--accent-red);">N (Noise):</strong> It's random static!</li>
+                </ul>
+            </div>
+            
+            <div style="background: rgba(255, 51, 102, 0.05); padding: 25px; border-radius: 8px; border: 1px solid rgba(255, 51, 102, 0.2);">
+                <strong style="color: var(--accent-red); font-size: 1.1em;">The Channel Math:</strong>
+                <div class="math-block" style="border-left: 3px solid var(--accent-cyan); text-align: left; padding-left: 20px;">
+                    $$ r(t) = s_m(t) + n(t) $$
+                </div>
+                <ul style="font-size: 0.9em; color: #aaa; margin-top: 15px; padding-left: 20px; line-height: 1.8;">
+                    <li><strong style="color: var(--accent-yellow);">$r(t)$</strong>: What your antenna catches <em>(The Mess)</em></li>
+                    <li><strong style="color: var(--accent-cyan);">$s_m(t)$</strong>: What was transmitted <em>(The Truth)</em></li>
+                    <li><strong style="color: var(--accent-red);">$n(t)$</strong>: The random AWGN static <em>(The Noise)</em></li>
+                </ul>
+                
+                <hr style="margin: 25px 0;">
+                
+                <strong style="color: var(--accent-red); font-size: 1.1em;">The Noise Power:</strong>
+                <div class="math-block" style="border-left: 3px solid var(--accent-red); text-align: left; padding-left: 20px;">
+                    $$ S_n(f) = \frac{N_0}{2} \text{ (W/Hz)} $$
+                </div>
+                <p style="font-size: 0.95em; color: #ccc; margin-top: 15px;">
+                    Because "White" noise is everywhere, its power spectral density is flat. <span style="color: var(--accent-red);">$N_0/2$</span> is just a constant value representing how <em>loud</em> the background static is.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- THE OPTIMUM RECEIVER -->
+    <div class="box" style="border-top: 4px solid var(--accent-green);">
+        <div class="box-title" style="color: var(--accent-green); border: 1px solid var(--accent-green);">2. The Optimum Receiver Architecture</div>
+        
+        <p style="margin-top: 20px; font-size: 1.2em;">How do we process the dirty signal <strong style="color: var(--accent-yellow);">$r(t)$</strong>?</p>
+        <p style="color: #ccc; font-size: 1.1em;">We build an <strong style="color: var(--accent-green);">Optimum Receiver</strong> designed to minimize the <span style="color: var(--accent-red);">Probability of Error ($P_E$)</span>. Slide 28 splits this receiver into two highly distinct hardware blocks:</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <!-- Demodulator -->
+            <div style="background: rgba(157, 78, 221, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.3);">
+                <h3 style="color: var(--accent-purple); margin-top: 0; font-size: 1.4em;">1. The Demodulator</h3>
+                <strong style="color: #fff; background: var(--accent-purple); padding: 3px 10px; border-radius: 5px; color: #000;">Role: The Translator</strong>
+                
+                <ul class="bullet-list" style="color: #ccc; font-size: 1em; margin-top: 25px; padding-left: 20px;">
+                    <li><strong style="color: var(--accent-red);">No Decisions:</strong> The Demodulator does <strong style="color: #fff;">NOT</strong> guess the signal.</li>
+                    <li><strong style="color: var(--accent-cyan);">Math Translation:</strong> It literally strips away the high-frequency radio wave.</li>
+                    <li><strong style="color: var(--accent-purple);">Output:</strong> It cleanly converts the messy wave $r(t)$ into a <strong style="color: var(--accent-purple);">Math Vector ($\mathbf{y}$)</strong> using the basis functions $\psi(t)$.</li>
+                </ul>
+
+                <div class="math-block" style="color: var(--accent-purple); margin-top: 25px;">
+                    $$ r(t) \xrightarrow{\text{Demodulate}} \mathbf{y} = [y_1, y_2, \dots, y_N] $$
+                </div>
+            </div>
+
+            <!-- Detector -->
+            <div style="background: rgba(63, 185, 80, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(63, 185, 80, 0.3);">
+                <h3 style="color: var(--accent-green); margin-top: 0; font-size: 1.4em;">2. The Detector</h3>
+                <strong style="color: #fff; background: var(--accent-green); padding: 3px 10px; border-radius: 5px; color: #000;">Role: The Judge</strong>
+                
+                <ul class="bullet-list" style="color: #ccc; font-size: 1em; margin-top: 25px; padding-left: 20px;">
+                    <li><strong style="color: var(--accent-purple);">The Input:</strong> It strictly looks at the newly translated vector $\mathbf{y}$.</li>
+                    <li><strong style="color: var(--accent-yellow);">The Problem:</strong> Because of noise, $\mathbf{y}$ won't land perfectly on $s_1$ or $s_2$. It lands randomly in between them.</li>
+                    <li><strong style="color: var(--accent-green);">The Decision:</strong> It calculates <strong style="color: #fff;">Euclidean Distance</strong> to find the closest valid signal point, minimizing $P_E$.</li>
+                </ul>
+
+                <div class="math-block" style="color: var(--accent-green); margin-top: 25px;">
+                    $$ \text{Is } \mathbf{y} \text{ closer to } \mathbf{s_1} \text{ or } \mathbf{s_2}? \xrightarrow{\text{Judge}} \hat{m} $$
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- THE SIGNAL JOURNEY FLOWCHART -->
+    <div class="box" style="border-top: 4px solid var(--accent-cyan); border-bottom: 4px solid var(--accent-cyan);">
+        <div class="box-title" style="color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">3. The Complete Signal Journey</div>
+        
+        <p style="text-align: center; margin-top: 30px; color: #ccc;">This tracks the exact sequence of events the Slide 28 block diagrams are trying to show you:</p>
+
+        <div class="flowchart">
+            <div class="flow-node tx">
+                <div class="flow-label">1. Source</div>
+                <strong style="color: var(--accent-cyan); font-size: 1.3em;">$s_m(t)$</strong>
+                <div style="font-size: 0.85em; color: #aaa; margin-top: 15px;">Clean Transmitted Signal</div>
+            </div>
+
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-node channel">
+                <div class="flow-label">2. AWGN Channel</div>
+                <strong style="color: var(--accent-red); font-size: 1.3em;">$+ n(t)$</strong>
+                <div style="font-size: 0.85em; color: #aaa; margin-top: 15px;">Random Static Corrupts It</div>
+            </div>
+
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-node demod">
+                <div class="flow-label">3. Demodulator</div>
+                <strong style="color: var(--accent-purple); font-size: 1.3em;">$r(t) \rightarrow \mathbf{y}$</strong>
+                <div style="font-size: 0.85em; color: #aaa; margin-top: 15px;">Extracts Vector Coordinates</div>
+            </div>
+
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-node detector">
+                <div class="flow-label">4. Detector</div>
+                <strong style="color: var(--accent-green); font-size: 1.3em;">Distance Test</strong>
+                <div style="font-size: 0.85em; color: #aaa; margin-top: 15px;">Which $s_m$ is closest?</div>
+            </div>
+
+            <div class="flow-arrow">➔</div>
+
+            <div class="flow-node decision">
+                <div class="flow-label">5. Output</div>
+                <strong style="color: var(--accent-yellow); font-size: 1.3em;">$\hat{m}$</strong>
+                <div style="font-size: 0.85em; color: #aaa; margin-top: 15px;">Final Binary Guess</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMODULATOR TYPES -->
+    <div class="box" style="border-top: 4px solid var(--accent-orange);">
+        <div class="box-title" style="color: var(--accent-orange); border: 1px solid var(--accent-orange);">4. Demodulator Types (Slide 29)</div>
+        
+        <p style="margin-top: 20px; font-size: 1.1em; color: #ccc;">Now that we know what the Demodulator does, <em>how</em> does it physically do it? Slide 29 introduces two completely different hardware approaches for building a Demodulator.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <!-- Correlation-Type -->
+            <div style="background: rgba(255, 123, 0, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(255, 123, 0, 0.3);">
+                <h3 style="color: var(--accent-orange); margin-top: 0; font-size: 1.4em;">Type A: Correlation-Type</h3>
+                <strong style="color: #000; background: var(--accent-orange); padding: 3px 10px; border-radius: 5px;">Coherent Demodulation</strong>
+                
+                <ul style="color: #ccc; font-size: 1em; margin-top: 30px; padding-left: 0; list-style-type: none;">
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: #fff; font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid #fff; padding-left: 10px;">The Method</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">The received signal is multiplied by a <strong style="color: var(--accent-orange); text-transform: uppercase;">complex reference signal</strong>.</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-cyan); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-cyan); padding-left: 10px;">Phase Sync Required</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">The <strong style="color: var(--accent-orange);">complex reference signal</strong> is generated by <strong style="color: var(--accent-yellow); text-decoration: underline;">mixing a local oscillator</strong> with the transmitted carrier signal and is <strong style="color: var(--accent-cyan);">synchronized in phase</strong> with the received carrier signal.</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-purple); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-purple); padding-left: 10px;">Low-Pass Filter</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">The complex signal is then <strong style="color: var(--accent-purple); font-style: italic;">low-pass filtered</strong> to remove high-frequency components, leaving only the pure baseband signal.</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-green); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-green); padding-left: 10px;">Pros</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">Offers <strong style="color: var(--accent-green);">high accuracy</strong> and excellent noise immunity.</div>
+                    </li>
+                    <li style="margin-bottom: 0;">
+                        <div style="color: var(--accent-red); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-red); padding-left: 10px;">Cons</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">Highly complex and <strong style="color: var(--accent-red);">expensive</strong> to implement.</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Matched-Filter -->
+            <div style="background: rgba(102, 252, 241, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(102, 252, 241, 0.3);">
+                <h3 style="color: var(--accent-cyan); margin-top: 0; font-size: 1.4em;">Type B: Matched-Filter</h3>
+                <strong style="color: #000; background: var(--accent-cyan); padding: 3px 10px; border-radius: 5px;">Non-Coherent Demodulation</strong>
+                
+                <ul style="color: #ccc; font-size: 1em; margin-top: 30px; padding-left: 0; list-style-type: none;">
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: #fff; font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid #fff; padding-left: 10px;">The Method</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">The received signal is filtered by a <strong style="color: var(--accent-cyan); text-transform: uppercase;">matched filter</strong> designed to strictly match the characteristics of the transmitted signal.</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-yellow); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-yellow); padding-left: 10px;">No Phase Sync</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">It is a <strong style="color: var(--accent-yellow);">non-coherent technique</strong> (completely ignores the carrier phase).</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-purple); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-purple); padding-left: 10px;">Sampling</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">The output of the matched filter is then <strong style="color: var(--accent-purple); font-style: italic;">sampled at the appropriate rate</strong> to successfully recover the transmitted digital data.</div>
+                    </li>
+                    <li style="margin-bottom: 22px;">
+                        <div style="color: var(--accent-green); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-green); padding-left: 10px;">Pros</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">It is <strong style="color: var(--accent-green);">simple and low-cost</strong> to implement physically.</div>
+                    </li>
+                    <li style="margin-bottom: 0;">
+                        <div style="color: var(--accent-red); font-weight: bold; font-size: 1.05em; margin-bottom: 8px; border-left: 3px solid var(--accent-red); padding-left: 10px;">Cons</div>
+                        <div style="padding-left: 13px; line-height: 1.5;">More <strong style="color: var(--accent-red);">prone to noise interference</strong> compared to coherent detection.</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 30: PROBABILITY OF ERROR -->
+    <div class="box" style="border-top: 4px solid var(--accent-red);">
+        <div class="box-title" style="color: var(--accent-red); border: 1px solid var(--accent-red);">5. Calculating Probability of Error (Slide 30)</div>
+        
+        <p style="margin-top: 20px; font-size: 1.1em; color: #ccc;">The Detector makes a guess, but what are the chances it guesses wrong? The Probability of Error ($P_E$) depends heavily on the Euclidean distance between the signal points. The further apart they are, the harder it is for noise to push one signal into the other's territory.</p>
+
+        <div style="background: rgba(255, 51, 102, 0.05); padding: 25px; border-radius: 8px; border: 1px solid rgba(255, 51, 102, 0.3); margin-top: 30px;">
+            <strong style="color: var(--accent-red); font-size: 1.2em;">The Master $P_E$ Formula (Euclidean Distance):</strong>
+            <div class="math-block" style="border-left: 3px solid var(--accent-red); text-align: left; padding-left: 20px;">
+                $$ P_E = Q \left( \sqrt{ \frac{d_{12}^2}{2N_0} } \right) $$
+            </div>
+            <ul class="bullet-list" style="color: #ccc; font-size: 1em; margin-top: 15px; padding-left: 20px;">
+                <li><strong style="color: var(--accent-yellow);">$Q(\cdot)$</strong>: The Q-function (the tail probability of the Gaussian noise curve).</li>
+                <li><strong style="color: var(--accent-cyan);">$d_{12}$</strong>: The Euclidean distance between signal $\mathbf{s_1}$ and $\mathbf{s_2}$. <em>Bigger distance = Lower $P_E$!</em></li>
+                <li><strong style="color: var(--accent-red);">$N_0$</strong>: The noise power density. <em>More noise = Higher $P_E$!</em></li>
+            </ul>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px;">
+            <!-- Antipodal -->
+            <div style="background: rgba(63, 185, 80, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(63, 185, 80, 0.3);">
+                <h3 style="color: var(--accent-green); margin-top: 0; font-size: 1.3em;">Binary Antipodal Signals</h3>
+                <p style="color: #ccc; font-size: 0.95em;">(e.g., $s_1(t)$ and $s_2(t) = -s_1(t)$)</p>
+                <div class="math-block" style="color: var(--accent-green);">
+                    $$ P_E = Q \left( \sqrt{ \frac{2\mathcal{E}_b}{N_0} } \right) $$
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid var(--accent-cyan);">
+                    <strong style="color: var(--accent-cyan); font-size: 0.9em; display: block; margin-bottom: 10px;">The Mathematical Proof (Exam Prep):</strong>
+                    <p style="font-size: 0.9em; color: #aaa; margin: 0 0 5px 0;">Substitute $s_2(t) = -s_1(t)$ into $d_{12}^2$:</p>
+                    <div class="math-block" style="font-size: 0.9em; margin: 0; padding: 10px; background: transparent; color: #ccc;">
+                        \begin{align*}
+                        d_{12}^2 &= \int_0^{T_b} [s_1(t) - (-s_1(t))]^2 dt \\
+                        &= \int_0^{T_b} [2s_1(t)]^2 dt \\
+                        &= 4 \int_0^{T_b} s_1^2(t) dt \\
+                        &= \mathbf{4\mathcal{E}_b}
+                        \end{align*}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orthogonal -->
+            <div style="background: rgba(157, 78, 221, 0.05); padding: 30px; border-radius: 8px; border: 1px solid rgba(157, 78, 221, 0.3);">
+                <h3 style="color: var(--accent-purple); margin-top: 0; font-size: 1.3em;">Binary Orthogonal Signals</h3>
+                <p style="color: #ccc; font-size: 0.95em;">(e.g., $\int s_1(t)s_2(t) dt = 0$)</p>
+                <div class="math-block" style="color: var(--accent-purple);">
+                    $$ P_E = Q \left( \sqrt{ \frac{\mathcal{E}_b}{N_0} } \right) $$
+                </div>
+                
+                <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 3px solid var(--accent-cyan);">
+                    <strong style="color: var(--accent-cyan); font-size: 0.9em; display: block; margin-bottom: 10px;">The Mathematical Proof (Exam Prep):</strong>
+                    <p style="font-size: 0.9em; color: #aaa; margin: 0 0 5px 0;">Expand the square and apply orthogonality ($\int s_1 s_2 dt = 0$):</p>
+                    <div class="math-block" style="font-size: 0.9em; margin: 0; padding: 10px; background: transparent; color: #ccc;">
+                        \begin{align*}
+                        d_{12}^2 &= \int_0^{T_b} [s_1(t) - s_2(t)]^2 dt \\
+                        &= \int_0^{T_b} [s_1^2(t) - 2s_1(t)s_2(t) + s_2^2(t)] dt \\
+                        &= \int_0^{T_b} s_1^2(t) dt - 2(0) + \int_0^{T_b} s_2^2(t) dt \\
+                        &= \mathcal{E}_b + \mathcal{E}_b = \mathbf{2\mathcal{E}_b}
+                        \end{align*}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="background: rgba(242, 204, 143, 0.1); border-left: 5px solid var(--accent-yellow); padding: 25px; border-radius: 8px; margin-top: 40px;">
+            <strong style="color: var(--accent-yellow); font-size: 1.4em;">🔥 The 3dB Advantage (Exam Tip!):</strong>
+            <p style="color: #fff; font-size: 1.1em; margin-bottom: 0; margin-top: 15px; line-height: 1.6;">Look closely at the numerator inside the square roots. Antipodal has $2\mathcal{E}_b$, while Orthogonal only has $\mathcal{E}_b$. This means <strong style="color: var(--accent-yellow);">Antipodal signals require exactly HALF the signal energy (a 3dB power saving)</strong> to achieve the exact same probability of error as Orthogonal signals! This is because antipodal points are spread much further apart across the origin.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 31: WORKED EXAMPLE -->
+    <div class="box" style="border-top: 4px solid var(--accent-cyan);">
+        <div class="box-title" style="color: var(--accent-cyan); border: 1px solid var(--accent-cyan);">6. Worked Example: Bit Error Probability (Slide 31)</div>
+        
+        <p style="margin-top: 20px; font-size: 1.1em; color: #ccc;">This is a classic university exam question. You are given two piecewise signal waveforms and must calculate the exact Bit Error Probability from scratch using calculus.</p>
+
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 30px; margin-top: 30px;">
+            <!-- Problem Definition -->
+            <div style="background: rgba(102, 252, 241, 0.05); padding: 25px; border-radius: 8px; border: 1px solid rgba(102, 252, 241, 0.3);">
+                <strong style="color: var(--accent-cyan); font-size: 1.2em;">The Given Signals:</strong>
+                <p style="color: #aaa; font-size: 0.9em; margin-bottom: 5px;">$s_1(t)$ is a step function:</p>
+                <div class="math-block" style="color: #fff; font-size: 0.9em;">
+                    $$ s_1(t) = \begin{cases} 
+                    2 & 0 \leq t < \frac{T_b}{2} \\ 
+                    1 & \frac{T_b}{2} \leq t < T_b \\
+                    0 & \text{otherwise} 
+                    \end{cases} $$
+                </div>
+
+                <p style="color: #aaa; font-size: 0.9em; margin-bottom: 5px; margin-top: 20px;">$s_2(t)$ is a linear ramp:</p>
+                <div class="math-block" style="color: #fff; font-size: 0.9em;">
+                    $$ s_2(t) = \begin{cases} 
+                    \frac{2t}{T_b} & 0 \leq t < T_b \\ 
+                    0 & \text{otherwise} 
+                    \end{cases} $$
+                </div>
+            </div>
+
+            <!-- Calculus Solution -->
+            <div style="background: rgba(255, 255, 255, 0.03); padding: 25px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1);">
+                <strong style="color: var(--accent-yellow); font-size: 1.2em;">The Calculus Derivation:</strong>
+                <p style="color: #ccc; font-size: 0.9em; margin-bottom: 15px;">To find $P_E$, we first need to evaluate the distance integral $d_{12}^2$. Because $s_1(t)$ changes value halfway through, we must split the integral into two pieces:</p>
+                
+                <div class="math-block" style="color: var(--accent-yellow); font-size: 0.9em; padding: 20px; background: rgba(0,0,0,0.5);">
+                    \begin{align*}
+                    d_{12}^2 &= \int_0^{T_b} [s_1(t) - s_2(t)]^2 dt \\\\
+                    &= \int_0^{T_b/2} \left[2 - \frac{2t}{T_b}\right]^2 dt + \int_{T_b/2}^{T_b} \left[1 - \frac{2t}{T_b}\right]^2 dt \\\\
+                    &= \int_0^{T_b/2} \left(4 - \frac{8t}{T_b} + \frac{4t^2}{T_b^2}\right) dt + \int_{T_b/2}^{T_b} \left(1 - \frac{4t}{T_b} + \frac{4t^2}{T_b^2}\right) dt
+                    \end{align*}
+                </div>
+
+                <p style="color: #ccc; font-size: 0.9em; margin-top: 20px; margin-bottom: 15px;">Now, carry out the integration and plug in the limits step-by-step:</p>
+
+                <div class="math-block" style="color: var(--accent-purple); font-size: 0.85em; padding: 20px; background: rgba(0,0,0,0.5);">
+                    \begin{align*}
+                    &= \left[ 4t - \frac{4t^2}{T_b} + \frac{4t^3}{3T_b^2} \right]_0^{T_b/2} + \left[ t - \frac{2t^2}{T_b} + \frac{4t^3}{3T_b^2} \right]_{T_b/2}^{T_b} \\\\
+                    &= \left( 2T_b - T_b + \frac{T_b}{6} \right) + \left( \left[ T_b - 2T_b + \frac{4}{3}T_b \right] - \left[ \frac{T_b}{2} - \frac{T_b}{2} + \frac{T_b}{6} \right] \right) \\\\
+                    &= \left( \frac{7}{6}T_b \right) + \left( \frac{1}{3}T_b - \frac{1}{6}T_b \right) \\\\
+                    &= \frac{7}{6}T_b + \frac{1}{6}T_b = \frac{8}{6}T_b
+                    \end{align*}
+                </div>
+
+                <p style="color: #ccc; font-size: 0.9em; margin-top: 20px; margin-bottom: 15px;">The heavy algebra collapses beautifully to our final answer:</p>
+
+                <div class="math-block" style="color: var(--accent-green); font-size: 1.1em; padding: 20px; border: 2px solid var(--accent-green);">
+                    \begin{align*}
+                    d_{12}^2 &= \frac{4}{3}T_b \\\\
+                    \implies P_E &= Q \left( \sqrt{ \frac{d_{12}^2}{2N_0} } \right) = \mathbf{Q \left( \sqrt{ \frac{2T_b}{3N_0} } \right)}
+                    \end{align*}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

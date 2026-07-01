@@ -1,0 +1,1292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Theory</title>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            /* VIVID & LIVELY COLOR PALETTE */
+            --bg-color: #050b14; 
+            --surface: #0a1324;
+            --surface-elevated: #11203b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #00e5ff; 
+            --accent-green: #00ff66; 
+            --accent-purple: #c040ff; 
+            --accent-pink: #ff2a6d; 
+            --accent-yellow: #ffdf00; 
+            --border-radius: 16px; 
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #0a1835 0%, var(--bg-color) 40%);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 2.0; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 80px 30px; }
+
+        /* Titles */
+        .title-section { text-align: center; margin-bottom: 50px; }
+
+        h1 {
+            font-size: 3.8rem; font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 10px; line-height: 1.2; letter-spacing: -1px;
+            filter: drop-shadow(0px 4px 10px rgba(192, 64, 255, 0.2));
+        }
+
+        h2 {
+            font-size: 2.2rem; color: var(--accent-cyan);
+            border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 15px; margin-top: 100px; margin-bottom: 50px;
+            scroll-margin-top: 40px; text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+        }
+
+        h3 { font-size: 1.5rem; color: #ffffff; display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
+        h3 i { color: var(--accent-purple); filter: drop-shadow(0 0 8px rgba(192, 64, 255, 0.4)); }
+        p { margin-bottom: 25px; font-size: 1.1rem; }
+
+        /* Table of Contents */
+        .toc { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 80px; }
+        .toc a {
+            background: rgba(0, 229, 255, 0.05); color: var(--accent-cyan); text-decoration: none;
+            padding: 12px 24px; border-radius: 30px; font-size: 1rem; font-weight: 600;
+            border: 1px solid rgba(0, 229, 255, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.05);
+        }
+        .toc a:hover {
+            background: var(--accent-cyan); color: #000; transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+        }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; margin-bottom: 60px; }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border: 1px solid var(--surface-elevated);
+            border-radius: var(--border-radius); padding: 45px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+        
+        .card-highlight { border-left: 5px solid var(--accent-pink); }
+        .card-green { border-left: 5px solid var(--accent-green); }
+        .card-yellow { border-left: 5px solid var(--accent-yellow); }
+        .card-cyan { border-left: 5px solid var(--accent-cyan); }
+        .card-purple { border-left: 5px solid var(--accent-purple); }
+        
+        /* Lists */
+        ul.clean-list { list-style: none; padding-left: 0; margin: 0; }
+        ul.clean-list li { margin-bottom: 22px; padding-left: 40px; position: relative; font-size: 1.1rem; }
+        ul.clean-list li:last-child { margin-bottom: 0; }
+        ul.clean-list li::before {
+            content: "\f0a4"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; left: 0; top: 2px; color: var(--accent-cyan); font-size: 1.2rem;
+        }
+
+        /* Interactive Sections */
+        .interactive-container {
+            background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface) 100%);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: var(--border-radius);
+            padding: 50px; margin-bottom: 70px; box-shadow: inset 0 2px 15px rgba(0,0,0,0.3);
+        }
+
+        /* Highlight Boxes */
+        .highlight-box {
+            background: rgba(5, 11, 20, 0.9); padding: 30px; border-radius: 12px; 
+            text-align: center; font-size: 1.4rem; margin: 30px 0; border: 1px solid rgba(255,255,255,0.1);
+            transition: box-shadow 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .highlight-box:hover { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); border-color: rgba(0, 229, 255, 0.3); }
+        
+        .solution-box {
+            border-left: 4px solid var(--accent-cyan); 
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, transparent 100%); 
+            margin-top: 40px; padding: 35px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .banner {
+            background: linear-gradient(90deg, rgba(192, 64, 255, 0.15), rgba(0, 229, 255, 0.15));
+            border-left: 4px solid var(--accent-purple); padding: 25px 40px;
+            border-radius: var(--border-radius); margin: 40px 0; display: flex; align-items: center; gap: 20px;
+        }
+        .banner i { font-size: 2.5rem; color: var(--accent-purple); filter: drop-shadow(0 0 10px rgba(192, 64, 255, 0.5)); }
+
+        .note-badge {
+            background: rgba(255, 223, 0, 0.1); border: 1px solid var(--accent-yellow); color: var(--accent-yellow);
+            padding: 4px 12px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; font-family: 'JetBrains Mono', monospace;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; font-family: 'JetBrains Mono', monospace; }
+        th, td { border: 1px solid rgba(255,255,255,0.1); padding: 12px; text-align: center; }
+        th { background: rgba(0, 229, 255, 0.1); color: var(--accent-cyan); }
+        td { color: var(--text-primary); }
+
+        @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="title-section">
+        <h1 style="font-size: 3.2rem;">Information Theory</h1>
+        <p style="font-size: 1.3rem; color: var(--text-secondary); max-width: 800px; margin: 0 auto; line-height: 1.8;">The Mathematical Limits of Communication, Compression, and Channel Capacity.</p>
+    </div>
+
+    <!-- Quick Navigation (TOC) -->
+    <div class="toc">
+        <a href="#sec-intro">1. Foundation</a>
+        <a href="#sec-source">2. Modeling Source</a>
+        <a href="#sec-dms">3. DMS</a>
+        <a href="#sec-entropy">4. Measuring Info</a>
+        <a href="#sec-mutual">5. Joint & Mutual Info</a>
+        <a href="#sec-continuous">6. Continuous Sources</a>
+        <a href="#sec-compression">7. Data Compression</a>
+        <a href="#sec-huffman">8. Huffman Coding</a>
+        <a href="#sec-lempel">9. Lempel-Ziv Coding</a>
+        <a href="#sec-channel">10. Modeling Channels</a>
+        <a href="#sec-capacity">11. Channel Capacity</a>
+        <a href="#sec-bounds">12. Bounds of Comm.</a>
+        <a href="#sec-revision">13. Revision Solutions</a>
+    </div>
+
+    <!-- 1. INTRO -->
+    <h2 id="sec-intro">1. The Foundation of Information Theory</h2>
+    <div class="banner">
+        <i class="fa-solid fa-book-journal-whills"></i>
+        <div>
+            <h4 style="margin: 0 0 5px 0; font-size: 1.3rem; color: #fff;">Claude Shannon (1948)</h4>
+            <p style="margin: 0; font-size: 1.05rem; color: var(--text-secondary);">Founded in the groundbreaking paper <em>"A Mathematical Theory of Communication"</em>, this field completely redefined how we quantify, store, and communicate data.</p>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3><i class="fa-solid fa-circle-question"></i> The 3 Fundamental Questions</h3>
+        <p>Information theory allows us to study communication systems from a purely mathematical perspective by answering three core questions:</p>
+        <ul class="clean-list">
+            <li><strong>Transmission Limit:</strong> What is the absolute <em>highest rate</em> at which information can be reliably transmitted over a communication channel?</li>
+            <li><strong>Compression Limit:</strong> What is the absolute <em>lowest rate</em> at which information can be compressed, while still being perfectly retrievable (with zero or small errors)?</li>
+            <li><strong>Complexity:</strong> What is the mathematical and systemic complexity required to build such optimal systems?</li>
+        </ul>
+    </div>
+
+    <p style="font-size: 1.2rem; text-align: center; margin: 50px 0; color: var(--text-secondary);">Shannon divided the universe of communication limits into two distinct theorems.</p>
+    <div class="grid-2">
+        <div class="card card-green">
+            <h3 style="color: var(--accent-green);"><i class="fa-solid fa-file-zipper"></i> 1. Source-Coding Theorem</h3>
+            <ul class="clean-list">
+                <li>Establishes limits that apply to the <strong>Information Sources</strong> themselves (Data Compression).</li>
+                <li><strong>Goal:</strong> Minimum compression rate for perfect recovery.</li>
+            </ul>
+        </div>
+        <div class="card card-highlight">
+            <h3 style="color: var(--accent-pink);"><i class="fa-solid fa-wave-square"></i> 2. Noisy Channel Coding Theorem</h3>
+            <ul class="clean-list">
+                <li>Establishes limits for transmitting over noisy physical mediums.</li>
+                <li><strong>Goal:</strong> Maximum transmission rate <em>reliably</em> over a noisy channel.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 2. INFORMATION SOURCE -->
+    <h2 id="sec-source">2. Modeling the Information Source</h2>
+    <div class="card" style="margin-bottom: 50px;">
+        <h3><i class="fa-solid fa-dice"></i> The Element of Unpredictability</h3>
+        <ul class="clean-list">
+            <li>An information source produces the raw data to be transmitted to the destination.</li>
+            <li><strong>Crucial Rule:</strong> The output of an information source MUST be a time-varying, <strong>unpredictable</strong> function.</li>
+            <li><em style="color: var(--accent-purple);">Why?</em> Because if a signal is perfectly predictable, it contains zero new information, and there is no reason to transmit it!</li>
+            <li>Therefore, all information sources are mathematically modeled as <strong>Random Processes</strong>.</li>
+        </ul>
+    </div>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h4 style="color: var(--accent-cyan); font-size: 1.2rem; margin-top: 0;"><i class="fa-solid fa-chart-pie"></i> Source Characteristics</h4>
+            <p>The properties of the random process depend heavily on the nature of the source. We define them using:</p>
+            <ul class="clean-list" style="margin-top: 15px;">
+                <li>Bandwidth, Range of Amplitude Variations, Power Content</li>
+                <li>Probability Density Function (PDF) & Power Spectral Density (PSD)</li>
+            </ul>
+        </div>
+        <div class="card" style="background: rgba(0, 229, 255, 0.05); border-color: rgba(0, 229, 255, 0.3);">
+            <h4 style="color: var(--text-primary); font-size: 1.2rem; margin-top: 0;"><i class="fa-solid fa-microphone"></i> Real-World Example: Speech</h4>
+            <p>Human speech signals can be mathematically modeled as a random process that happens to have almost all of its power heavily concentrated in a specific frequency band:</p>
+            <div style="text-align: center; margin-top: 20px;">
+                <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent-cyan); filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.4));">300 Hz - 3400 Hz</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DISCRETE RANDOM PROCESSES / DMS -->
+    <h2 id="sec-dms">3. Discrete Memoryless Source (DMS)</h2>
+    <div class="interactive-container" style="display: flex; flex-direction: column; align-items: center; padding-bottom: 25px;">
+        <h3 style="justify-content: center; margin-bottom: 15px;"><i class="fa-solid fa-tower-broadcast"></i> Sampling the Source</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 40px; font-size: 1.15rem; max-width: 800px;">
+            Because most physical information sources (like voice) are bandlimited, they can be sampled at the <strong>Nyquist rate</strong> and perfectly reconstructed. Thus, we model the source as a sequence of discrete samples \( \{X_i\}_{i=-\infty}^{\infty} \).
+        </p>
+        <div style="width: 100%; max-width: 800px; height: 300px;">
+            <canvas id="samplingChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h3><i class="fa-solid fa-brain"></i> What does "Memoryless" mean?</h3>
+        <ul class="clean-list">
+            <li>The DMS is one of the simplest mathematical models for an information source.</li>
+            <li><strong>Memoryless:</strong> It generates outputs \( X_i \) that are completely independent of all previous outputs. The past has absolutely zero influence on the future.</li>
+            <li><strong>Identically Distributed:</strong> The probabilities of each output do not change over time.</li>
+            <li>We mathematically define this as <strong>i.i.d. (independent and identically distributed)</strong>.</li>
+        </ul>
+        
+        <div class="solution-box">
+            <h4 style="color: var(--accent-cyan); margin-top: 0;"><i class="fa-solid fa-layer-group"></i> The Alphabet & Probabilities</h4>
+            <p>A full description of a DMS requires two things:</p>
+            <ul class="clean-list">
+                <li><strong>The Alphabet (\( \mathcal{A} \)):</strong> The set of all possible outputs. For example, a binary source has an alphabet of \( \mathcal{A} = \{0, 1\} \).</li>
+                <li><strong>The Probabilities:</strong> The probability mass function (PMF) denoted by \( p_i = P(X = a_i) \).</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- 4. MEASURING INFORMATION -->
+    <h2 id="sec-entropy">4. Measuring Information: The 3 Intuitive Properties</h2>
+    
+    <p style="font-size: 1.15rem; color: var(--text-secondary); max-width: 900px; margin-bottom: 40px;">Before we can talk about Entropy, we must mathematically define how to measure the raw information of a <strong>single event</strong>. To do this, Shannon established three strict intuitive properties that any mathematical formula for information must satisfy (Slides 12-14):</p>
+    
+    <div class="grid-3">
+        <div class="card" style="border-left: 5px solid var(--accent-cyan); padding: 35px;">
+            <h4 style="color: var(--accent-cyan); margin-top: 0; font-size: 1.25rem;"><i class="fa-solid fa-face-surprise"></i> 1. The Surprise Factor</h4>
+            <p><strong>The least likely output reveals the <em>most</em> information.</strong></p>
+            <ul class="clean-list">
+                <li>If I tell you the sun rose in the east today (100% probable), you gained <strong>0 information</strong>.</li>
+                <li>If I tell you it snowed in the Sahara (highly improbable), that contains massive information!</li>
+                <li><strong>Math Rule:</strong> The measure of information must be a <em>decreasing function</em> of probability.</li>
+            </ul>
+        </div>
+        
+        <div class="card" style="border-left: 5px solid var(--accent-purple); padding: 35px;">
+            <h4 style="color: var(--accent-purple); margin-top: 0; font-size: 1.25rem;"><i class="fa-solid fa-chart-line"></i> 2. Continuity</h4>
+            <p><strong>A small change in probability should not drastically alter the info.</strong></p>
+            <ul class="clean-list">
+                <li>If the probability of rain goes from 50% to 51%, the amount of information that event carries shouldn't suddenly spike to infinity.</li>
+                <li><strong>Math Rule:</strong> The information measure must be a strictly <em>continuous function</em> of the source output's probability.</li>
+            </ul>
+        </div>
+        
+        <div class="card" style="border-left: 5px solid var(--accent-yellow); padding: 35px;">
+            <h4 style="color: var(--accent-yellow); margin-top: 0; font-size: 1.25rem;"><i class="fa-solid fa-plus"></i> 3. Additive Independence</h4>
+            <p><strong>If you subdivide an event into two independent parts, the total info is the sum of both.</strong></p>
+            <ul class="clean-list">
+                <li>If events A and B are independent, revealing A tells you nothing about B.</li>
+                <li><strong>Math Rule:</strong> If \( p_j = p_{j1} p_{j2} \), then the information function MUST satisfy: <br><span style="color:var(--accent-yellow); font-weight:bold;">\( I(p_j) = I(p_{j1}) + I(p_{j2}) \)</span></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card card-highlight" style="margin-bottom: 70px;">
+        <h3><i class="fa-solid fa-magnifying-glass-chart"></i> The Self-Information Formula</h3>
+        <p style="font-size: 1.15rem;">What is the <strong>only mathematical function in the universe</strong> that converts a multiplication (\( p_1 \times p_2 \)) into an addition (\( I_1 + I_2 \)) while also being a continuous, decreasing function?</p>
+        <p style="font-size: 1.4rem; font-weight: 800; color: var(--accent-pink); text-align: center; margin: 25px 0;">The Logarithm!</p>
+        
+        <div class="highlight-box" style="font-size: 1.6rem; border-color: var(--accent-pink); background: rgba(255, 42, 109, 0.08);">
+            \( I(p_i) = -\log_2(p_i) \)
+        </div>
+        
+        <p style="text-align: center; margin-bottom: 0; font-size: 1.1rem; color: var(--text-secondary);"><em>Note: We use base 2 so that the unit of information is exactly <strong>bits per sample</strong> (or bits per symbol). If we used base 'e', the unit would be 'nats'.</em></p>
+    </div>
+
+
+    <h2 id="sec-entropy-calc">4.5 Entropy (\( H(X) \)): Expected Information</h2>
+    
+    <div class="card card-cyan" style="margin-bottom: 70px;">
+        <h3 style="color: var(--accent-cyan);"><i class="fa-solid fa-cubes"></i> Entropy (\( H(X) \))</h3>
+        <p style="font-size: 1.1rem;">While Self-Information measures a single event, Entropy is the <strong>average (expected) information content</strong> of the entire source. We calculate it by taking the weighted sum of all self-information across every possible output in the alphabet.</p>
+        
+        <div class="highlight-box" style="font-size: 1.5rem; background: rgba(0, 229, 255, 0.05); border-color: rgba(0, 229, 255, 0.3);">
+            \( H(X) = -\sum_{i=1}^{N} p_i \log_2(p_i) \quad \text{[Unit: bits/sample]} \)
+        </div>
+        <p style="text-align: center; margin-top: -15px; margin-bottom: 30px;"><span class="note-badge">Mathematical Quirk: \( 0 \log_2(0) = 0 \)</span></p>
+
+        <p style="font-size: 1.15rem; font-weight: 600; color: var(--text-primary);">Binary Memoryless Source Equation:</p>
+        <p style="margin-bottom: 25px;">For a simple binary source with probability \( p \) and \( 1-p \), the formula explicitly expands to:</p>
+        <div style="text-align: center; font-size: 1.3rem; color: var(--accent-cyan); margin-bottom: 35px;">
+            \( H(X) = -p\log_2(p) - (1-p)\log_2(1-p) \)
+        </div>
+        
+        <ul class="clean-list">
+            <li><strong>Upper Bound:</strong> Entropy is MAXIMIZED when all source outputs are equiprobable (Uniform distribution). \( H(X) = \log_2 N \).</li>
+            <li><strong>Lower Bound:</strong> Entropy is ZERO when the output is deterministic (100% predictable).</li>
+            <li style="font-weight: 700; color: var(--accent-cyan);">\( 0 \le H(X) \le \log_2 N \)</li>
+        </ul>
+    </div>
+
+    <!-- Interactive Entropy Chart -->
+    <div class="interactive-container" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 70px;">
+        <h3 style="justify-content: center; margin-bottom: 15px;"><i class="fa-solid fa-chart-area"></i> Binary Entropy Function</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 30px; font-size: 1.15rem; max-width: 800px;">
+            For a binary source, Entropy \( H(X) \) peaks exactly at \( p = 0.5 \) (Binary Symmetric Source). This proves that maximum uncertainty yields maximum information!
+        </p>
+        <div style="width: 100%; max-width: 700px; height: 350px;">
+            <canvas id="entropyChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="card card-green" style="margin-bottom: 70px;">
+        <h3><i class="fa-solid fa-calculator"></i> Example Calculation: Source Rate</h3>
+        <ul class="clean-list">
+            <li><strong>Problem (Slide 16):</strong> A source with bandwidth 4000 Hz is sampled at the Nyquist rate. It acts as a DMS with an alphabet of 5 values, and probabilities: \( \{ \frac{1}{2}, \frac{1}{4}, \frac{1}{8}, \frac{1}{16}, \frac{1}{16} \} \). Determine the data rate in bits/second.</li>
+        </ul>
+        
+        <div class="solution-box" style="border-left-color: var(--accent-green); background: rgba(0, 255, 102, 0.05);">
+            <p><strong>Step 1: Calculate Entropy (bits per sample)</strong></p>
+            <p style="font-size: 1.2rem; text-align: center;">
+                \( H(X) = - \left[ \frac{1}{2}\log_2(\frac{1}{2}) + \frac{1}{4}\log_2(\frac{1}{4}) + \frac{1}{8}\log_2(\frac{1}{8}) + \frac{2}{16}\log_2(\frac{1}{16}) \right] \)
+            </p>
+            <p style="font-size: 1.2rem; text-align: center;">
+                \( H(X) = \frac{1}{2}(1) + \frac{1}{4}(2) + \frac{1}{8}(3) + \frac{2}{16}(4) = \mathbf{\frac{15}{8} \text{ bits/sample}} \)
+            </p>
+            
+            <p><strong>Step 2: Apply Nyquist Rate</strong></p>
+            <p style="font-size: 1.2rem; text-align: center;">
+                Nyquist Rate = \( 2 \times 4000 \text{ Hz} = 8000 \frac{\text{samples}}{\text{sec}} \)
+            </p>
+            
+            <p><strong>Step 3: Calculate Final Bit Rate</strong></p>
+            <p style="font-size: 1.4rem; text-align: center; color: var(--accent-green);">
+                Rate = \( 8000 \frac{\text{samples}}{\text{sec}} \times \frac{15}{8} \frac{\text{bits}}{\text{sample}} = \mathbf{15,000 \frac{\text{bits}}{\text{sec}}} \)
+            </p>
+        </div>
+    </div>
+
+
+    <!-- 5. JOINT ENTROPY & MUTUAL INFO -->
+    <h2 id="sec-mutual">5. Joint Entropy & Mutual Information</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-link"></i> Joint & Conditional Entropy</h3>
+            <p>When dealing with sources that HAVE memory, we use Joint and Conditional entropy.</p>
+            <ul class="clean-list">
+                <li><strong>Joint Entropy \( H(X,Y) \):</strong> The total information in the combined system.
+                    <br><span style="color: var(--accent-cyan);">\( H(X,Y) = -\sum_{x,y} p(x,y) \log_2 p(x,y) \)</span>
+                </li>
+                <li><strong>Conditional Entropy \( H(X|Y) \):</strong> The remaining uncertainty in \( X \) after \( Y \) is completely known.
+                    <br><span style="color: var(--accent-cyan);">\( H(X|Y) = -\sum_{x,y} p(x,y) \log_2 p(x|y) \)</span>
+                </li>
+            </ul>
+            
+            <div class="highlight-box" style="font-size: 1.25rem;">
+                <strong>Chain Rule:</strong><br>
+                \( H(X,Y) = H(Y) + H(X|Y) \)
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                <p style="margin: 0; font-size: 1rem; color: var(--accent-pink);"><strong>Generalized Chain Rule (for N variables):</strong><br>
+                \( H(X_1 \dots X_n) = H(X_1) + H(X_2|X_1) + \dots + H(X_n|X_1 \dots X_{n-1}) \)</p>
+                <p style="margin: 5px 0 0 0; font-size: 0.95rem;"><em>If independent: \( H(X_1 \dots X_n) = \sum H(X_i) \)</em></p>
+            </div>
+        </div>
+        
+        <div class="card card-yellow">
+            <h3 style="color: var(--accent-yellow);"><i class="fa-solid fa-handshake-angle"></i> Mutual Information \( I(X;Y) \)</h3>
+            <p>Mutual information measures how much uncertainty about \( X \) is completely removed simply by revealing \( Y \). It is the information they share.</p>
+            
+            <div class="highlight-box" style="font-size: 1.3rem; border-color: var(--accent-yellow); background: rgba(255, 223, 0, 0.05); padding: 20px;">
+                \( I(X;Y) = H(X) - H(X|Y) \)<br>
+                <span style="font-size: 1rem; color: var(--text-secondary);">or explicitly:</span><br>
+                \( I(X;Y) = \sum_{x}\sum_{y} p(x,y) \log_2 \left[ \frac{p(x,y)}{p(x)p(y)} \right] \)
+            </div>
+            
+            <ul class="clean-list" style="margin-top: 15px;">
+                <li>It is perfectly symmetric! \( I(X;Y) = I(Y;X) \).</li>
+                <li>Can also be written as: \( H(X) + H(Y) - H(X,Y) \).</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Deep Dive Examples for Joint & Mutual -->
+    <div class="card" style="border-left: 5px solid var(--accent-cyan); margin-top: 40px; margin-bottom: 50px;">
+        <h3 style="color: var(--accent-cyan);"><i class="fa-solid fa-person-chalkboard"></i> ELI5 Step-by-Step Example: Joint & Conditional Entropy (Slide 19)</h3>
+        <p><strong>The Setup:</strong> Two binary random variables \( X \) and \( Y \) have the following joint probabilities:</p>
+        <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px; font-size: 1.2rem;">
+            \( P(X=0, Y=1) = \frac{1}{4} \) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; \( P(X=1, Y=1) = \frac{1}{2} \) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; \( P(X=0, Y=0) = \frac{1}{4} \) <br>
+            <span style="font-size: 0.95rem; color: var(--text-secondary);">Note: \( P(X=1, Y=0) = 0 \) because the sum of all probabilities must be 1.</span>
+        </div>
+
+        <div class="solution-box" style="margin-top: 0; padding: 25px;">
+            <p><strong>Step 1: Calculate Joint Entropy \( H(X,Y) \)</strong></p>
+            <p style="margin-left: 20px;">Use the formula: \( -\sum p(x,y) \log_2 p(x,y) \)</p>
+            <p style="text-align: center; font-size: 1.15rem;">
+                \( H(X,Y) = -\frac{1}{4}\log_2(\frac{1}{4}) - \frac{1}{2}\log_2(\frac{1}{2}) - \frac{1}{4}\log_2(\frac{1}{4}) - 0\log_2(0) \)
+            </p>
+            <p style="text-align: center; font-size: 1.15rem; color: var(--accent-cyan);">
+                \( H(X,Y) = \frac{1}{4}(2) + \frac{1}{2}(1) + \frac{1}{4}(2) = \mathbf{\frac{3}{2} \text{ bits}} = 1.5 \text{ bits} \)
+            </p>
+
+            <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <p><strong>Step 2: Find Marginal Probabilities for X and Y</strong></p>
+            <p style="margin-left: 20px;">Sum the joint probabilities to find the individual (marginal) chances of X and Y occurring.</p>
+            <ul class="clean-list" style="margin-left: 20px;">
+                <li>\( P(X=1) = P(X=1, Y=1) + P(X=1, Y=0) = \frac{1}{2} + 0 = \frac{1}{2} \)</li>
+                <li>\( P(X=0) = P(X=0, Y=1) + P(X=0, Y=0) = \frac{1}{4} + \frac{1}{4} = \frac{1}{2} \)</li>
+                <li>\( P(Y=1) = P(X=1, Y=1) + P(X=0, Y=1) = \frac{1}{2} + \frac{1}{4} = \frac{3}{4} \)</li>
+                <li>\( P(Y=0) = \frac{1}{4} \)</li>
+            </ul>
+
+            <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <p><strong>Step 3: Calculate Individual Entropies \( H(X) \) and \( H(Y) \)</strong></p>
+            <ul class="clean-list" style="margin-left: 20px;">
+                <li>Since \( X \) is perfectly uniform (50/50), its entropy is maximized: <span style="color:var(--accent-cyan);">\( H(X) = 1 \text{ bit} \)</span>.</li>
+                <li>For \( Y \), we calculate \( H_b(0.75) \): \( -\frac{3}{4}\log_2(\frac{3}{4}) - \frac{1}{4}\log_2(\frac{1}{4}) \approx \)<span style="color:var(--accent-cyan);"> \( 0.81 \text{ bits} \)</span>.</li>
+            </ul>
+
+            <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <p><strong>Step 4: Calculate Conditional Entropies</strong></p>
+            <p style="margin-left: 20px;">Using the Chain Rule: \( H(X,Y) = H(X) + H(Y|X) = H(Y) + H(X|Y) \)</p>
+            <ul class="clean-list" style="margin-left: 20px;">
+                <li>\( H(Y|X) = H(X,Y) - H(X) = 1.5 - 1 = \mathbf{0.5 \text{ bits}} \)</li>
+                <li>\( H(X|Y) = H(X,Y) - H(Y) = 1.5 - 0.81 = \mathbf{0.69 \text{ bits}} \)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card" style="border-left: 5px solid var(--accent-yellow); margin-bottom: 70px;">
+        <h3 style="color: var(--accent-yellow);"><i class="fa-solid fa-person-chalkboard"></i> ELI5 Step-by-Step Example: Mutual Information (Slide 21)</h3>
+        <p><strong>The Setup:</strong> Let \( X \) and \( Y \) be binary random variables perfectly uniformly distributed over exactly 3 specific outcomes:</p>
+        <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px; font-size: 1.2rem;">
+            \( P(X=0, Y=0) = \frac{1}{3} \) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; \( P(X=1, Y=0) = \frac{1}{3} \) &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; \( P(X=0, Y=1) = \frac{1}{3} \)
+        </div>
+
+        <div class="solution-box" style="margin-top: 0; padding: 25px; border-left-color: var(--accent-yellow); background: rgba(255, 223, 0, 0.05);">
+            <p><strong>Step 1: Calculate Marginals and Individual Entropy</strong></p>
+            <p style="margin-left: 20px;">First, find the probability that \( X=0 \) or \( Y=0 \) across all joint events.</p>
+            <ul class="clean-list" style="margin-left: 20px;">
+                <li>\( P(X=0) = P(X=0, Y=0) + P(X=0, Y=1) = \frac{1}{3} + \frac{1}{3} = \frac{2}{3} \)</li>
+                <li>\( P(Y=0) = P(X=0, Y=0) + P(X=1, Y=0) = \frac{1}{3} + \frac{1}{3} = \frac{2}{3} \)</li>
+                <li>Because both have a \( \frac{2}{3} \) chance of being 0, their individual entropies are identical: <br> \( H(X) = H(Y) = H_b(\frac{2}{3}) \approx \mathbf{0.919 \text{ bits}} \).</li>
+            </ul>
+
+            <hr style="border-top: 1px solid rgba(255, 223, 0, 0.2); margin: 25px 0;">
+
+            <p><strong>Step 2: Calculate Joint Entropy \( H(X,Y) \)</strong></p>
+            <p style="margin-left: 20px;">Since the joint probability is uniformly distributed over exactly 3 values, its entropy hits the absolute upper bound formula \( \log_2(N) \):</p>
+            <p style="text-align: center; font-size: 1.15rem; color: var(--accent-yellow);">
+                \( H(X,Y) = \log_2(3) \approx \mathbf{1.585 \text{ bits}} \)
+            </p>
+
+            <hr style="border-top: 1px solid rgba(255, 223, 0, 0.2); margin: 25px 0;">
+
+            <p><strong>Step 3: Calculate Conditional Entropy \( H(X|Y) \)</strong></p>
+            <p style="margin-left: 20px;">Using the Chain Rule:</p>
+            <p style="text-align: center; font-size: 1.15rem;">
+                \( H(X|Y) = H(X,Y) - H(Y) = 1.585 - 0.919 = \mathbf{0.666 \text{ bits}} \)
+            </p>
+
+            <hr style="border-top: 1px solid rgba(255, 223, 0, 0.2); margin: 25px 0;">
+
+            <p><strong>Step 4: Solve for Mutual Information \( I(X;Y) \)</strong></p>
+            <p style="margin-left: 20px;">Finally, calculate the Mutual Information (the information they share)!</p>
+            <p style="text-align: center; font-size: 1.4rem; color: var(--accent-yellow); margin-top: 20px;">
+                \( I(X;Y) = H(X) - H(X|Y) = 0.919 - 0.666 = \mathbf{0.253 \text{ bits}} \)
+            </p>
+        </div>
+    </div>
+
+
+    <!-- 6. CONTINUOUS SOURCES -->
+    <h2 id="sec-continuous">6. Continuous Sources (Differential Entropy)</h2>
+    
+    <div class="card" style="margin-bottom: 50px;">
+        <h3><i class="fa-solid fa-infinity"></i> Discrete-Time Continuous-Alphabet</h3>
+        <ul class="clean-list">
+            <li>If a source outputs real continuous numbers (like pure analog voltage), standard entropy breaks down.</li>
+            <li><strong>Why?</strong> To flawlessly reconstruct an analog value with infinite decimal precision, you would need an <em>infinite</em> number of bits!</li>
+            <li>Instead, we use <strong>Differential Entropy \( h(X) \)</strong>, integrating over the Probability Density Function \( f_X(x) \):</li>
+        </ul>
+        
+        <div class="highlight-box">
+            \( h(X) = - \int_{-\infty}^{\infty} f_X(x) \log f_X(x) \,dx \)
+        </div>
+        
+        <div class="grid-2" style="margin-top: 30px; margin-bottom: 0;">
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="margin-bottom: 10px; color: var(--accent-cyan);"><strong>Uniform Distribution \( [0, a] \):</strong></p>
+                <p style="margin: 0; font-size: 1.2rem; text-align: center;">\( h(X) = \log_2(a) \)</p>
+            </div>
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <p style="margin-bottom: 10px; color: var(--accent-pink);"><strong>Zero-Mean Gaussian (Variance \( \sigma^2 \)):</strong></p>
+                <p style="margin: 0; font-size: 1.2rem; text-align: center;">\( h(X) = \frac{1}{2} \ln(2\pi e \sigma^2) \)</p>
+                <p style="margin: 10px 0 0 0; font-size: 0.9rem; color: var(--text-secondary); text-align: center;"><em>Derived using facts: \( \int f_X(x) = 1 \) and \( \int x^2 f_X(x) = \sigma^2 \)</em></p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 25px; padding: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p style="margin: 0; font-size: 1rem; color: var(--text-secondary);"><strong>Note for Continuous Mutual Information:</strong> The formulas remain structurally identical to the discrete version, just swapping \( H \) for \( h \):<br>
+            <span style="color: var(--text-primary);">\( I(X;Y) = h(Y) - h(Y|X) = h(X) - h(X|Y) \)</span></p>
+        </div>
+    </div>
+
+
+    <!-- 7. COMPRESSION THEOREM -->
+    <h2 id="sec-compression">7. The Source Coding Theorem (Data Compression)</h2>
+    
+    <div class="card card-highlight">
+        <h3><i class="fa-solid fa-compress"></i> The Essence of Data Compression</h3>
+        
+        <ul class="clean-list">
+            <li>According to Shannon's Source Coding Theorem, an information source can be encoded with an arbitrarily small error probability at any rate \( R \) bits/output, as long as <strong>\( R > H(X) \)</strong>.</li>
+            <li>If \( R < H(X) \), error probability is bounded away from zero regardless of system complexity.</li>
+            <li><strong style="color: var(--accent-pink);">Important Note (Slide 31):</strong> Shannon's theorem only gives the mathematical limit for the <em>existence</em> of source codes. It does NOT provide the actual algorithm to do the encoding!</li>
+            <li>This works because of <strong>"Typical Sequences"</strong> (sequences that match the expected statistical probabilities of the source). As \( n \) grows large, atypical sequences approach zero probability.</li>
+        </ul>
+        
+        <div class="solution-box" style="border-left-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05);">
+            <h4 style="color: var(--accent-pink); margin-top: 0; font-size: 1.3rem;"><i class="fa-solid fa-database"></i> Deriving the Mathematical Limit</h4>
+            <p>Using the memoryless property, the probability of a typical sequence is:</p>
+            <p style="text-align: center; font-size: 1.2rem; margin: 15px 0;">
+                \( P(X=x) = \prod_{i=1}^{N} p_i^{np_i} \)
+            </p>
+            <p>If we apply \( \log_2 \) to both sides to solve for \( x \), it beautifully simplifies to:</p>
+            <div style="text-align: center; font-size: 1.6rem; color: var(--accent-pink); margin: 25px 0; background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px;">
+                \( P(X=x) = 2^{-nH(X)} \)
+            </div>
+            
+            <p>Because the total probability is almost 1, the total number of Typical Sequences is the reciprocal: <strong>\( 2^{n H(X)} \)</strong>. <br>To digitally encode them, we only need exactly <strong>\( nH(X) \) bits!</strong></p>
+            
+            <hr style="border: none; border-top: 1px solid rgba(255, 42, 109, 0.2); margin: 30px 0;">
+            
+            <ul class="clean-list">
+                <li>If the source is purely Uniform (maximum entropy), then \( 2^{n \log_2 N} = N^n \). You need the full bit-width. <strong>Zero compression is possible.</strong></li>
+                <li>However, if the source has skewed probabilities, \( H(X) \) shrinks, allowing for massive data compression!</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-top: 30px; border-left: 5px solid var(--accent-green);">
+        <h4 style="margin-top: 0; color: var(--accent-green);"><i class="fa-solid fa-brain"></i> What about Sources WITH Memory? (Slide 30)</h4>
+        <p>If a source has memory, previous outputs reveal information about future ones. The rate of "fresh" information decreases as more outputs are revealed!</p>
+        <p>For these stationary sources, the <strong>Entropy Rate</strong> is defined as the limit as \( n \to \infty \):</p>
+        <div class="highlight-box" style="font-size: 1.4rem; border-color: var(--accent-green); padding: 15px; margin-bottom: 0;">
+            \( H = \lim_{n \to \infty} H(X_n | X_1, X_2, \dots X_{n-1}) = \lim_{n \to \infty} \frac{1}{n} H(X_1, X_2, \dots X_n) \)
+        </div>
+    </div>
+
+
+    <!-- 8. HUFFMAN CODING (EXPANDED) -->
+    <h2 id="sec-huffman">8. Huffman Source Coding Algorithm</h2>
+    <div class="card card-green">
+        <h3><i class="fa-solid fa-code"></i> Fixed-to-Variable Length Coding</h3>
+        <p>The Source Coding Theorem proved compression is possible, but didn't provide the algorithm to do it. Huffman coding is the practical algorithm that actually achieves this compression!</p>
+        
+        <ul class="clean-list">
+            <li><strong>The Core Idea:</strong> Map more frequently occurring sequences to <em>shorter</em> binary code words, and less frequent ones to <em>longer</em> code words.</li>
+            <li><strong>The Prefix Condition:</strong> To ensure unique decodability without spacing/synchronization errors, no code word can be the prefix (start) of another code word. It must be instantaneously decodable.</li>
+            <li>Among all prefix-condition codes, Huffman achieves the <strong>absolute minimum average code word length.</strong></li>
+        </ul>
+
+        <div class="grid-2" style="margin-top: 30px; margin-bottom: 0;">
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px;">
+                <h4 style="margin-top: 0; color: var(--accent-green);">Average Length (\( \bar{R} \))</h4>
+                <p style="text-align: center; font-size: 1.2rem;">\( \bar{R} = E[L] = \sum p(x) l(x) \)</p>
+                <p style="font-size: 0.95rem; text-align: center; margin-bottom: 0;">It satisfies the boundary condition:<br> <strong style="color: var(--accent-green);">\( H(X) \le \bar{R} < H(X) + 1 \)</strong></p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 12px;">
+                <h4 style="margin-top: 0; color: var(--accent-green);">Efficiency (\( \eta \))</h4>
+                <p style="text-align: center; font-size: 1.2rem;">\( \eta = \frac{H(X)}{\bar{R}} \)</p>
+                <p style="font-size: 0.95rem; text-align: center; margin-bottom: 0;">The closer \( \bar{R} \) is to \( H(X) \), the closer the efficiency is to 100%.</p>
+            </div>
+        </div>
+
+        <div class="solution-box" style="border-left-color: var(--accent-green); background: rgba(0, 255, 102, 0.05); margin-top: 35px;">
+            <h4 style="color: var(--accent-green); margin-top: 0;"><i class="fa-solid fa-list-ol"></i> The 5-Step Huffman Algorithm (Slide 36)</h4>
+            <p>How do we actually build the tree?</p>
+            <ol style="margin-left: 20px; font-size: 1.05rem;">
+                <li style="margin-bottom: 10px;">Sort source outputs in decreasing order of their probabilities.</li>
+                <li style="margin-bottom: 10px;">Merge the two least probable outputs into a single output whose probability is the sum of the two.</li>
+                <li style="margin-bottom: 10px;">If the number of remaining outputs is 2, go to Step 4; otherwise loop back to Step 2.</li>
+                <li style="margin-bottom: 10px;">Arbitrarily assign '0' and '1' as code words for the two remaining merged outputs.</li>
+                <li style="margin-bottom: 10px;">Trace back: If an output is a merger, append the current code word with a '0' and a '1' to obtain the specific code words for the preceding branches. Stop when all original outputs have codes.</li>
+            </ol>
+        </div>
+        
+        <div style="margin-top: 25px; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 25px;">
+            <h4 style="color: var(--accent-pink); margin-top: 0;"><i class="fa-solid fa-triangle-exclamation"></i> Major Drawbacks of Huffman Coding</h4>
+            <ul class="clean-list">
+                <li><strong>Requires Source Statistics:</strong> You must know the exact probabilities beforehand. If you don't, you must make <em>two passes</em> over the data (one to calculate stats, one to compress).</li>
+                <li><strong>Ignores Source Memory:</strong> If designed for block length 1, it only optimizes for frequency. To optimize for memory, you must increase block length, which <em>exponentially</em> explodes the complexity of the algorithm.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ELI5 Breakdown: Code Analysis -->
+    <div class="card" style="border-left: 5px solid var(--accent-pink); margin-top: 40px; margin-bottom: 50px;">
+        <h3 style="color: var(--accent-pink);"><i class="fa-solid fa-list-check"></i> Prefix Condition & Synchronization (Slide 33-34)</h3>
+        <p>Let's look at 4 different ways to encode an alphabet of 5 letters \( (a_1 \dots a_5) \) with probabilities \( (\frac{1}{2}, \frac{1}{4}, \frac{1}{8}, \frac{1}{16}, \frac{1}{16}) \):</p>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Letter</th>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Prob</th>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Code 1</th>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Code 2</th>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Code 3 (Huffman)</th>
+                    <th style="color: var(--accent-pink); border-color: rgba(255,42,109,0.3); background: rgba(255,42,109,0.1);">Code 4</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>\(a_1\)</td><td>\( \frac{1}{2} \)</td><td>1</td><td>1</td><td>0</td><td>00</td></tr>
+                <tr><td>\(a_2\)</td><td>\( \frac{1}{4} \)</td><td>01</td><td>10</td><td>10</td><td>01</td></tr>
+                <tr><td>\(a_3\)</td><td>\( \frac{1}{8} \)</td><td>001</td><td>100</td><td>110</td><td>10</td></tr>
+                <tr><td>\(a_4\)</td><td>\( \frac{1}{16} \)</td><td>0001</td><td>1000</td><td>1110</td><td>11</td></tr>
+                <tr><td>\(a_5\)</td><td>\( \frac{1}{16} \)</td><td>00001</td><td>10000</td><td>1111</td><td>110</td></tr>
+                <tr style="font-weight: bold; color: var(--accent-cyan); background: rgba(0, 229, 255, 0.05);">
+                    <td colspan="2">Average Length \(\bar{R}\)</td>
+                    <td>1.9375</td><td>1.9375</td><td style="color: var(--accent-green);">1.875</td><td>2.0625</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="solution-box" style="margin-top:20px; border-left-color: var(--accent-pink); background: rgba(255,42,109,0.05);">
+            <h4 style="color: var(--accent-pink); margin-top: 0;">Code Analysis</h4>
+            <ul class="clean-list" style="font-size: 0.95rem;">
+                <li><strong>Codes 1 & 2:</strong> Both are self-synchronizing. However, Code 2 needs to wait for the first bit of the <em>next</em> code to confirm the current code ended. Code 1 is instantaneous.</li>
+                <li><strong>Code 3 (Huffman):</strong> Satisfies the <strong>Prefix Condition</strong> (no code is the prefix of another), is instantaneously decodable, AND hits the absolute minimum average length (1.875).</li>
+                <li><strong style="color: var(--accent-yellow);">Code 4 Problem:</strong> It is NOT uniquely decodable! For example, the sequence <code>110</code> could be decoded as \( a_5 \) (110) OR as \( a_4, a_1 \) (11, 0). This causes total failure at the receiver.</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Deep Dive Example: Huffman Extended Sequence -->
+    <div class="card" style="border-left: 5px solid var(--accent-cyan); margin-top: 40px; margin-bottom: 50px;">
+        <h3 style="color: var(--accent-cyan);"><i class="fa-solid fa-person-chalkboard"></i> ELI5 Breakdown: Improving Huffman with Extensions (Slide 39)</h3>
+        <p><strong>The Setup:</strong> We have a memoryless source with 3 perfectly equiprobable letters \( A = \{a_1, a_2, a_3\} \). Thus, \( p = \frac{1}{3} \) for all. <br>The basic Huffman code assigns them: <code>0</code>, <code>10</code>, <code>11</code>.</p>
+        
+        <div class="solution-box" style="margin-top: 0; padding: 25px;">
+            <p><strong>Step 1: The Baseline (Block Length 1)</strong></p>
+            <ul class="clean-list" style="margin-left: 20px;">
+                <li><strong>Entropy:</strong> \( H(X) = \log_2(3) \approx \mathbf{1.585 \text{ bits}} \).</li>
+                <li><strong>Average Code Length:</strong> \( \bar{R} = \frac{1}{3}(1 \text{ bit}) + \frac{1}{3}(2 \text{ bits}) + \frac{1}{3}(2 \text{ bits}) = \mathbf{1.667 \text{ bits}} \).</li>
+            </ul>
+
+            <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <p><strong>Step 2: The Extended Source (Block Length 2)</strong></p>
+            <p style="margin-left: 20px;">What if we group them in pairs? \( A^2 = \{a_1 a_1, a_1 a_2, \dots , a_3 a_3\} \). Since there are 3 letters, there are \( 3 \times 3 = 9 \) possible pairs. Each pair now has a probability of \( \frac{1}{9} \).</p>
+            <p style="margin-left: 20px;">If we run the Huffman algorithm on these 9 pairs, we generate 9 new codes: 7 of them have a length of 3 bits, and 2 of them have a length of 4 bits.</p>
+
+            <hr style="border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <p><strong>Step 3: Calculating Improved Efficiency</strong></p>
+            <p style="margin-left: 20px;">Let's calculate the new Average Code Length (\( R_2 \)) for the pair:</p>
+            <p style="text-align: center; font-size: 1.15rem; color: var(--accent-cyan);">
+                \( R_2 = \frac{1}{9}(7 \times 3) + \frac{1}{9}(2 \times 4) = \frac{21}{9} + \frac{8}{9} = \mathbf{3.22 \text{ bits}} \)
+            </p>
+            <p style="margin-left: 20px;">But wait! That 3.22 bits represents TWO letters. We must divide by 2 to find the average per single letter:</p>
+            <p style="text-align: center; font-size: 1.3rem; color: var(--accent-cyan); font-weight: 700;">
+                \( \frac{3.22}{2} = \mathbf{1.61 \text{ bits per source output}} \)
+            </p>
+            <p style="margin-left: 20px; color: var(--accent-green);"><strong>Conclusion:</strong> By encoding blocks of 2 instead of 1, we dropped the required bits per letter from 1.667 down to 1.61, moving us much closer to the absolute Entropy limit of 1.585!</p>
+        </div>
+    </div>
+
+
+    <!-- 9. LEMPEL-ZIV CODING (EXPANDED) -->
+    <h2 id="sec-lempel">9. Lempel-Ziv Source Coding Algorithm</h2>
+    <div class="card card-purple">
+        <h3 style="color: var(--accent-purple);"><i class="fa-solid fa-file-archive"></i> Universal Source Coding</h3>
+        <p>To overcome Huffman's flaws, Lempel-Ziv was created. It is a <strong>universal algorithm</strong>, meaning it operates entirely independently of the source statistics!</p>
+        
+        <ul class="clean-list">
+            <li><strong>Variable-to-Fixed Length:</strong> It parses variable-length phrases of data and encodes them into fixed-length binary words.</li>
+            <li><strong>The Dictionary Approach:</strong> It parses data by identifying the <em>smallest phrase length that has not appeared before</em>, adding it to a dictionary.</li>
+            <li>The encoded format is mathematically represented as: <br><code style="color: var(--accent-cyan);">[Dictionary Location of Prefix] + [New Source Output Bit]</code>.</li>
+        </ul>
+
+        <div class="solution-box" style="border-left-color: var(--accent-purple); background: rgba(192, 64, 255, 0.05); margin-top: 35px;">
+            <h4 style="color: var(--accent-purple); margin-top: 0;"><i class="fa-solid fa-magnifying-glass"></i> Example: Parsing the Dictionary (Slide 42 & 45)</h4>
+            <p>Watch how LZ breaks apart a binary string by looking for the shortest new sequence it hasn't seen yet:</p>
+            
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; text-align: center; margin: 20px 0;">
+                Raw String: <code>0100001100001010000010100...</code>
+            </p>
+            <p style="font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; text-align: center; color: var(--accent-cyan);">
+                Parsed: <code>0, 1, 00, 001, 10, 000, 101, 0000, 01, 010...</code>
+            </p>
+            <p style="text-align: center; font-size: 0.95rem;"><em>Notice how every chunk is formed by taking a previous chunk and appending exactly 1 new bit to it!</em></p>
+
+            <table style="margin-top: 30px;">
+                <thead>
+                    <tr>
+                        <th style="color: var(--accent-purple); border-color: rgba(192,64,255,0.3); background: rgba(192,64,255,0.1);">Index</th>
+                        <th style="color: var(--accent-purple); border-color: rgba(192,64,255,0.3); background: rgba(192,64,255,0.1);">Phrase</th>
+                        <th style="color: var(--accent-purple); border-color: rgba(192,64,255,0.3); background: rgba(192,64,255,0.1);">LZ Codeword Construction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1 (0001)</td><td>A</td><td>(0, A) &rarr; Since 'A' is new, prefix is index 0.</td></tr>
+                    <tr><td>2 (0010)</td><td>B</td><td>(0, B) &rarr; Since 'B' is new, prefix is index 0.</td></tr>
+                    <tr><td>3 (0011)</td><td>AB</td><td>(1, B) &rarr; 'A' is at Index 1, append 'B'.</td></tr>
+                    <tr><td>4 (0100)</td><td>ABC</td><td>(3, C) &rarr; 'AB' is at Index 3, append 'C'.</td></tr>
+                </tbody>
+            </table>
+            
+            <p style="margin-top: 20px;"><strong>The Efficiency Reality Check:</strong> At the very beginning of a file, Lempel-Ziv might actually <em>increase</em> file size (e.g., mapping 44 bits to 75 bits). However, as the length of the sequence grows massive, the dictionary becomes incredibly efficient, asymptotically approaching \( nH(X) \).</p>
+        </div>
+
+        <div class="highlight-box" style="font-size: 1.1rem; text-align: left; border-color: var(--accent-purple); margin-top: 40px; margin-bottom: 0;">
+            <strong style="color: var(--accent-purple);"><i class="fa-solid fa-triangle-exclamation"></i> The Overflow Problem (Slide 44):</strong> What happens when the dictionary gets too large? In reality, any fixed number of phrases will eventually overflow memory. To solve this, the encoder/decoder must actively <strong>purge</strong> dictionaries of old/useless elements to make room for new ones. This exact memory-purging implementation is what powers modern <strong>.zip</strong> and <strong>.gzip</strong> files!
+        </div>
+    </div>
+
+
+    <!-- 10. MODELING COMMUNICATION CHANNELS -->
+    <h2 id="sec-channel">10. Modeling Communication Channels</h2>
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-road"></i> The Channel System</h3>
+            <p>A communication channel is any physical medium (coaxial cable, fiber optics, free space) that transmits information. Because bandwidth is limited, we use the Nyquist sampling theorem to model practical analog waveform channels as <strong>Discrete-Time Channels</strong>.</p>
+            
+            <h4 style="color: var(--accent-cyan); margin-top: 10px;">Physical Impairments (Slide 47)</h4>
+            <p style="font-size: 0.95rem;">Why is the output different from the input? It gets crushed by a stochastic mix of <strong>attenuation, nonlinearities, bandwidth limits, multipath propagation, and thermal noise.</strong></p>
+
+            <ul class="clean-list" style="margin-top: 20px;">
+                <li>If it has no memory, it is a <strong>Discrete Memoryless Channel (DMC)</strong>.</li>
+                <li>Described by input alphabet \( \mathcal{X} \), output alphabet \( \mathcal{Y} \), and conditional transition probabilities \( P(y|x) \).</li>
+                <li>For a DMC: \( P(y|x) = \prod_{i=1}^{n} P(y_i|x_i) \).</li>
+            </ul>
+        </div>
+
+        <div class="card card-yellow">
+            <h3 style="color: var(--accent-yellow);"><i class="fa-solid fa-exchange-alt"></i> Binary Symmetric Channel (BSC)</h3>
+            <p>The simplest digital channel model. It transmits binary bits, but introduces a <strong>crossover probability \( \epsilon \)</strong> (the chance a 0 flips to a 1, or 1 flips to 0 due to noise).</p>
+            <div style="text-align: center; font-size: 1.3rem; margin-top: 20px; margin-bottom: 25px; padding: 15px; background: rgba(0,0,0,0.4); border-radius: 8px;">
+                \( \epsilon = P(0|1) = P(1|0) \)
+            </div>
+            
+            <h4 style="color: var(--accent-yellow); margin-top: 0; font-size: 1.1rem;">AWGN Connection (Slide 51-52)</h4>
+            <p style="font-size: 0.95rem;">If the BSC is actually representing an Additive White Gaussian Noise (AWGN) channel using Binary PSK antipodal signaling, the crossover error is explicitly defined by the Q-function:</p>
+            <p style="text-align: center; font-size: 1.15rem; color: var(--accent-yellow);">\( \epsilon = Q\left(\sqrt{\frac{2\mathcal{E}_b}{N_0}}\right) \)</p>
+            <p style="text-align: center; font-size: 0.95rem; color: var(--text-secondary);">Where the analog noise PDF is: \( f(y|x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{\frac{-(y-x)^2}{2\sigma^2}} \)</p>
+            
+            <p style="margin-top: 15px; font-size: 0.95rem;"><strong>Power Constraint:</strong> To make the math realistic, the channel imposes a fixed transmission power constraint over \( n \) samples: <strong style="color: var(--text-primary);">\( \frac{1}{n} \sum_{i=1}^{n} x_i^2 \le P \)</strong></p>
+        </div>
+    </div>
+
+
+    <!-- 11. CHANNEL CAPACITY (EXPANDED) -->
+    <h2 id="sec-capacity">11. Channel Capacity & The Noisy Channel Theorem</h2>
+    <div class="card card-pink">
+        <h3 style="color: var(--accent-pink);"><i class="fa-solid fa-gauge-high"></i> The Ultimate Speed Limit</h3>
+        <p>The Noisy Channel Coding Theorem proves a mind-blowing fact: <strong>Noise does not limit the reliability of a channel; it only limits its SPEED.</strong></p>
+        <p>You can achieve reliable communication (arbitrarily small error probability) over ANY noisy channel, provided your transmission rate \( R \) is less than the Channel Capacity \( C \).</p>
+        
+        <div class="highlight-box" style="font-size: 1.5rem; border-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05);">
+            \( C = \max_{P(x)} I(X;Y) \)
+        </div>
+
+        <div class="card card-yellow" style="margin-top: 30px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255, 223, 0, 0.3);">
+            <h4 style="margin-top: 0; color: var(--accent-yellow);"><i class="fa-solid fa-arrows-left-right-to-line"></i> ELI5 Analogy: "Far Apart" Images (Slide 54-55)</h4>
+            <p style="font-size: 1.05rem;">Imagine transmitting letters over a noisy channel. If you send an <strong>"a"</strong>, the noise might blur it so it looks like a <strong>"d"</strong> at the receiver. The receiver has ambiguity.</p>
+            <p style="font-size: 1.05rem; margin-bottom: 0;"><strong>The Solution:</strong> The transmitter and receiver agree beforehand to ONLY use the letters <strong>"a"</strong> and <strong>"c"</strong>. By selecting inputs that are "far apart," their noisy outputs (images) will have negligible overlap, completely eliminating ambiguity! This is the essence of the Noisy Channel theorem.</p>
+        </div>
+
+        <div class="solution-box" style="border-left-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05); margin-top: 35px;">
+            <h4 style="color: var(--accent-pink); margin-top: 0;"><i class="fa-solid fa-calculator"></i> Deriving Capacity for the BSC (Slide 57 & 59)</h4>
+            <p>How do we mathematically prove the maximum rate for a noisy BSC? We look at the <em>Extension Channel</em> (block length \( n \)).</p>
+            <ul class="clean-list" style="margin-top: 15px;">
+                <li>Out of \( n \) transmitted bits, the channel flips roughly \( n\epsilon \) bits.</li>
+                <li>The number of possible error combinations is given by the binomial coefficient, which approximates to: <strong style="color: var(--accent-cyan);">\( 2^{n H_b(\epsilon)} \)</strong>.</li>
+                <li>The total number of highly probable output sequences is <strong style="color: var(--accent-cyan);">\( 2^{n H(Y)} \)</strong>.</li>
+            </ul>
+            <p style="margin-top: 15px;">To ensure the receiver doesn't get confused (ambiguity), the input sequences must be mapped to outputs that do NOT overlap. The maximum number of non-overlapping sequences \( M \) is:</p>
+            <p style="text-align: center; font-size: 1.3rem;">\( M = \frac{2^{n H(Y)}}{2^{n H_b(\epsilon)}} = 2^{n(H(Y) - H_b(\epsilon))} \)</p>
+            
+            <p style="margin-top: 15px;">Since Rate \( R = \frac{\log_2 M}{n} \), the rate becomes \( H(Y) - H_b(\epsilon) \). To maximize this rate, we set the input \( X \) to perfectly uniform (50/50), which forces \( H(Y) = 1 \). Leaving us with the final formula:</p>
+            <p style="text-align: center; font-size: 1.5rem; color: var(--accent-pink); font-weight: 700; margin-bottom: 0;">\( C_{BSC} = 1 - H_b(\epsilon) \)</p>
+        </div>
+    </div>
+
+    <!-- ELI5 Example for Channel Capacity (Slide 62, 63 & 70) -->
+    <div style="display: flex; flex-direction: column; gap: 40px; margin-bottom: 60px;">
+        <div class="card" style="border-left: 5px solid var(--accent-yellow); padding: 30px;">
+            <h4 style="margin-top:0; color: var(--accent-yellow);"><i class="fa-solid fa-calculator"></i> Example: The 12-Transmission Cost (Slide 62)</h4>
+            <p style="font-size: 0.95rem;">Given a channel where the conditional entropy \( H(Y|X) \) is calculated as exactly \( 1.5 \) bits, and the max output entropy \( H(Y)_{max} = \log_2(3) \approx 1.585 \) bits.</p>
+            <ul class="clean-list" style="font-size: 0.95rem;">
+                <li><strong>Step 1: Calculate Capacity (Mutual Info).</strong> <br> \( C = I(X;Y) = H(Y) - H(Y|X) \)</li>
+                <li>\( C = 1.585 - 1.5 = \mathbf{0.085 \frac{\text{bits}}{\text{transmission}}} \)</li>
+                <li><strong>Step 2: Time Cost.</strong> If capacity is only 0.085 bits per transmission, how many transmissions to send 1 full bit?</li>
+                <li>\( \frac{1 \text{ bit}}{0.085 \frac{\text{bits}}{\text{transmission}}} \approx \mathbf{12 \text{ transmissions!}} \)</li>
+            </ul>
+        </div>
+
+        <div class="card" style="border-left: 5px solid var(--accent-cyan); padding: 30px;">
+            <h4 style="margin-top:0; color: var(--accent-cyan);"><i class="fa-solid fa-calculator"></i> Example: AWGN Capacity (Slide 63)</h4>
+            <p style="font-size: 0.95rem;">Find the capacity of a telephone channel with Bandwidth \( W = 3000 \) Hz, and SNR = 39 dB.</p>
+            <ul class="clean-list" style="font-size: 0.95rem;">
+                <li><strong>Step 1: Convert dB to Linear.</strong> <br> \( 39 \text{ dB} \rightarrow 10^{3.9} \approx 7943 \).</li>
+                <li><strong>Step 2: Apply Shannon's Formula.</strong> <br> \( C = 3000 \log_2(1 + 7943) \)</li>
+                <li><strong>Result:</strong> \( C = 3000 \log_2(7944) \approx \mathbf{38,000 \frac{\text{bits}}{\text{sec}}} \)</li>
+            </ul>
+        </div>
+
+        <div class="card" style="border-left: 5px solid var(--accent-pink); padding: 30px;">
+            <h4 style="margin-top:0; color: var(--accent-pink);"><i class="fa-solid fa-tower-cell"></i> Example: Reliable Transmission (Slide 70)</h4>
+            <p style="font-size: 0.95rem;">Transmit source U with \( P(0) = \frac{1}{4} \) reliably over a BSC. Find max crossover error \( \epsilon \).</p>
+            <ul class="clean-list" style="font-size: 0.95rem;">
+                <li><strong>Step 1: Source Entropy.</strong> <br> \( H(U) = H_b(0.25) \approx 0.8113 \text{ bits} \).</li>
+                <li><strong>Step 2: Apply Bound.</strong> Reliable transmission requires \( H(U) < C \).</li>
+                <li>\( 0.8113 < 1 - H_b(\epsilon) \implies H_b(\epsilon) < 0.1887 \).</li>
+                <li><strong>Result:</strong> Numerically solving yields \( \mathbf{0 \le \epsilon < 0.0288} \).</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- 12. BOUNDS OF COMMUNICATION (EXPANDED) -->
+    <h2 id="sec-bounds">12. The Bounds of Communication (Trade-offs)</h2>
+    <div class="card card-green">
+        <h3 style="color: var(--accent-green);"><i class="fa-solid fa-scale-balanced"></i> Bandwidth vs. Power</h3>
+        <p>The channel capacity formula \( C = W \log_2\left(1 + \frac{P}{N_0 W}\right) \) reveals a critical engineering trade-off. We can compensate for a lack of bandwidth by increasing power, and vice versa!</p>
+        
+        <ul class="clean-list">
+            <li><strong>Increasing Power (\( P \)):</strong> Allows for more distinct, noise-immune amplitude levels. However, the increase in capacity is strictly logarithmic, meaning it is a very slow, expensive way to increase speed.</li>
+            <li><strong>Increasing Bandwidth (\( W \)):</strong> Allows more samples per second, increasing rate. However, more bandwidth admits more thermal noise (\( N_0 W \)), deteriorating the signal.</li>
+        </ul>
+
+        <div class="solution-box" style="border-left-color: var(--accent-green); background: rgba(0, 255, 102, 0.05); margin-bottom: 25px;">
+            <h4 style="color: var(--accent-green); margin-top: 0;">The Absolute Infinity Limit (Slide 65)</h4>
+            <p>Because of the thermal noise penalty, letting bandwidth \( W \to \infty \) does NOT result in infinite capacity. It mathematically asymptotes to a hard limit:</p>
+            <div style="text-align: center; font-size: 1.4rem; color: var(--accent-green); margin: 15px 0;">
+                \( \lim_{W \to \infty} W \log_2\left(1 + \frac{P}{N_0 W}\right) \approx 1.44 \frac{P}{N_0} \)
+            </div>
+            <p style="text-align: center; font-size: 1rem;">This proves that by increasing bandwidth alone, you cannot increase capacity to infinity.</p>
+        </div>
+
+        <h4 style="color: var(--text-primary); margin-top: 20px;"><i class="fa-solid fa-battery-half"></i> Spectral Efficiency (\( r \)) vs Energy Efficiency (\( \mathcal{E}_b/N_0 \)) (Slide 69)</h4>
+        <p>By dividing rate by bandwidth (\( r = R/W \)), we can define the required Energy per bit to Noise ratio to maintain reliable communication:</p>
+        
+        <div style="text-align: center; font-size: 1.4rem; margin: 20px 0;">
+            \( \frac{\mathcal{E}_b}{N_0} > \frac{2^r - 1}{r} \)
+        </div>
+
+        <ul class="clean-list" style="margin-top: 20px;">
+            <li><strong>The Absolute Minimum:</strong> As \( r \to 0 \), the absolute lowest power ratio required to transmit data without errors is \( 0.693 \) (or <strong>-1.6 dB</strong>). Below this, communication is mathematically impossible.</li>
+            <li><strong>Power-Limited Regime (\( r \ll 1 \)):</strong> Bandwidth is large, but power is heavily restricted (e.g., deep space probes). The primary concern is saving power, so we use high-dimensional schemes like <strong>Orthogonal or Simplex</strong> signaling.</li>
+            <li><strong>Bandwidth-Limited Regime (\( r \gg 1 \)):</strong> Power is plentiful, but frequency spectrum is heavily restricted (e.g., mobile cellular networks). The primary concern is saving spectrum, so we use crowded, low-dimensional constellations like <strong>M-ary QAM and PSK</strong>!</li>
+        </ul>
+    </div>
+
+
+    <!-- 13. REVISION SOLUTIONS -->
+    <h2 id="sec-revision">13. Revision Solutions (Slides 71-75)</h2>
+    
+    <div class="grid-2">
+        <div class="card card-cyan">
+            <h4 style="margin-top: 0; color: var(--accent-cyan);"><i class="fa-solid fa-check-double"></i> Q1: Entropy Comparison</h4>
+            <p style="font-size: 0.95rem;"><strong>Problem:</strong> Alphabet of 6 with probabilities {0.1, 0.2, 0.3, 0.05, 0.15, 0.2}. Find Entropy and compare to uniform.</p>
+            <div class="solution-box" style="margin-top: 10px; padding: 20px;">
+                <p><strong>Step 1: Calculate H(X)</strong></p>
+                <p style="text-align: center; font-size: 1rem;">\( H = -(0.1\log_2 0.1 + 0.2\log_2 0.2 + \dots) \)</p>
+                <p style="text-align: center; font-size: 1.1rem; color: var(--accent-cyan); font-weight: bold;">\( H = 2.4087 \text{ bits} \)</p>
+                <p><strong>Step 2: Uniform Entropy</strong></p>
+                <p style="text-align: center; font-size: 1rem;">\( H_{uniform} = \log_2(6) \)</p>
+                <p style="text-align: center; font-size: 1.1rem; color: var(--accent-cyan); font-weight: bold;">\( H_{uniform} = 2.5850 \text{ bits} \)</p>
+                <p style="margin-bottom: 0; font-size: 0.9rem;"><em>Conclusion: The skewed source has less uncertainty (lower entropy) than the perfectly uniform source.</em></p>
+            </div>
+        </div>
+
+        <div class="card card-purple">
+            <h4 style="margin-top: 0; color: var(--accent-purple);"><i class="fa-solid fa-check-double"></i> Q3: Quantized Source Entropy</h4>
+            <p style="font-size: 0.95rem;"><strong>Problem:</strong> Source has probabilities {0.05, 0.1, 0.1, 0.15, 0.05, 0.25, 0.3} for {-5,-3,-1,0,1,3,5}. It is quantized to just {-4, 0, 4}. Find quantized entropy.</p>
+            <div class="solution-box" style="border-left-color: var(--accent-purple); background: rgba(192,64,255,0.05); margin-top: 10px; padding: 20px;">
+                <p><strong>Step 1: Sum the Mapped Probabilities</strong></p>
+                <ul class="clean-list" style="font-size: 0.9rem;">
+                    <li>\( q(-4) \) groups {-5, -3}: \( 0.05 + 0.1 = \mathbf{0.15} \)</li>
+                    <li>\( q(0) \) groups {-1, 0, 1}: \( 0.1 + 0.15 + 0.05 = \mathbf{0.30} \)</li>
+                    <li>\( q(4) \) groups {3, 5}: \( 0.25 + 0.3 = \mathbf{0.55} \)</li>
+                </ul>
+                <p><strong>Step 2: Calculate New H(X)</strong></p>
+                <p style="text-align: center; font-size: 1rem;">\( H = -(0.15\log_2 0.15 + 0.30\log_2 0.30 + 0.55\log_2 0.55) \)</p>
+                <p style="text-align: center; font-size: 1.2rem; color: var(--accent-purple); font-weight: bold; margin-bottom: 0;">\( H = 1.37 \text{ bits} \)</p>
+            </div>
+        </div>
+
+        <!-- NEW: Revision 6(b) Comprehensive BSC Channel Analysis -->
+        <div class="card card-pink" style="grid-column: 1 / -1;">
+            <h4 style="margin-top: 0; color: var(--accent-pink);"><i class="fa-solid fa-check-double"></i> Revision 6(b): Comprehensive Channel Analysis</h4>
+            <p style="font-size: 0.95rem;"><strong>Problem:</strong> Let \( X \) be a binary random variable with \( P(X=0) = p \). Let \( Y \) depend on \( X \) through the crossover probability \( P(Y=1|X=0) = P(Y=0|X=1) = e \). Find all entropies, and analyze maximization.</p>
+            
+            <div class="solution-box" style="border-left-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05); margin-top: 10px; padding: 25px;">
+                <p style="color: var(--accent-pink); font-size: 1.1rem; margin-top: 0;"><strong>Part A: Finding All Entropies</strong></p>
+                <ul class="clean-list">
+                    <li><strong>1. Source Entropy \( H(X) \):</strong> Because \( P(X=0) = p \), it is exactly the binary entropy function.<br>
+                        <span style="color: var(--accent-cyan);">\( H(X) = H_b(p) = -p\log_2(p) - (1-p)\log_2(1-p) \)</span>
+                    </li>
+                    <li><strong>2. Marginal Output Entropy \( H(Y) \):</strong> Using Total Probability, the chance of receiving a 0 is: \( P(Y=0) = P(Y=0|X=0)P(X=0) + P(Y=0|X=1)P(X=1) \).<br>
+                        So \( P(Y=0) = p(1-e) + (1-p)e \). Thus:<br>
+                        <span style="color: var(--accent-cyan);">\( H(Y) = H_b\big(p(1-e) + e(1-p)\big) \)</span>
+                    </li>
+                    <li><strong>3. Conditional Entropy \( H(Y|X) \):</strong> Because the crossover is symmetric (\( e \)), the uncertainty introduced by the channel is entirely independent of the input!<br>
+                        <span style="color: var(--accent-cyan);">\( H(Y|X) = H_b(e) \)</span>
+                    </li>
+                    <li><strong>4. Joint Entropy \( H(X,Y) \):</strong> Use the Chain Rule \( H(X,Y) = H(X) + H(Y|X) \):<br>
+                        <span style="color: var(--accent-cyan);">\( H(X,Y) = H_b(p) + H_b(e) \)</span>
+                    </li>
+                    <li><strong>5. Reverse Conditional \( H(X|Y) \):</strong> Use the Chain Rule in reverse \( H(X|Y) = H(X,Y) - H(Y) \):<br>
+                        <span style="color: var(--accent-cyan);">\( H(X|Y) = H_b(p) + H_b(e) - H_b\big(p(1-e) + e(1-p)\big) \)</span>
+                    </li>
+                    <li><strong>6. Mutual Information \( I(X;Y) \):</strong> The shared information \( I(X;Y) = H(Y) - H(Y|X) \):<br>
+                        <span style="color: var(--accent-cyan);">\( I(X;Y) = H_b\big(p(1-e) + e(1-p)\big) - H_b(e) \)</span>
+                    </li>
+                </ul>
+
+                <hr style="border-top: 1px solid rgba(255, 42, 109, 0.2); margin: 30px 0;">
+
+                <p style="color: var(--accent-pink); font-size: 1.1rem; margin-top: 0;"><strong>Part B: For a fixed \( e \), which \( p \) maximizes \( I(X;Y) \)?</strong></p>
+                <p style="margin-left: 20px;">We want to maximize capacity. Since \( H(Y|X) \) only depends on the fixed \( e \), we must maximize \( H(Y) \).<br>
+                A binary entropy function peaks when its input is exactly \( 0.5 \) (Uniform distribution).<br>
+                So we set \( P(Y=0) = 0.5 \):<br>
+                <span style="font-size: 1.1rem;">\( p(1-e) + e - pe = 0.5 \)</span><br>
+                <span style="font-size: 1.1rem;">\( p(1-2e) = 0.5 - e \)</span><br>
+                <span style="font-size: 1.1rem;">\( p = \frac{0.5 - e}{1-2e} = \frac{0.5(1-2e)}{1-2e} = \mathbf{0.5} \)</span><br>
+                <strong>Conclusion:</strong> A perfectly uniform input (<strong style="color: var(--accent-pink);">\( p = 0.5 \)</strong>) maximizes the mutual information!</p>
+
+                <hr style="border-top: 1px solid rgba(255, 42, 109, 0.2); margin: 30px 0;">
+
+                <p style="color: var(--accent-pink); font-size: 1.1rem; margin-top: 0;"><strong>Part C: For a fixed \( p \), which \( e \) minimizes \( I(X;Y) \)?</strong></p>
+                <p style="margin-left: 20px;">The absolute minimum possible value for Mutual Information is 0 (meaning no information gets through). This happens when the input and output are completely independent.<br>
+                If we set the crossover error \( e = 0.5 \), the receiver basically flips a coin regardless of what was transmitted. Let's verify:<br>
+                If \( e = 0.5 \), \( H(Y|X) = H_b(0.5) = 1 \). And \( H(Y) = H_b(0.5) = 1 \).<br>
+                \( I(X;Y) = 1 - 1 = \mathbf{0} \).<br>
+                <strong>Conclusion:</strong> <strong style="color: var(--accent-pink);">\( e = 0.5 \)</strong> (a 50% error rate) mathematically destroys the channel, minimizing the mutual information to exactly zero.</p>
+            </div>
+        </div>
+
+        <!-- NEW: Revision 6(b) Q2 Capacity of the Channel -->
+        <div class="card card-yellow" style="grid-column: 1 / -1; margin-top: 40px;">
+            <h4 style="margin-top: 0; color: var(--accent-yellow);"><i class="fa-solid fa-network-wired"></i> Revision 6(b) Q2: Capacity of the 3x3 Channel</h4>
+            <p style="font-size: 0.95rem;"><strong>Problem:</strong> Find the capacity of the discrete memoryless channel with input \( X=\{a,b,c\} \), output \( Y=\{a,b,c\} \), and the following transition probability matrix \( P(Y|X) \):</p>
+            
+            <div style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; text-align: center; margin-bottom: 25px; font-size: 1.2rem; display: inline-block; margin-left: auto; margin-right: auto;">
+                \( \begin{bmatrix} 0.2 & 0.3 & 0.5 \\ 0.5 & 0.3 & 0.2 \\ 0.2 & 0.5 & 0.3 \end{bmatrix} \)
+            </div>
+
+            <div class="solution-box" style="border-left-color: var(--accent-yellow); background: rgba(255, 223, 0, 0.05); margin-top: 0; padding: 25px;">
+                <p style="color: var(--accent-yellow); font-size: 1.1rem; margin-top: 0;"><strong>Step 1: Calculate Conditional Entropy \( H(Y|X) \)</strong></p>
+                <p style="margin-left: 20px; font-size: 0.95rem;">Notice that every single row in the matrix is just a permutation of the exact same probabilities: <strong>{0.2, 0.3, 0.5}</strong>. Because entropy does not care about order, the conditional entropy for EVERY input is identical!</p>
+                <p style="text-align: center; font-size: 1.15rem;">
+                    \( H(Y|X=a) = H(Y|X=b) = H(Y|X=c) = -0.2\log_2(0.2) - 0.3\log_2(0.3) - 0.5\log_2(0.5) \)
+                </p>
+                <p style="text-align: center; font-size: 1.25rem; color: var(--accent-yellow); font-weight: bold;">
+                    \( H(Y|X) \approx 0.464 + 0.521 + 0.500 = \mathbf{1.485 \text{ bits}} \)
+                </p>
+
+                <hr style="border-top: 1px solid rgba(255, 223, 0, 0.2); margin: 25px 0;">
+
+                <p style="color: var(--accent-yellow); font-size: 1.1rem; margin-top: 0;"><strong>Step 2: Maximize Output Entropy \( H(Y) \)</strong></p>
+                <p style="margin-left: 20px; font-size: 0.95rem;">To find the channel capacity, we must maximize the mutual information \( I(X;Y) = H(Y) - H(Y|X) \). Since \( H(Y|X) \) is fixed at 1.485, we just need to maximize \( H(Y) \).</p>
+                <p style="margin-left: 20px; font-size: 0.95rem;">The output \( Y \) has 3 possible states {a,b,c}. The maximum possible entropy for a 3-state variable occurs when it is perfectly uniform (\( P(a) = P(b) = P(c) = \frac{1}{3} \)):</p>
+                <p style="text-align: center; font-size: 1.25rem; color: var(--accent-yellow); font-weight: bold;">
+                    \( H(Y)_{max} = \log_2(3) \approx \mathbf{1.585 \text{ bits}} \)
+                </p>
+                <p style="margin-left: 20px; font-size: 0.9rem; color: var(--text-secondary);"><em>Note: Because the columns of the transition matrix sum to 0.9, 1.1, and 1.0 (not symmetric), achieving exactly uniform output requires slightly non-uniform inputs, but the theoretical maximum output entropy remains \( \log_2(3) \).</em></p>
+
+                <hr style="border-top: 1px solid rgba(255, 223, 0, 0.2); margin: 25px 0;">
+
+                <p style="color: var(--accent-yellow); font-size: 1.1rem; margin-top: 0;"><strong>Step 3: Calculate Channel Capacity \( C \)</strong></p>
+                <p style="margin-left: 20px; font-size: 0.95rem;">Subtract the fixed noise penalty from the maximum output entropy:</p>
+                <p style="text-align: center; font-size: 1.5rem; color: var(--accent-yellow); font-weight: bold; margin-bottom: 0;">
+                    \( C = H(Y)_{max} - H(Y|X) = 1.585 - 1.485 = \mathbf{0.1 \text{ bits/transmission}} \)
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 14. ULTIMATE EXAM CHEAT SHEET -->
+    <h2 id="sec-cheatsheet" style="margin-top: 60px; color: var(--accent-pink);"><i class="fa-solid fa-fire-flame-curved"></i> 14. 1-Hour Exam Cram: The Ultimate Cheat Sheet</h2>
+    <div class="card card-pink" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-pink);">1. The "Big 6" Entropy Formulas</h3>
+        <p>If you get a joint probability matrix \( P(X, Y) \), here is the exact step-by-step to find everything:</p>
+        
+        <div class="solution-box" style="border-left-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-pink);">Step 1: Find Marginals \( P(X) \) and \( P(Y) \)</strong><br>
+                Sum the <strong>rows</strong> of the matrix to get \( P(X) \). Sum the <strong>columns</strong> to get \( P(Y) \).</li>
+                
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-pink);">Step 2: Base Entropies \( H(X) \) and \( H(Y) \)</strong><br>
+                Apply the standard formula using the marginals you just found: <br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(X) = - \sum P(x) \log_2 P(x) \)</span></li>
+                
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-pink);">Step 3: Joint Entropy \( H(X,Y) \)</strong><br>
+                Apply the standard formula to <strong>every single non-zero cell</strong> inside the joint matrix: <br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(X,Y) = - \sum_{x,y} P(x,y) \log_2 P(x,y) \)</span></li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-pink);">Step 4: Conditional Entropies \( H(Y|X) \) and \( H(X|Y) \)</strong><br>
+                Never calculate these manually! Use the <strong>Chain Rule</strong>:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(Y|X) = H(X,Y) - H(X) \)</span><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(X|Y) = H(X,Y) - H(Y) \)</span></li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-pink);">Step 5: Mutual Information \( I(X;Y) \)</strong><br>
+                The amount of info shared between sender and receiver. Use the <strong>Venn Diagram rule</strong>:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( I(X;Y) = H(X) + H(Y) - H(X,Y) \)</span><br>
+                <em>Alternatively:</em> \( I(X;Y) = H(Y) - H(Y|X) = H(X) - H(X|Y) \)</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card card-yellow" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-yellow);">2. Channel Capacity Algorithm</h3>
+        <p>Capacity \( C \) is the <strong>maximum possible</strong> mutual information. To find it:</p>
+
+        <div class="solution-box" style="border-left-color: var(--accent-yellow); background: rgba(255, 223, 0, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-yellow);">Step 1: Calculate Conditional Entropy \( H(Y|X) \)</strong><br>
+                Look at the Transition Matrix \( P(Y|X) \). If every row is just a permutation of the same probabilities, \( H(Y|X) \) is a constant. Calculate it for just one row.</li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-yellow);">Step 2: Maximize Output Entropy \( H(Y) \)</strong><br>
+                Entropy is maximized when the output is perfectly uniform (equiprobable). If \( Y \) has \( N \) possible states, then:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(Y)_{max} = \log_2(N) \)</span></li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-yellow);">Step 3: Subtract to find C</strong><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( C = H(Y)_{max} - H(Y|X) \text{ [bits/transmission]} \)</span></li>
+            </ul>
+            <hr style="border-top: 1px solid rgba(255,223,0,0.2); margin: 20px 0;">
+            <p><strong>AWGN (Continuous) Capacity:</strong> If given Bandwidth (\( W \)) and Signal-to-Noise Ratio (SNR), use Shannon's formula. <em>Make sure to convert SNR from dB to linear first (\( 10^{\text{SNR}_{dB}/10} \))!</em></p>
+            <p style="text-align: center; font-size: 1.2rem; color: var(--accent-yellow);">\( C = W \log_2(1 + SNR_{linear}) \text{ [bits/sec]} \)</p>
+        </div>
+    </div>
+
+    <div class="card card-green" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-green);">3. Source Coding & Transmission Rates</h3>
+
+        <div class="solution-box" style="border-left-color: var(--accent-green); background: rgba(0, 255, 102, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-green);">Average Code Length (\( \bar{R} \))</strong><br>
+                Multiply the length of each code word by its probability, and sum them up:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( \bar{R} = \sum p_i \cdot \text{length}(code_i) \text{ [bits/sample]} \)</span></li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-green);">Nyquist Sampling Rate (\( f_s \))</strong><br>
+                If given a bandwidth \( W \), the Nyquist rate is always double the bandwidth.<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( f_s = 2W \text{ [samples/sec]} \)</span></li>
+
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-green);">Total Source Bit Rate</strong><br>
+                Multiply the bits per sample by the samples per second:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( \text{Rate} = \bar{R} \times f_s \text{ [bits/sec]} \)</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card card-cyan" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-cyan);">4. Math Survival Kit</h3>
+        <div class="grid-2">
+            <div>
+                <ul class="clean-list">
+                    <li><strong>Log Base Conversion:</strong> If your calculator only has \( \ln \) or \( \log_{10} \):<br>
+                    <span style="color: var(--accent-cyan);">\( \log_2(x) = \frac{\ln(x)}{\ln(2)} \)</span></li>
+                    <li style="margin-top: 10px;"><strong>The Zero Rule:</strong> In entropy calculations, if a probability is 0:<br>
+                    <span style="color: var(--accent-cyan);">\( 0 \log_2(0) = 0 \)</span></li>
+                </ul>
+            </div>
+            <div>
+                <ul class="clean-list">
+                    <li><strong>Binary Entropy Function \( H_b(p) \):</strong><br>
+                    <span style="color: var(--accent-cyan);">\( H_b(p) = -p\log_2(p) - (1-p)\log_2(1-p) \)</span></li>
+                    <li style="margin-top: 10px;"><strong>Maximums:</strong><br>
+                    Binary entropy peaks at <strong>1.0</strong> when \( p=0.5 \).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-purple" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-purple);">5. Continuous (Differential) Entropy</h3>
+        <p>If dealing with continuous waveforms instead of discrete states:</p>
+        <div class="solution-box" style="border-left-color: var(--accent-purple); background: rgba(192, 64, 255, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-purple);">Uniform Distribution \([0, a]\)</strong><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( h(X) = \log_2(a) \)</span></li>
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-purple);">Zero-Mean Gaussian (Variance \( \sigma^2 \))</strong><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( h(X) = \frac{1}{2} \log_2(2\pi e \sigma^2) \text{ bits} \)</span> <em>(Use \(\ln\) instead of \(\log_2\) if the answer asks for "nats")</em></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card card-pink" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-pink);">6. The Shannon Theoretical Limits</h3>
+        <p>Exam questions love to ask for theoretical boundaries as parameters go to infinity:</p>
+        <div class="solution-box" style="border-left-color: var(--accent-pink); background: rgba(255, 42, 109, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-pink);">Absolute Minimum Energy (\( E_b/N_0 \))</strong><br>
+                For reliable communication to exist, \( E_b/N_0 \) can never drop below the Shannon limit:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( \frac{E_b}{N_0} \ge \ln(2) \approx 0.693 \implies \mathbf{-1.6 \text{ dB}} \)</span></li>
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-pink);">Infinite Bandwidth Capacity</strong><br>
+                As Bandwidth \( W \to \infty \), capacity does NOT go to infinity! It hits a hard ceiling:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( C_{\infty} \approx 1.44 \frac{P}{N_0} \text{ [bits/sec]} \)</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card card-cyan" style="margin-bottom: 50px;">
+        <h3 style="margin-top: 0; color: var(--accent-cyan);">7. High-Yield Minutiae</h3>
+        <div class="solution-box" style="border-left-color: var(--accent-cyan); background: rgba(0, 229, 255, 0.05); padding: 25px;">
+            <ul class="clean-list">
+                <li><strong style="color: var(--accent-cyan);">Self-Information of a Single Message:</strong><br>
+                If asked for the information of just <em>one</em> specific event (not average entropy):<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( I(x_i) = -\log_2 P(x_i) \text{ bits} \)</span></li>
+                
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-cyan);">Extended Huffman Efficiency Bounds:</strong><br>
+                If we encode blocks of length \( n \) letters at a time, the efficiency bound tightens to:<br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">\( H(X) \le \bar{R} < H(X) + \frac{1}{n} \)</span></li>
+                
+                <li style="margin-top: 15px;"><strong style="color: var(--accent-cyan);">Spectral Bit Rate vs. Energy:</strong><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">Spectral Bit Rate \( r = \frac{R}{W} \text{ (bits/s/Hz)} \)</span><br>
+                <span style="font-size: 1.1rem; color: var(--text-primary);">Energy per bit \( E_b = \frac{P}{R} \)</span></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* Chart.js Global Setup */
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+
+    /* --- SAMPLING CHART (Continuous vs Discrete) --- */
+    const ctxSampling = document.getElementById('samplingChart').getContext('2d');
+    const timePoints = [];
+    const continuousData = [];
+    const discreteSamples = [];
+    
+    for(let i=0; i<=100; i++) {
+        let t = i / 10; timePoints.push(t);
+        let val = Math.sin(t * 1.5) + 0.5 * Math.sin(t * 3.2 + 1) + 0.3 * Math.cos(t * 5.7);
+        continuousData.push(val);
+        if(i % 10 === 0) discreteSamples.push({x: t, y: val});
+    }
+
+    new Chart(ctxSampling, {
+        type: 'line',
+        data: {
+            labels: timePoints,
+            datasets: [
+                {
+                    label: 'Discrete Samples (Xi)', data: discreteSamples, type: 'scatter',
+                    backgroundColor: '#00ff66', borderColor: '#fff', borderWidth: 2, pointRadius: 8, pointHoverRadius: 12, order: 1
+                },
+                {
+                    label: 'Continuous Random Process', data: continuousData, borderColor: 'rgba(0, 229, 255, 0.4)',
+                    borderWidth: 3, tension: 0.4, pointRadius: 0, fill: true, backgroundColor: 'rgba(0, 229, 255, 0.05)', order: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { type: 'linear', grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Time (t)', color: '#94a3b8' } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Amplitude / X_i', color: '#94a3b8' } }
+            },
+            plugins: { tooltip: { backgroundColor: 'rgba(5, 11, 20, 0.9)' } }
+        }
+    });
+
+    /* --- ENTROPY CHART H(p) --- */
+    const ctxEntropy = document.getElementById('entropyChart').getContext('2d');
+    const probData = [];
+    const entropyData = [];
+    
+    for(let i=0; i<=100; i++) {
+        let p = i / 100;
+        probData.push(p.toFixed(2));
+        if (p === 0 || p === 1) {
+            entropyData.push(0);
+        } else {
+            let h = -p * Math.log2(p) - (1-p) * Math.log2(1-p);
+            entropyData.push(h);
+        }
+    }
+
+    new Chart(ctxEntropy, {
+        type: 'line',
+        data: {
+            labels: probData,
+            datasets: [{
+                label: 'Entropy H(X) in bits',
+                data: entropyData,
+                borderColor: '#ff2a6d',
+                borderWidth: 4,
+                backgroundColor: 'rgba(255, 42, 109, 0.1)',
+                fill: true,
+                pointRadius: 0,
+                pointHitRadius: 10,
+                pointHoverRadius: 8,
+                pointHoverBackgroundColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    grid: { color: 'rgba(255,255,255,0.05)' }, 
+                    title: { display: true, text: 'Probability of outcome (p)', color: '#94a3b8', font: {size: 14} },
+                    ticks: { maxTicksLimit: 11 }
+                },
+                y: { 
+                    min: 0, max: 1.1,
+                    grid: { color: 'rgba(255,255,255,0.05)' }, 
+                    title: { display: true, text: 'Entropy H(X)', color: '#94a3b8', font: {size: 14} } 
+                }
+            },
+            plugins: { 
+                tooltip: { backgroundColor: 'rgba(5, 11, 20, 0.9)', titleFont: {size: 14}, bodyFont: {size: 14} },
+                legend: { display: false }
+            },
+            animation: { duration: 1500, easing: 'easeOutQuart' }
+        }
+    });
+
+    /* Smooth Scrolling */
+    document.querySelectorAll('.toc a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+
+</body>
+</html>

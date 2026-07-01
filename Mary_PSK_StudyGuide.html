@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-ary Phase-Shift Keying (PSK)</title>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            /* VIVID & LIVELY COLOR PALETTE */
+            --bg-color: #050b14; /* Deep rich space navy */
+            --surface: #0a1324;
+            --surface-elevated: #11203b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #00e5ff; /* Hyper cyan */
+            --accent-green: #00ff66; /* Neon green */
+            --accent-purple: #c040ff; /* Vivid purple */
+            --accent-pink: #ff2a6d; /* Electric pink */
+            --accent-yellow: #ffdf00; /* Saturated yellow */
+            --border-radius: 16px; /* Smooth, modern rounding */
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #0a1835 0%, var(--bg-color) 40%);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 2.0; /* ULTIMATE BREATHING ROOM */
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px; /* WIDER LAYOUT */
+            margin: 0 auto;
+            padding: 80px 30px;
+        }
+
+        /* Titles */
+        .title-section {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            filter: drop-shadow(0px 4px 10px rgba(192, 64, 255, 0.2)); /* subtle glow */
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--accent-cyan);
+            border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 15px;
+            margin-top: 100px;
+            margin-bottom: 50px;
+            scroll-margin-top: 40px;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h3 i { 
+            color: var(--accent-purple); 
+            filter: drop-shadow(0 0 8px rgba(192, 64, 255, 0.4));
+        }
+        
+        p { margin-bottom: 25px; font-size: 1.1rem; }
+
+        /* Table of Contents */
+        .toc {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 80px;
+        }
+        .toc a {
+            background: rgba(0, 229, 255, 0.05);
+            color: var(--accent-cyan);
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.05);
+        }
+        .toc a:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+        }
+
+        /* Grids - INCREASED GAPS */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        /* Cards - INCREASED PADDING */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--surface-elevated);
+            border-radius: var(--border-radius);
+            padding: 45px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+
+        .card-highlight {
+            border-left: 5px solid var(--accent-pink);
+        }
+
+        .card-math {
+            border-left: 5px solid var(--accent-green);
+            background: linear-gradient(180deg, rgba(0, 255, 102, 0.04) 0%, transparent 100%);
+        }
+
+        /* Lists */
+        ul.clean-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        ul.clean-list li {
+            margin-bottom: 22px;
+            padding-left: 40px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        ul.clean-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        ul.clean-list li::before {
+            content: "\f0a4";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 2px;
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+
+        /* Interactive Sections */
+        .interactive-container {
+            background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: var(--border-radius);
+            padding: 50px;
+            margin-bottom: 70px;
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.3);
+        }
+        
+        .interactive-layout {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            min-width: 320px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .controls-wrapper {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* Sliders */
+        .slider-control {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            padding: 25px 35px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--accent-cyan);
+            height: 8px;
+        }
+        
+        .slider-value {
+            font-weight: 800;
+            color: var(--accent-cyan);
+            min-width: 65px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+        }
+
+        /* Alert Boxes for Misconceptions */
+        .alert {
+            background: rgba(255, 42, 109, 0.05);
+            border: 1px solid rgba(255, 42, 109, 0.3);
+            border-top: 5px solid var(--accent-pink);
+            border-radius: var(--border-radius);
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            transition: transform 0.2s;
+            box-shadow: 0 8px 25px rgba(255, 42, 109, 0.05);
+        }
+        
+        .alert:hover {
+            transform: translateY(-4px);
+            background: rgba(255, 42, 109, 0.08);
+            box-shadow: 0 12px 30px rgba(255, 42, 109, 0.15);
+        }
+
+        .alert-icon-title {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .alert i {
+            color: var(--accent-pink);
+            font-size: 2rem;
+            filter: drop-shadow(0 0 10px rgba(255, 42, 109, 0.5));
+        }
+
+        .alert h4 {
+            margin: 0;
+            color: var(--accent-pink);
+            font-size: 1.35rem;
+            font-weight: 700;
+        }
+
+        .alert p { margin: 0; font-size: 1.05rem; color: #a3b3c4; }
+        .alert strong { color: var(--text-primary); }
+
+        /* Table */
+        .table-wrapper {
+            background: var(--surface);
+            border: 1px solid var(--surface-elevated);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 25px 30px;
+            text-align: left;
+            border-bottom: 1px solid var(--surface-elevated);
+            vertical-align: middle;
+            font-size: 1.15rem;
+        }
+
+        th { 
+            background: rgba(0, 229, 255, 0.08); 
+            color: var(--accent-cyan); 
+            font-weight: 700; 
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+        }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(0, 229, 255, 0.05); }
+
+        /* Highlight Boxes for Math */
+        .highlight-box {
+            background: rgba(5, 11, 20, 0.9); 
+            padding: 30px; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-size: 1.4rem; 
+            margin: 30px 0;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: box-shadow 0.3s;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .highlight-box:hover {
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+            border-color: rgba(0, 229, 255, 0.3);
+        }
+        
+        .solution-box {
+            border-left: 4px solid var(--accent-cyan); 
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, transparent 100%); 
+            margin-top: 40px; 
+            padding: 35px; 
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .interactive-layout { flex-direction: column; }
+            .controls-wrapper { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="title-section">
+        <h1>M-ary Phase-Shift Keying (PSK)</h1>
+        <p style="font-size: 1.3rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.8;">A complete visual breakdown of Digital Phase Modulation, Constellations, and Error Performance.</p>
+    </div>
+
+    <!-- Quick Navigation (TOC) -->
+    <div class="toc">
+        <a href="#sec-core">1. Core Concept</a>
+        <a href="#sec-math">2. Mathematical Form</a>
+        <a href="#sec-qpsk">3. Quadrature PSK</a>
+        <a href="#sec-vector">4. Vector Space</a>
+        <a href="#sec-gray">5. Gray Encoding</a>
+        <a href="#sec-distance">6. Euclidean Distance</a>
+        <a href="#sec-error">7. Error Probability</a>
+        <a href="#sec-example">8. Example Walkthrough</a>
+        <a href="#sec-traps">9. Exam Traps</a>
+    </div>
+
+    <!-- 1. INTUITION -->
+    <h2 id="sec-core">1. The Core Concept</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-lightbulb"></i> Physical Intuition</h3>
+            <ul class="clean-list">
+                <li><strong>No Amplitude Changes:</strong> Unlike ASK, PSK keeps the wave's height (amplitude) perfectly constant at all times.</li>
+                <li><strong>Data via Phase:</strong> Data is encoded entirely by shifting the phase (delaying or advancing the carrier wave).</li>
+                <li><strong>Constant Power:</strong> Because the amplitude is fixed, the transmission power and signal energy remain absolutely constant.</li>
+            </ul>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3><i class="fa-solid fa-circle-nodes"></i> Signal Space Geometry</h3>
+            <ul class="clean-list">
+                <li><strong>Same Energy:</strong> All transmitted symbols have identical energy \( \mathcal{E}_s \).</li>
+                <li><strong>Circular Mapping:</strong> Therefore, signals lie perfectly on a circle with radius \( \sqrt{\mathcal{E}_s} \).</li>
+                <li><strong>Equal Spacing:</strong> To maximize protection against noise, the phases are spaced equally by exactly \( \frac{2\pi}{M} \) radians.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE 1 -->
+    <div class="interactive-container">
+        <h3 style="justify-content: center; margin-bottom: 10px;"><i class="fa-solid fa-satellite-dish"></i> PSK Constellation Explorer</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 40px; font-size: 1.15rem;">Adjust the number of symbols (\( M \)) to see how they spread evenly across the circle.</p>
+        
+        <div class="interactive-layout">
+            <div class="chart-wrapper">
+                <canvas id="constChart"></canvas>
+            </div>
+            
+            <div class="controls-wrapper">
+                <div class="slider-control" style="max-width: 100%;">
+                    <label for="mSlider" style="font-weight: 700; color: #fff;">Symbols (\( M \)):</label>
+                    <input type="range" id="mSlider" min="1" max="4" step="1" value="2">
+                    <span class="slider-value" id="mValue">4 (QPSK)</span>
+                </div>
+                <div class="card" style="padding: 25px; box-shadow: none; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                    <p style="margin:0; font-size: 1.05rem;">As \( M \) increases, symbols pack closer together on the same energy circle. This makes them highly vulnerable to noise errors!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2. MATH -->
+    <h2 id="sec-math">2. Mathematical Form</h2>
+    
+    <div class="card card-math" style="margin-bottom: 40px;">
+        <h3><i class="fa-solid fa-square-root-variable"></i> General M-ary PSK Equation</h3>
+        <p style="text-align: center; font-size: 1.8rem; margin: 40px 0;">
+            \( u_m(t) = p(t) \cos\left(2\pi f_c t + \phi_m\right) \)
+        </p>
+        <div class="grid-2" style="margin-bottom: 0; gap: 30px;">
+            <div>
+                <ul class="clean-list">
+                    <li>\( p(t) \): Baseband pulse shape</li>
+                    <li>\( f_c \): Carrier frequency</li>
+                </ul>
+            </div>
+            <div>
+                <ul class="clean-list">
+                    <li>\( \phi_m \): Phase shift = \( \frac{2\pi m}{M} \)</li>
+                    <li>\( m \): Symbol index \( 0, 1, \dots, M-1 \)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3><i class="fa-regular fa-square"></i> The Rectangular Pulse Case</h3>
+        
+        <ul class="clean-list">
+            <li>If we use a standard rectangular pulse shape \( g_T(t) \) of duration \( T \)...</li>
+            <li>...we must meticulously scale its amplitude to ensure the symbol energy perfectly equals \( \mathcal{E}_s \).</li>
+        </ul>
+        
+        <div class="highlight-box">
+            Amplitude must be exactly: <strong style="color: var(--accent-cyan); font-size: 1.6rem; margin-left: 10px;">\( \sqrt{\frac{2\mathcal{E}_s}{T}} \)</strong>
+        </div>
+        
+        <p>So the explicit equation becomes:</p>
+        <p style="text-align: center; font-size: 1.7rem; color: var(--accent-cyan); margin-top: 30px; margin-bottom: 10px;">
+            \( u_m(t) = \sqrt{\frac{2\mathcal{E}_s}{T}} \cos\left(2\pi f_c t + \frac{2\pi m}{M}\right) \)
+        </p>
+    </div>
+
+
+    <!-- 3. QPSK & ENERGY -->
+    <h2 id="sec-qpsk">3. Quadrature PSK (QPSK) & Cartesian Form</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-bolt"></i> Energy per Bit vs Symbol</h3>
+            <ul class="clean-list">
+                <li><strong>Symbols group bits:</strong> M-ary PSK packs \( \log_2(M) \) bits into one symbol.</li>
+                <li><strong>Formula:</strong> \( \mathcal{E}_b = \frac{\mathcal{E}_s}{\log_2(M)} \)</li>
+                <li><strong>Example (QPSK):</strong> \( M=4 \), so \( \log_2(4) = 2 \) bits per symbol. Therefore, \( \mathcal{E}_b = \frac{\mathcal{E}_s}{2} \).</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h3><i class="fa-solid fa-code-branch"></i> QPSK Split (I & Q)</h3>
+            <ul class="clean-list">
+                <li>Using the trig identity \( \cos(A+B) = \cos A \cos B - \sin A \sin B \)...</li>
+                <li>...QPSK (\(M=4\)) splits perfectly into two orthogonal waves:</li>
+            </ul>
+            <div class="highlight-box" style="font-size: 1.3rem; padding: 20px;">
+                \( u_m(t) = g_T(t) \left[ A_{mc}\cos(2\pi f_c t) - A_{ms}\sin(2\pi f_c t) \right] \)
+            </div>
+            <p style="margin-bottom: 0;">Where \( A_{mc} = \cos\left(\frac{2\pi m}{4}\right) \) and \( A_{ms} = \sin\left(\frac{2\pi m}{4}\right) \).</p>
+        </div>
+    </div>
+
+    <!-- QPSK States -->
+    <div class="card" style="margin-bottom: 60px; padding: 0; background: transparent; border: none; box-shadow: none;">
+        <h3 style="padding: 0 10px;"><i class="fa-solid fa-list-ol"></i> QPSK 4-States Breakdown</h3>
+        <p style="padding: 0 10px;">By plugging in \( m = 0, 1, 2, 3 \), the signal simplifies beautifully:</p>
+        
+        <div class="table-wrapper" style="margin-top: 25px;">
+            <table>
+                <tr>
+                    <th>\( m \)</th>
+                    <th>Phase (\( \phi_m \))</th>
+                    <th>Resulting Signal \( u_m(t) \)</th>
+                </tr>
+                <tr>
+                    <td>0</td>
+                    <td>0</td>
+                    <td><code style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: #fff;">&nbsp;&nbsp;\( g_T(t) \cos(2\pi f_c t) \)</code></td>
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>\( \frac{\pi}{2} \) (90°)</td>
+                    <td><code style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: var(--accent-pink);">-\( g_T(t) \sin(2\pi f_c t) \)</code></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>\( \pi \) (180°)</td>
+                    <td><code style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: var(--accent-pink);">-\( g_T(t) \cos(2\pi f_c t) \)</code></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>\( \frac{3\pi}{2} \) (270°)</td>
+                    <td><code style="font-family: 'JetBrains Mono', monospace; font-size: 1.2rem; color: #fff;">&nbsp;&nbsp;\( g_T(t) \sin(2\pi f_c t) \)</code></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE 2 -->
+    <div class="interactive-container">
+        <h3 style="justify-content: center; margin-bottom: 10px;"><i class="fa-solid fa-wave-square"></i> Time-Domain Phase Shifter</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 40px; font-size: 1.15rem;">Assuming QPSK. Slide to change the symbol \( m \) and watch the wave shift horizontally.</p>
+        
+        <div class="interactive-layout">
+            <div class="chart-wrapper">
+                <canvas id="waveChart"></canvas>
+            </div>
+            
+            <div class="controls-wrapper">
+                <div class="slider-control" style="max-width: 100%;">
+                    <label for="symSlider" style="font-weight: 700; color: #fff;">Symbol (\( m \)):</label>
+                    <input type="range" id="symSlider" min="0" max="3" step="1" value="0">
+                    <span class="slider-value" id="symValue">\( m=0 \) (0°)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. VECTOR SPACE & BASIS FUNCTIONS -->
+    <h2 id="sec-vector">4. Vector Space & Basis Functions</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-arrows-to-dot"></i> 2D Vector Representation</h3>
+            <p>Digital phase-modulated signals can be geometrically represented as two-dimensional vectors in the In-Phase (I) and Quadrature (Q) plane.</p>
+            <div class="highlight-box">
+                \( \mathbf{s}_m = \left[ \sqrt{\mathcal{E}_s} \cos\left(\frac{2\pi m}{M}\right), \sqrt{\mathcal{E}_s} \sin\left(\frac{2\pi m}{M}\right) \right] \)
+            </div>
+            <p style="margin-bottom: 0;">This directly expands to our Cartesian amplitudes: <br><br> \( \mathbf{s}_m = \left[ A_{mc}\sqrt{\mathcal{E}_s}, \ A_{ms}\sqrt{\mathcal{E}_s} \right] \).</p>
+        </div>
+        
+        <div class="card card-math">
+            <h3><i class="fa-solid fa-ruler-combined"></i> Orthonormal Basis Functions</h3>
+            <p>Any PSK signal can be built using two perpendicular (orthogonal) building blocks of unit energy:</p>
+            <ul class="clean-list">
+                <li>
+                    <strong>In-Phase (\( \psi_1 \)):</strong>
+                    <br>\( \psi_1(t) = \sqrt{\frac{1}{\mathcal{E}_s}} g_T(t) \cos(2\pi f_c t) \)
+                </li>
+                <li style="margin-top: 20px;">
+                    <strong>Quadrature (\( \psi_2 \)):</strong>
+                    <br>\( \psi_2(t) = -\sqrt{\frac{1}{\mathcal{E}_s}} g_T(t) \sin(2\pi f_c t) \)
+                </li>
+            </ul>
+            <p style="margin-top: 30px; margin-bottom: 0; font-size: 1rem; color: var(--text-secondary); line-height: 1.6;">
+                <em>Note: The negative sign on \( \psi_2 \) matches the standard \( \cos(A+B) \) expansion. The energy of the pulse \( g_T(t) \) is normalized to \( 2\mathcal{E}_s \).</em>
+            </p>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-bottom: 60px; border-left: 5px solid var(--accent-cyan);">
+        <h3><i class="fa-solid fa-code-compare"></i> Binary PSK vs. Binary ASK</h3>
+        <ul class="clean-list" style="margin-bottom: 0;">
+            <li><strong>The Setup:</strong> For Binary PSK (BPSK, \( M=2 \)), the two possible phases are exactly \( 0 \) and \( \pi \).</li>
+            <li><strong>1D Axis:</strong> This forces the symbols to lie exactly at \( +\sqrt{\mathcal{E}_s} \) and \( -\sqrt{\mathcal{E}_s} \) on a single, straight one-dimensional line.</li>
+            <li><strong>The Big Takeaway:</strong> Mathematically and geometrically, <strong>Binary PSK is essentially identical to a bipolar Binary ASK</strong> (also called antipodal signaling).</li>
+        </ul>
+    </div>
+
+
+    <!-- 5. GRAY ENCODING -->
+    <h2 id="sec-gray">5. Bit Mapping & Gray Encoding</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-microchip"></i> Mapping \( k \) Bits</h3>
+            <ul class="clean-list">
+                <li><strong>Bits to Phases:</strong> An M-ary PSK system groups \( k \) bits together to form \( M = 2^k \) unique symbols (phases).</li>
+                <li><strong>The Challenge:</strong> We have \( M \) different bit combinations (e.g., <code style="color: var(--accent-cyan)">00</code>, <code style="color: var(--accent-cyan)">01</code>, <code style="color: var(--accent-cyan)">10</code>, <code style="color: var(--accent-cyan)">11</code>). How do we assign each specific binary pattern to a phase angle around the circle?</li>
+            </ul>
+        </div>
+        
+        <div class="card" style="border-left: 5px solid var(--accent-yellow);">
+            <h3 style="color: var(--accent-yellow);"><i class="fa-solid fa-shield-halved"></i> The Gray Code Advantage</h3>
+            <p><strong>Gray Encoding</strong> is the industry standard for mapping bits because <strong>adjacent phases differ by only one binary digit</strong>.</p>
+            <div class="highlight-box" style="font-size: 1.15rem; text-align: left; padding: 25px; background: rgba(255, 223, 0, 0.05); border-color: rgba(255, 223, 0, 0.2); margin-bottom: 0;">
+                <em>Why it matters:</em> The most likely error caused by noise is mistaking a phase for its nearest neighbor. With Gray Code, if you mistakenly decode the adjacent symbol, you only suffer a <strong>1-bit error</strong> instead of a multi-bit error!
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 6. EUCLIDEAN DISTANCE -->
+    <h2 id="sec-distance">6. Euclidean Distance & Error Performance</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-ruler"></i> Distance Between Any Two Points</h3>
+            <p>The Euclidean distance \( d_{mn} \) between any two signals \( \mathbf{s}_m \) and \( \mathbf{s}_n \) in the constellation space is critical for error analysis:</p>
+            
+            <div class="highlight-box" style="font-size: 1.4rem;">
+                \( d_{mn} = \sqrt{2\mathcal{E}_s \left[ 1 - \cos\left(\frac{2\pi(m-n)}{M}\right) \right]} \)
+            </div>
+            
+            <p style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 0;"><em>Derived using the Law of Cosines on the signal space circle of radius \( \sqrt{\mathcal{E}_s} \).</em></p>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3><i class="fa-solid fa-arrows-left-right-to-line"></i> Minimum Distance (\( d_{min} \))</h3>
+            <p>The distance between <strong>adjacent</strong> points (where \( m-n = 1 \)) determines the worst-case error performance in Additive White Gaussian Noise (AWGN):</p>
+            
+            <div class="highlight-box" style="font-size: 1.5rem; border-color: var(--accent-pink); background: rgba(255, 42, 109, 0.08);">
+                \( d_{min} = 2\sqrt{\mathcal{E}_s} \sin\left(\frac{\pi}{M}\right) \)
+            </div>
+            
+            <ul class="clean-list" style="margin-bottom: 0;">
+                <li><strong>Larger \( d_{min} \)</strong> = Stronger noise immunity.</li>
+                <li><strong>As \( M \) increases</strong>, \( \sin\left(\frac{\pi}{M}\right) \) decreases, causing points to pack closer together and error rates to spike.</li>
+            </ul>
+        </div>
+    </div>
+
+
+    <!-- 7. ERROR PROBABILITY -->
+    <h2 id="sec-error">7. Error Probability & Performance</h2>
+    
+    <div class="grid-2">
+        <div class="card card-math">
+            <h3><i class="fa-solid fa-chart-line"></i> Probability of Symbol Error (\( P_M \))</h3>
+            <p>The error probability depends heavily on the \( Q \)-function (the tail probability of the Gaussian noise distribution).</p>
+            <ul class="clean-list" style="margin-top: 20px;">
+                <li>
+                    <strong>BPSK (\( M=2 \)):</strong>
+                    <br>\( P_2 = Q\left(\sqrt{\frac{2\mathcal{E}_b}{N_0}}\right) \)
+                </li>
+                <li>
+                    <strong>QPSK (\( M=4 \)):</strong>
+                    <br>\( P_4 \approx 2Q\left(\sqrt{\frac{2\mathcal{E}_b}{N_0}}\right) \)
+                </li>
+                <li>
+                    <strong>M-ary PSK (Large \( M \)):</strong>
+                    <br>\( P_M \approx \frac{2(M-1)}{M} Q\left(\sqrt{\frac{2\pi^2 \log_2(M) \mathcal{E}_b}{M^2 N_0}}\right) \)
+                </li>
+            </ul>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3><i class="fa-solid fa-weight-hanging"></i> The 6dB Performance Penalty</h3>
+            <p>For large values of \( M \), if you want to double the number of phases (e.g., jump from 8-PSK to 16-PSK) while maintaining the <strong>exact same error performance</strong>, you must increase the signal power.</p>
+            <div class="highlight-box" style="font-size: 1.25rem; background: rgba(255, 42, 109, 0.08); border-color: rgba(255, 42, 109, 0.3); color: var(--accent-pink);">
+                <strong>Rule of Thumb:</strong> Doubling \( M \) requires an additional <strong>6 dB/bit</strong> of energy to offset the closer spacing of the constellation points.
+            </div>
+            <p style="margin-top: 20px; font-size: 1.05rem; margin-bottom: 0;">This perfectly illustrates the fundamental trade-off in digital communications: you can transmit more bits per symbol, but it requires significantly more power to do so reliably.</p>
+        </div>
+    </div>
+
+
+    <!-- 8. EXAMPLE WALKTHROUGH -->
+    <h2 id="sec-example">8. Example Walkthrough: Distance vs Energy</h2>
+    
+    <div class="card" style="margin-bottom: 70px;">
+        <h3><i class="fa-solid fa-person-chalkboard"></i> Exam Question: BPSK vs QPSK vs 8-PSK</h3>
+        
+        <ul class="clean-list" style="margin-bottom: 20px;">
+            <li><strong>Problem:</strong> Consider the \( M=2, 4 \) and \( 8 \) PSK signal constellations. All have the exact same transmitted signal energy \( \mathcal{E}_s \).</li>
+            <li><span style="color: var(--accent-purple); font-weight: 700;">Part 1:</span> Determine the minimum distance \( d_{min} \) between adjacent signal points for each.</li>
+            <li><span style="color: var(--accent-purple); font-weight: 700;">Part 2:</span> For \( M=8 \), determine by how many dB the transmitted signal energy \( \mathcal{E}_s \) must be increased to achieve the same \( d_{min} \) as \( M=4 \).</li>
+        </ul>
+        
+        <div class="solution-box">
+            <h4 style="color: var(--accent-cyan); margin-top: 0; margin-bottom: 25px; font-size: 1.3rem;"><i class="fa-solid fa-key"></i> Step-by-Step Solution</h4>
+            
+            <p style="font-size: 1.15rem;"><strong>Part 1: Finding \( d_{min} \)</strong><br>
+            Using the formula \( d_{min} = 2\sqrt{\mathcal{E}_s} \sin\left(\frac{\pi}{M}\right) \):</p>
+            <ul class="clean-list">
+                <li><strong>BPSK (\( M=2 \)):</strong> \( \ d_{min} = 2\sqrt{\mathcal{E}_s}\sin\left(\frac{\pi}{2}\right) = 2\sqrt{\mathcal{E}_s} \)</li>
+                <li><strong>QPSK (\( M=4 \)):</strong> \( \ d_{min} = 2\sqrt{\mathcal{E}_s}\sin\left(\frac{\pi}{4}\right) = 2\sqrt{\mathcal{E}_s}\left(\frac{1}{\sqrt{2}}\right) = \sqrt{2\mathcal{E}_s} \approx 1.414\sqrt{\mathcal{E}_s} \)</li>
+                <li><strong>8-PSK (\( M=8 \)):</strong> \( \ d_{min} = 2\sqrt{\mathcal{E}_s}\sin\left(\frac{\pi}{8}\right) \approx 2\sqrt{\mathcal{E}_s}(0.3827) \approx 0.765\sqrt{\mathcal{E}_s} \)</li>
+            </ul>
+            
+            <hr style="border: none; border-top: 1px solid rgba(0, 229, 255, 0.2); margin: 35px 0;">
+            
+            <p style="font-size: 1.15rem;"><strong>Part 2: The Energy Penalty for 8-PSK</strong><br>
+            We want the \( d_{min} \) of 8-PSK (let's denote its energy as \( \mathcal{E}_{s8} \)) to perfectly match the \( d_{min} \) of QPSK (energy \( \mathcal{E}_{s4} \)).</p>
+            
+            <p style="text-align: center; font-size: 1.3rem; margin: 30px 0;">
+                \( 2\sqrt{\mathcal{E}_{s8}}\sin\left(\frac{\pi}{8}\right) = 2\sqrt{\mathcal{E}_{s4}}\sin\left(\frac{\pi}{4}\right) \)
+            </p>
+            
+            <p>Solving for the ratio of their energies:</p>
+            <p style="text-align: center; font-size: 1.3rem; margin: 30px 0;">
+                \( \frac{\sqrt{\mathcal{E}_{s8}}}{\sqrt{\mathcal{E}_{s4}}} = \frac{\sin(\pi/4)}{\sin(\pi/8)} = \frac{1/\sqrt{2}}{0.3827} \approx 1.8477 \)
+            </p>
+            
+            <p>Squaring both sides gives us the energy ratio: \( \frac{\mathcal{E}_{s8}}{\mathcal{E}_{s4}} \approx (1.8477)^2 \approx 3.414 \)</p>
+            
+            <p>Finally, convert this ratio to Decibels (dB):</p>
+            <div class="highlight-box" style="font-size: 1.4rem; background: rgba(5, 11, 20, 0.6); margin: 30px 0; border-color: rgba(0, 229, 255, 0.3);">
+                \( 10 \log_{10}(3.414) \approx \mathbf{5.33 \ dB} \)
+            </div>
+            
+            <p style="margin-bottom: 0; font-size: 1.15rem; line-height: 1.9;"><em><strong>Conclusion:</strong> You must pump <strong>5.33 dB more power</strong> into an 8-PSK system just to maintain the same distance between points (and therefore the same error protection) as a standard QPSK system!</em></p>
+        </div>
+    </div>
+
+
+    <!-- 9. TRAPS -->
+    <h2 id="sec-traps">9. Exam Traps & Misconceptions</h2>
+    
+    <div class="grid-3">
+        <div class="alert">
+            <div class="alert-icon-title">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <h4>Missing the Square Root</h4>
+            </div>
+            <p><strong>Mistake:</strong> Writing amplitude as \( \frac{2\mathcal{E}_s}{T} \).<br><br>
+            <strong>Correction:</strong> Energy is proportional to voltage <em>squared</em>. The amplitude must be exactly \( \sqrt{\frac{2\mathcal{E}_s}{T}} \).</p>
+        </div>
+
+        <div class="alert">
+            <div class="alert-icon-title">
+                <i class="fa-solid fa-bolt-lightning"></i>
+                <h4>Energy vs Power</h4>
+            </div>
+            <p><strong>Mistake:</strong> Confusing Symbol Energy (\( \mathcal{E}_s \)) with Power (\( P \)).<br><br>
+            <strong>Correction:</strong> Power is Energy over Time (\( P = \frac{\mathcal{E}_s}{T} \)). Faster transmission (smaller \( T \)) requires <strong>MORE</strong> power to maintain the same symbol energy.</p>
+        </div>
+        
+        <div class="alert">
+            <div class="alert-icon-title">
+                <i class="fa-solid fa-ruler-combined"></i>
+                <h4>Distance vs Energy</h4>
+            </div>
+            <p><strong>Mistake:</strong> Thinking \( d_{min} \) is completely independent of the alphabet size \( M \).<br><br>
+            <strong>Correction:</strong> While distance increases with energy \( \mathcal{E}_s \), it aggressively <strong>decreases</strong> as \( M \) increases because of the \( \sin\left(\frac{\pi}{M}\right) \) term.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* Chart.js Global Setup */
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 14;
+
+    /* --- CONSTELLATION CHART --- */
+    const ctxConst = document.getElementById('constChart').getContext('2d');
+    const constChart = new Chart(ctxConst, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Signal Points',
+                data: [],
+                backgroundColor: '#c040ff',
+                borderColor: '#fff',
+                borderWidth: 2,
+                pointRadius: 12,
+                pointHoverRadius: 16
+            }]
+        },
+        options: {
+            aspectRatio: 1,
+            scales: {
+                x: { min: -1.5, max: 1.5, grid: { color: 'rgba(255,255,255,0.08)' }, title: { display: true, text: 'In-Phase (Cosine)', color: '#94a3b8', font: { size: 15 } } },
+                y: { min: -1.5, max: 1.5, grid: { color: 'rgba(255,255,255,0.08)' }, title: { display: true, text: 'Quadrature (Sine)', color: '#94a3b8', font: { size: 15 } } }
+            },
+            plugins: {
+                tooltip: { 
+                    callbacks: { label: (ctx) => `Symbol ${ctx.dataIndex}` },
+                    backgroundColor: 'rgba(5, 11, 20, 0.9)',
+                    titleFont: { size: 15 },
+                    bodyFont: { size: 15 },
+                    padding: 12,
+                    borderColor: 'rgba(0, 229, 255, 0.3)',
+                    borderWidth: 1
+                },
+                legend: { display: false }
+            },
+            animation: { duration: 600, easing: 'easeOutQuart' }
+        },
+        plugins: [{
+            id: 'drawCircle',
+            beforeDraw(chart) {
+                const {ctx, chartArea: {top, bottom, left, right}, scales: {x, y}} = chart;
+                ctx.save();
+                ctx.beginPath();
+                const centerX = x.getPixelForValue(0);
+                const centerY = y.getPixelForValue(0);
+                const radius = Math.abs(x.getPixelForValue(1) - centerX);
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.strokeStyle = 'rgba(0, 255, 102, 0.6)';
+                ctx.setLineDash([8, 8]);
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                ctx.restore();
+            }
+        }]
+    });
+
+    const mSlider = document.getElementById('mSlider');
+    const mValueDisplay = document.getElementById('mValue');
+
+    function updateConstellation(sliderVal) {
+        const mValues = [2, 4, 8, 16];
+        const names = ['BPSK', 'QPSK', '8-PSK', '16-PSK'];
+        const M = mValues[sliderVal - 1];
+        
+        mValueDisplay.innerText = `${M} (${names[sliderVal - 1]})`;
+        
+        const data = [];
+        for(let m = 0; m < M; m++) {
+            const phase = (2 * Math.PI * m) / M;
+            data.push({ x: Math.cos(phase), y: Math.sin(phase) });
+        }
+        constChart.data.datasets[0].data = data;
+        constChart.update();
+    }
+
+    mSlider.addEventListener('input', (e) => updateConstellation(e.target.value));
+    updateConstellation(2);
+
+
+    /* --- WAVEFORM CHART --- */
+    const ctxWave = document.getElementById('waveChart').getContext('2d');
+    const waveChart = new Chart(ctxWave, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 200}, (_, i) => i),
+            datasets: [{
+                label: 'Amplitude',
+                data: [],
+                borderColor: '#00e5ff',
+                backgroundColor: 'rgba(0, 229, 255, 0.15)',
+                fill: true,
+                borderWidth: 4,
+                pointRadius: 0,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                x: { display: false },
+                y: { min: -1.5, max: 1.5, grid: { color: 'rgba(255,255,255,0.08)' } }
+            },
+            plugins: { legend: { display: false } },
+            animation: { duration: 400, easing: 'easeOutSine' }
+        }
+    });
+
+    const symSlider = document.getElementById('symSlider');
+    const symValueDisplay = document.getElementById('symValue');
+
+    function updateWaveform(m) {
+        const phase = (2 * Math.PI * m) / 4;
+        const degrees = (phase * 180 / Math.PI).toFixed(0);
+        symValueDisplay.innerText = `m=${m} (${degrees}°)`;
+
+        const data = [];
+        for(let t = 0; t <= 4 * Math.PI; t += (4 * Math.PI)/200) {
+            data.push(Math.cos(4*t + phase)); 
+        }
+
+        waveChart.data.datasets[0].data = data;
+        waveChart.update();
+    }
+
+    symSlider.addEventListener('input', (e) => updateWaveform(e.target.value));
+    updateWaveform(0);
+    
+    /* Smooth Scrolling for TOC */
+    document.querySelectorAll('.toc a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

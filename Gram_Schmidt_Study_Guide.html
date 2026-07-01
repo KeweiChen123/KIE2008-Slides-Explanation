@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric Representation of Signal Waveforms & Gram-Schmidt - Study Guide</title>
+    <!-- MathJax for Math Rendering -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js for Interactive Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            /* Dark tech/galaxy theme */
+            --bg-color: #0B0C10;
+            --text-color: #C5C6C7;
+            --accent-cyan: #66FCF1;
+            --accent-teal: #45A29E;
+            --accent-pink: #FF007F;
+            --accent-purple: #9D4EDD;
+            --accent-yellow: #F9E076;
+            --accent-green: #00FF7F;
+            --accent-orange: #FF8C00;
+            --box-bg: #1F2833;
+            --code-bg: #12161A;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            font-size: 1.05em;
+            margin: 0;
+            padding: 20px 10%;
+        }
+        
+        h1 {
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            border-bottom: 2px solid var(--accent-teal);
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+        }
+        
+        h2 {
+            color: var(--accent-pink);
+            border-bottom: 1px solid var(--accent-purple);
+            padding-bottom: 5px;
+            margin-top: 40px;
+        }
+        
+        h3 {
+            color: var(--accent-teal);
+            margin-top: 30px;
+        }
+        
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+        
+        .chapter {
+            background-color: var(--box-bg);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 40px 0;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.15);
+            border-left: 6px solid var(--accent-cyan);
+        }
+
+        .concept-box {
+            background-color: rgba(0, 255, 127, 0.05);
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 5px solid var(--accent-green);
+            margin: 25px 0;
+            box-shadow: 0 4px 10px rgba(0, 255, 127, 0.1);
+        }
+
+        .concept-box h4 {
+            color: var(--accent-green);
+            margin-top: 0;
+            font-size: 1.25em;
+            border-bottom: 1px solid rgba(0, 255, 127, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .derivation-box {
+            background-color: var(--code-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-teal);
+            border-left: 5px solid var(--accent-purple);
+            margin: 25px 0;
+            overflow-x: auto;
+            box-shadow: 0 4px 10px rgba(157, 78, 221, 0.1);
+        }
+
+        .derivation-box h4 {
+            color: var(--accent-purple);
+            margin-top: 0;
+            font-size: 1.25em;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.3);
+            padding-bottom: 10px;
+        }
+        
+        .example-box {
+            border: 2px dashed var(--accent-cyan);
+            padding: 25px;
+            margin: 25px 0;
+            background: rgba(102, 252, 241, 0.05);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(102, 252, 241, 0.1);
+        }
+
+        .example-box h4 {
+            color: var(--accent-cyan);
+            margin-top: 0;
+            font-size: 1.25em;
+            border-bottom: 1px dashed rgba(102, 252, 241, 0.4);
+            padding-bottom: 10px;
+        }
+        
+        .trap-card {
+            background-color: var(--box-bg);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .trap-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.15);
+        }
+
+        .trap-header {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.15) 0%, rgba(255, 140, 0, 0.05) 100%);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .trap-header h4 {
+            color: var(--accent-orange);
+            margin: 0;
+            font-size: 1.15em;
+            line-height: 1.4;
+        }
+        
+        .trap-body {
+            padding: 25px;
+        }
+
+        .truth-section {
+            background: rgba(0, 255, 127, 0.08);
+            border-left: 4px solid var(--accent-green);
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #E0E0E0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .truth-section strong {
+            color: var(--accent-green);
+            white-space: nowrap;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+
+        .summary-box {
+            background-color: rgba(249, 224, 118, 0.05);
+            border: 2px solid var(--accent-yellow);
+            padding: 25px;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 4px 15px rgba(249, 224, 118, 0.15);
+        }
+
+        .summary-box h4 {
+            color: var(--accent-yellow);
+            margin-top: 0;
+            font-size: 1.25em;
+            border-bottom: 1px solid rgba(249, 224, 118, 0.4);
+            padding-bottom: 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background-color: var(--box-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        th, td {
+            border: 1px solid var(--accent-teal);
+            padding: 15px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: var(--accent-purple);
+            color: white;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+        
+        .interactive-container {
+            width: 100%;
+            max-width: 600px;
+            margin: 30px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        .interactive-controls {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        button {
+            background-color: var(--accent-purple);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin: 0 5px;
+        }
+        
+        button:hover:not(:disabled) {
+            background-color: var(--accent-pink);
+            box-shadow: 0 0 10px var(--accent-pink);
+        }
+        
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        nav {
+            background: var(--box-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-purple);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.2);
+        }
+        
+        nav ul {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        nav li {
+            margin-bottom: 0;
+            background: rgba(157, 78, 221, 0.1);
+            padding: 10px 15px;
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-cyan);
+            flex: 1 1 45%;
+        }
+        
+        nav a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+        }
+        
+        nav a:hover {
+            color: var(--accent-pink);
+        }
+
+        ul li {
+            margin-bottom: 12px;
+        }
+
+        .inline-example {
+            background: rgba(249, 224, 118, 0.08);
+            border-left: 4px solid var(--accent-yellow);
+            padding: 12px 20px;
+            margin: 15px 0;
+            font-size: 0.95em;
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        .inline-example em {
+            color: var(--accent-yellow);
+            font-weight: bold;
+            font-style: normal;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Geometric Representation of Signal Waveforms</h1>
+    
+    <nav>
+        <ul>
+            <li><a href="#visualizer">0. 2D Visualizer</a></li>
+            <li><a href="#chap1">1. Gram-Schmidt Orthogonalization</a></li>
+            <li><a href="#chap2">2. Geometric Representation</a></li>
+            <li><a href="#misconceptions">3. Exam Traps & Misconceptions</a></li>
+            <li><a href="#glossary-formulas">4. Formula Glossary ⚡</a></li>
+            <li><a href="#glossary-terms">5. Key Terms Glossary</a></li>
+            <li><a href="#summary">6. Summary & Revision Notes</a></li>
+        </ul>
+    </nav>
+
+    <!-- GRAM-SCHMIDT VISUALIZER -->
+    <style>
+        .visualizer-wrapper {
+            background-color: #1e1e24; 
+            color: #fff; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 30px;
+            border-radius: 12px;
+            margin: 40px 0;
+            box-shadow: 0 0 20px rgba(251, 159, 137, 0.15);
+            border-left: 6px solid #fb9f89;
+        }
+        .visualizer-wrapper h2 {
+            color: #fb9f89;
+            border-bottom: none;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .visualizer-container { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+        #vectorCanvas { background-color: #2b2b36; border: 2px solid #fb9f89; border-radius: 8px; cursor: crosshair; max-width: 100%; }
+        .visualizer-controls { background-color: #2b2b36; padding: 20px; border-radius: 8px; width: 320px; box-sizing: border-box; }
+        .visualizer-math-box { background-color: #1a1a20; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 1.1em; color: #81a1c1; margin-top: 15px; }
+        .visualizer-slider-group { margin-bottom: 15px; }
+        .visualizer-slider-group label { display: block; margin-bottom: 5px; color: #d8dee9; font-size: 0.9em; }
+        .visualizer-slider-group input[type="range"] { width: 100%; }
+        .visualizer-legend { margin-top: 15px; font-size: 0.9em; }
+        .visualizer-legend div { margin-bottom: 5px; }
+        .visualizer-legend span { display: inline-block; width: 12px; height: 12px; margin-right: 8px; border-radius: 50%; }
+    </style>
+
+    <div class="visualizer-wrapper" id="visualizer">
+        <h2>Vector Intuition: Gram-Schmidt Orthogonalization</h2>
+        <p style="text-align: center; margin-top: 0;">Signals are just vectors! Adjust <b>Signal 1 ($\mathbf{s}_1$)</b> and <b>Signal 2 ($\mathbf{s}_2$)</b> to see how we create an orthogonal basis ($\psi_1, \psi_2$).</p>
+
+        <div class="visualizer-container">
+            <canvas id="vectorCanvas" width="500" height="500"></canvas>
+            
+            <div class="visualizer-controls">
+                <div class="visualizer-slider-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span><strong style="color: #ff4757;">$\mathbf{s}_1$</strong> X coordinate:</span>
+                        <span id="s1x_val" style="color: #eceff4; font-weight: bold;">8.0</span>
+                    </label>
+                    <input type="range" id="s1x" min="-15" max="15" value="8" step="0.5">
+                </div>
+                <div class="visualizer-slider-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span><strong style="color: #ff4757;">$\mathbf{s}_1$</strong> Y coordinate:</span>
+                        <span id="s1y_val" style="color: #eceff4; font-weight: bold;">2.0</span>
+                    </label>
+                    <input type="range" id="s1y" min="-15" max="15" value="2" step="0.5">
+                </div>
+                <div class="visualizer-slider-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span><strong style="color: #1e90ff;">$\mathbf{s}_2$</strong> X coordinate:</span>
+                        <span id="s2x_val" style="color: #eceff4; font-weight: bold;">4.0</span>
+                    </label>
+                    <input type="range" id="s2x" min="-15" max="15" value="4" step="0.5">
+                </div>
+                <div class="visualizer-slider-group">
+                    <label style="display: flex; justify-content: space-between;">
+                        <span><strong style="color: #1e90ff;">$\mathbf{s}_2$</strong> Y coordinate:</span>
+                        <span id="s2y_val" style="color: #eceff4; font-weight: bold;">8.0</span>
+                    </label>
+                    <input type="range" id="s2y" min="-15" max="15" value="8" step="0.5">
+                </div>
+
+                <div class="visualizer-legend">
+                    <div><span style="background: #ff4757;"></span> $\mathbf{s}_1$ (Signal 1)</div>
+                    <div><span style="background: #1e90ff;"></span> $\mathbf{s}_2$ (Signal 2)</div>
+                    <div><span style="background: #ffa502;"></span> $\psi_1$ (Basis 1)</div>
+                    <div><span style="background: #70a1ff;"></span> $\psi_2$ (Basis 2)</div>
+                    <div><span style="background: #2ed573;"></span> Projection of $\mathbf{s}_2$ on $\psi_1$</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="visualizer-math-box" id="mathOutput" style="width: 100%; max-width: 950px; margin: 30px auto 0 auto; box-sizing: border-box; padding: 25px;">
+            <!-- Math updates here -->
+        </div>
+    </div>
+
+    <script>
+        const canvasVisualizer = document.getElementById('vectorCanvas');
+        const ctxVisualizer = canvasVisualizer.getContext('2d');
+        const mathOut = document.getElementById('mathOutput');
+        
+        // Handle high-DPI (Retina) displays to prevent blurry rendering
+        const dprVis = window.devicePixelRatio || 1;
+        const displaySizeVis = 650;
+        
+        // Set actual size in memory (scaled for DPI)
+        canvasVisualizer.width = displaySizeVis * dprVis;
+        canvasVisualizer.height = displaySizeVis * dprVis;
+        
+        // Set display size via CSS
+        canvasVisualizer.style.width = displaySizeVis + 'px';
+        canvasVisualizer.style.height = displaySizeVis + 'px';
+        
+        // Normalize coordinate system to use css pixels
+        ctxVisualizer.scale(dprVis, dprVis);
+        
+        const scaleVis = 20; // pixels per unit
+        const cxVis = displaySizeVis / 2;
+        const cyVis = displaySizeVis / 2;
+
+        function drawGridVis() {
+            ctxVisualizer.clearRect(0, 0, displaySizeVis, displaySizeVis);
+            ctxVisualizer.strokeStyle = '#4c566a';
+            ctxVisualizer.lineWidth = 1;
+            
+            for(let i = 0; i <= displaySizeVis; i += scaleVis) {
+                ctxVisualizer.beginPath(); ctxVisualizer.moveTo(i, 0); ctxVisualizer.lineTo(i, displaySizeVis); ctxVisualizer.stroke();
+                ctxVisualizer.beginPath(); ctxVisualizer.moveTo(0, i); ctxVisualizer.lineTo(displaySizeVis, i); ctxVisualizer.stroke();
+            }
+            // Draw axes
+            ctxVisualizer.strokeStyle = '#d8dee9';
+            ctxVisualizer.lineWidth = 2;
+            ctxVisualizer.beginPath(); ctxVisualizer.moveTo(cxVis, 0); ctxVisualizer.lineTo(cxVis, displaySizeVis); ctxVisualizer.stroke();
+            ctxVisualizer.beginPath(); ctxVisualizer.moveTo(0, cyVis); ctxVisualizer.lineTo(displaySizeVis, cyVis); ctxVisualizer.stroke();
+        }
+
+        function drawArrowVis(fromx, fromy, tox, toy, color, width=3) {
+            const headlen = 10; 
+            const dx = tox - fromx;
+            const dy = toy - fromy;
+            const angle = Math.atan2(dy, dx);
+            ctxVisualizer.strokeStyle = color;
+            ctxVisualizer.fillStyle = color;
+            ctxVisualizer.lineWidth = width;
+            ctxVisualizer.beginPath();
+            ctxVisualizer.moveTo(fromx, fromy);
+            ctxVisualizer.lineTo(tox, toy);
+            ctxVisualizer.stroke();
+            ctxVisualizer.beginPath();
+            ctxVisualizer.moveTo(tox, toy);
+            ctxVisualizer.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+            ctxVisualizer.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+            ctxVisualizer.lineTo(tox, toy);
+            ctxVisualizer.fill();
+        }
+
+        function drawDashedLineVis(x1, y1, x2, y2, color) {
+            ctxVisualizer.strokeStyle = color;
+            ctxVisualizer.lineWidth = 2;
+            ctxVisualizer.setLineDash([5, 5]);
+            ctxVisualizer.beginPath();
+            ctxVisualizer.moveTo(x1, y1);
+            ctxVisualizer.lineTo(x2, y2);
+            ctxVisualizer.stroke();
+            ctxVisualizer.setLineDash([]); // reset
+        }
+
+        function drawLabelVis(text, x, y, color) {
+            ctxVisualizer.fillStyle = color;
+            ctxVisualizer.font = 'italic bold 20px "Times New Roman", serif';
+            ctxVisualizer.fillText(text, x + 10, y - 10);
+        }
+
+        function toScreenVis(x, y) {
+            return { sx: cxVis + x * scaleVis, sy: cyVis - y * scaleVis };
+        }
+
+        function updateVisualizer() {
+            const s1x = parseFloat(document.getElementById('s1x').value);
+            const s1y = parseFloat(document.getElementById('s1y').value);
+            const s2x = parseFloat(document.getElementById('s2x').value);
+            const s2y = parseFloat(document.getElementById('s2y').value);
+            
+            document.getElementById('s1x_val').innerText = s1x.toFixed(1);
+            document.getElementById('s1y_val').innerText = s1y.toFixed(1);
+            document.getElementById('s2x_val').innerText = s2x.toFixed(1);
+            document.getElementById('s2y_val').innerText = s2y.toFixed(1);
+
+            drawGridVis();
+
+            // 1. ψ1 is simply s1 normalized
+            const norm1 = Math.sqrt(s1x*s1x + s1y*s1y);
+            const psi1x = norm1 === 0 ? 0 : s1x / norm1;
+            const psi1y = norm1 === 0 ? 0 : s1y / norm1;
+
+            // 2. Projection of s2 onto ψ1 (dot product)
+            const c21 = s2x * psi1x + s2y * psi1y;
+            const projX = c21 * psi1x;
+            const projY = c21 * psi1y;
+
+            // 3. Subtract projection from s2 (Orthogonal error vector d2)
+            const d2x = s2x - projX;
+            const d2y = s2y - projY;
+
+            // 4. ψ2 is d2 normalized
+            const norm2 = Math.sqrt(d2x*d2x + d2y*d2y);
+            const psi2x = norm2 === 0 ? 0 : d2x / norm2;
+            const psi2y = norm2 === 0 ? 0 : d2y / norm2;
+
+            // Draw s1 & s2
+            const scr_s1 = toScreenVis(s1x, s1y);
+            const scr_s2 = toScreenVis(s2x, s2y);
+            drawArrowVis(cxVis, cyVis, scr_s1.sx, scr_s1.sy, '#ff4757'); // red
+            drawLabelVis('s₁', scr_s1.sx, scr_s1.sy, '#ff4757');
+            
+            drawArrowVis(cxVis, cyVis, scr_s2.sx, scr_s2.sy, '#1e90ff'); // blue
+            drawLabelVis('s₂', scr_s2.sx, scr_s2.sy, '#1e90ff');
+
+            // Draw ψ1 & ψ2 (Scale up slightly for visibility, length = 3 units visually)
+            const visScale = 3;
+            if(norm1 > 0) {
+                const scr_psi1 = toScreenVis(psi1x*visScale, psi1y*visScale);
+                drawArrowVis(cxVis, cyVis, scr_psi1.sx, scr_psi1.sy, '#ffa502', 4); // orange
+                drawLabelVis('ψ₁', scr_psi1.sx, scr_psi1.sy, '#ffa502');
+            }
+            if(norm2 > 0) {
+                const scr_psi2 = toScreenVis(psi2x*visScale, psi2y*visScale);
+                drawArrowVis(cxVis, cyVis, scr_psi2.sx, scr_psi2.sy, '#70a1ff', 4); // light blue
+                drawLabelVis('ψ₂', scr_psi2.sx, scr_psi2.sy, '#70a1ff');
+            }
+
+            // Draw projection and dashed lines
+            const scr_proj = toScreenVis(projX, projY);
+            drawArrowVis(cxVis, cyVis, scr_proj.sx, scr_proj.sy, '#2ed573', 2); // green
+            drawLabelVis('proj', scr_proj.sx, scr_proj.sy, '#2ed573');
+            drawDashedLineVis(scr_s2.sx, scr_s2.sy, scr_proj.sx, scr_proj.sy, '#d8dee9');
+
+            // Update Math Text with MathJax
+            mathOut.innerHTML = `
+                <div style="font-size: 1.05em; line-height: 1.6; color: #eceff4; max-width: 800px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 30px; font-size: 1.2em; border-bottom: 1px solid #4c566a; padding-bottom: 15px;">
+                        <span style="color: #ff4757;">$\\mathbf{s}_1$</span> = $[${s1x.toFixed(1)}, ${s1y.toFixed(1)}]$ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                        <span style="color: #1e90ff;">$\\mathbf{s}_2$</span> = $[${s2x.toFixed(1)}, ${s2y.toFixed(1)}]$
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; text-align: center;">
+                        <div>
+                            <div style="color: #ffa502; font-weight: bold; margin-bottom: 10px; font-size: 1.3em;">1. First Unit Basis ($\\psi_1$)</div>
+                            <div style="font-size: 1.25em;">
+                                <span style="color: #ffa502;">$\\psi_1$</span> = $\\frac{\\mathbf{s}_1}{||\\mathbf{s}_1||}$ = $[${psi1x.toFixed(2)}, ${psi1y.toFixed(2)}]$
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #2ed573; font-weight: bold; margin-bottom: 10px; font-size: 1.3em;">2. Overlap ($c_{21}$)</div>
+                            <div style="font-size: 1.25em;">
+                                $c_{21}$ = <span style="color: #1e90ff;">$\\mathbf{s}_2$</span> $\\cdot$ <span style="color: #ffa502;">$\\psi_1$</span> = <strong style="color: #2ed573;">$${c21.toFixed(2)}$</strong>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #d8dee9; font-weight: bold; margin-bottom: 10px; font-size: 1.3em;">3. Orthogonal Error ($\\mathbf{d}_2$)</div>
+                            <div style="font-size: 1.25em;">
+                                $\\mathbf{d}_2$ = <span style="color: #1e90ff;">$\\mathbf{s}_2$</span> - (<span style="color: #2ed573;">$c_{21}$</span> $\\psi_1$) = $[${d2x.toFixed(2)}, ${d2y.toFixed(2)}]$
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div style="color: #70a1ff; font-weight: bold; margin-bottom: 10px; font-size: 1.3em;">4. Second Unit Basis ($\\psi_2$)</div>
+                            <div style="font-size: 1.25em;">
+                                <span style="color: #70a1ff;">$\\psi_2$</span> = $\\frac{\\mathbf{d}_2}{||\\mathbf{d}_2||}$ = $[${psi2x.toFixed(2)}, ${psi2y.toFixed(2)}]$
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (window.MathJax) {
+                MathJax.typesetPromise([mathOut]).catch(err => console.log(err));
+            }
+        }
+
+        document.getElementById('s1x').addEventListener('input', updateVisualizer);
+        document.getElementById('s1y').addEventListener('input', updateVisualizer);
+        document.getElementById('s2x').addEventListener('input', updateVisualizer);
+        document.getElementById('s2y').addEventListener('input', updateVisualizer);
+
+        updateVisualizer();
+    </script>
+
+    <!-- CHAPTER 1 -->
+    <div id="chap1" class="chapter">
+        <h2>Chapter 1: The Gram-Schmidt Orthogonalization Procedure</h2>
+        
+        <div class="concept-box">
+            <h4>💡 Physical Intuition First</h4>
+            <p>In digital communication, we send digital information using analog signal waveforms (like a pulse or a sine wave). If we have $M$ possible signal waveforms, analyzing them in the time domain gets incredibly complicated. </p>
+            <p>Imagine trying to describe locations in a room without an XYZ coordinate system. It would be a mess! The Gram-Schmidt process is our tool to build a neat "XYZ coordinate system" for our signals. It takes our set of messy, overlapping signal waveforms and extracts a set of pure, mutually perpendicular (<strong>orthogonal</strong>) basic building blocks called <strong>basis functions</strong>. Once we have these basis functions, any signal we want to transmit can simply be built by adding up certain amounts of each basis function.</p>
+        </div>
+
+        <h3>Interactive Visual ⚡: Vector Projection</h3>
+        <p>The core idea of Gram-Schmidt is projection. To find a new perpendicular direction, we take a signal, see how much of it overlaps with our existing directions (projection), and subtract that overlap. What remains is purely perpendicular (orthogonal)! Play the animation below to see how $s_2$ is decomposed into a parallel part and an orthogonal part $d_2$.</p>
+        
+        <div class="interactive-container">
+            <canvas id="gramSchmidtChart"></canvas>
+            <div id="animStatus" style="margin-top: 15px; padding: 15px; background: rgba(0,0,0,0.05); border-radius: 8px; min-height: 70px; color: #333; font-size: 0.95em; text-align: center;">
+                <strong>Click 'Next Step' to start!</strong>
+            </div>
+            <div class="interactive-controls">
+                <button onclick="resetChart1()">Reset</button>
+                <button onclick="nextProjectionStep()" id="nextBtn">Next Step</button>
+            </div>
+        </div>
+
+        <div class="derivation-box">
+            <h4>📐 Mathematical Derivations</h4>
+            <p>Assume we have a set of $M$ signal waveforms $s_m(t)$ for $1 \le m \le M$. We want to construct $N \le M$ orthonormal basis functions $\psi_n(t)$.</p>
+            
+            <p><strong>Step 1: The first basis function $\psi_1(t)$</strong></p>
+            <p>We simply take the first signal $s_1(t)$ and normalize it to have unit energy.</p>
+            <p>Calculate energy: 
+            $$\mathcal{E}_1 = \int_{-\infty}^{\infty} s_1^2(t) dt$$</p>
+            <p>Normalize: 
+            $$\psi_1(t) = \frac{s_1(t)}{\sqrt{\mathcal{E}_1}}$$</p>
+            
+            <p><strong>Step 2: The second basis function $\psi_2(t)$</strong></p>
+            <p>Find the projection (overlap) of $s_2(t)$ onto $\psi_1(t)$: 
+            $$c_{21} = \int_{-\infty}^{\infty} s_2(t)\psi_1(t)dt$$</p>
+            <p>Subtract the overlap to find the orthogonal piece $d_2(t)$:
+            $$d_2(t) = s_2(t) - c_{21}\psi_1(t)$$</p>
+            <p>Normalize it:
+            $$\psi_2(t) = \frac{d_2(t)}{\sqrt{\mathcal{E}_2}}$$ 
+            where $$\mathcal{E}_2 = \int_{-\infty}^{\infty} d_2^2(t) dt$$</p>
+            
+            <p><strong>General Step $k$:</strong></p>
+            <p>For the $k$-th function, subtract its projections onto all previously found basis functions:</p>
+            <p>$$d_k(t) = s_k(t) - \sum_{i=1}^{k-1} c_{ki}\psi_i(t)$$</p>
+            <div class="inline-example">
+                <em>Example ($k=3$):</em> \(d_3(t) = s_3(t) - c_{31}\psi_1(t) - c_{32}\psi_2(t)\)
+            </div>
+            <p>where $$c_{ki} = \int_{-\infty}^{\infty} s_k(t)\psi_i(t)dt$$ for $i = 1, 2, \dots, k-1$.</p>
+            <div class="inline-example">
+                <em>Example ($k=3$):</em> \(c_{31} = \int_{-\infty}^{\infty} s_3(t)\psi_1(t)dt\), and \(c_{32} = \int_{-\infty}^{\infty} s_3(t)\psi_2(t)dt\)
+            </div>
+            <p>Then normalize: $$\psi_k(t) = \frac{d_k(t)}{\sqrt{\mathcal{E}_k}}$$ If $d_k(t) = 0$, it means the signal was totally dependent on previous ones, so no new basis function is created.</p>
+        </div>
+
+        <div class="example-box">
+            <h4>✏️ Worked Example: Gram-Schmidt</h4>
+            <p><strong>Problem:</strong> Given two signals over the interval $0 \le t \le 2$:</p>
+            <ul style="background: rgba(0,0,0,0.2); padding: 15px 30px; border-radius: 5px;">
+                <li>$s_1(t) = 1$ for $0 \le t \le 2$</li>
+                <li>$s_2(t) = 1$ for $0 \le t \le 1$, and $s_2(t) = -1$ for $1 &lt; t \le 2$</li>
+            </ul>
+            <p>Find the orthonormal basis functions $\psi_1(t)$ and $\psi_2(t)$.</p>
+            
+            <hr style="border-color: rgba(102, 252, 241, 0.4); margin: 20px 0;">
+            
+            <p><strong style="color: var(--accent-cyan); font-size: 1.1em;">Solution:</strong></p>
+            
+            <div style="margin-bottom: 20px; padding: 15px; border-left: 3px solid var(--accent-teal); background: rgba(69, 162, 158, 0.1);">
+                <p style="color: var(--accent-teal); margin-top: 0; font-weight: bold;">Step 1: Find $\psi_1(t)$</p>
+                <p>Energy of $s_1$: $$\mathcal{E}_1 = \int_0^2 (1)^2 dt = [t]_0^2 = 2$$</p>
+                <p>$$\psi_1(t) = \frac{s_1(t)}{\sqrt{2}} = \frac{1}{\sqrt{2}} \quad \text{for } 0 \le t \le 2$$</p>
+            </div>
+            
+            <div style="margin-bottom: 20px; padding: 15px; border-left: 3px solid var(--accent-purple); background: rgba(157, 78, 221, 0.1);">
+                <p style="color: var(--accent-purple); margin-top: 0; font-weight: bold;">Step 2: Find $\psi_2(t)$</p>
+                <p>Calculate the projection coefficient $c_{21}$:</p>
+                <p>$$c_{21} = \int_0^2 s_2(t)\psi_1(t) dt = \int_0^1 (1)\left(\frac{1}{\sqrt{2}}\right) dt + \int_1^2 (-1)\left(\frac{1}{\sqrt{2}}\right) dt = 0$$</p>
+                <p style="color: var(--accent-orange); font-style: italic;">Because the projection is $0$, $s_2(t)$ is already orthogonal to $\psi_1(t)$!</p>
+                <p>So, $$d_2(t) = s_2(t) - 0 = s_2(t)$$</p>
+                <p>Energy of $d_2$: $$\mathcal{E}_2 = \int_0^1 (1)^2 dt + \int_1^2 (-1)^2 dt = 1 + 1 = 2$$</p>
+                <p>$$\psi_2(t) = \frac{d_2(t)}{\sqrt{\mathcal{E}_2}} = \frac{s_2(t)}{\sqrt{2}}$$</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div id="chap2" class="chapter">
+        <h2>Chapter 2: Geometric Representation in Signal Space</h2>
+        
+        <div class="concept-box">
+            <h4>💡 Physical Intuition First</h4>
+            <p>Now that we have our basis functions (our "XYZ axes"), we can map every single signal waveform directly to a point (or vector) in a geometric space. Instead of dealing with continuous waves over time, we just deal with coordinates like $(2.5, -1.0)$.</p>
+            <p>This is incredibly powerful because the messy realities of the channel (like additive white Gaussian noise, AWGN) become simple geometry problems. To figure out if a signal was received correctly, the receiver just looks for the "closest point" in the signal space. Euclidean distance becomes the ultimate metric for error probability!</p>
+        </div>
+
+        <h3>Interactive Visual ⚡: Signal Space Constellation</h3>
+        <p>The cyan dot represents a single signal waveform $\mathbf{s}_m$ mapped into the 2D signal space. The axes are our orthogonal basis functions $\psi_1$ and $\psi_2$. Adjust the sliders below to change $s_{m1}$ and $s_{m2}$, which are the coordinates (or components) of the signal along those axes. Notice how the energy (squared distance from origin) updates instantly based on geometry!</p>
+        
+        <div class="interactive-container" style="text-align: center;">
+            <canvas id="constellationChart"></canvas>
+            <div style="margin-top: 15px;">
+                <label for="s1Range" style="color: black;"><strong>$s_{m1}$ (along $\psi_1$):</strong> <span id="s1Val">1.414</span></label>
+                <input type="range" id="s1Range" min="-3" max="3" step="0.1" value="1.414" oninput="updateConstellation()">
+                <br>
+                <label for="s2Range" style="color: black;"><strong>$s_{m2}$ (along $\psi_2$):</strong> <span id="s2Val">0</span></label>
+                <input type="range" id="s2Range" min="-3" max="3" step="0.1" value="0" oninput="updateConstellation()">
+                <h4 style="color: black; margin-bottom:0; padding-top: 10px;">Energy ($\mathcal{E}_m$) = <span id="energyVal">2.00</span></h4>
+            </div>
+        </div>
+
+        <div class="derivation-box">
+            <h4>📐 Mathematical Derivations</h4>
+            <p><strong>Vector Representation:</strong></p>
+            <p>Any signal $s_m(t)$ can be expressed as a linear combination of the orthonormal basis functions:</p>
+            <p>$$s_m(t) = \sum_{n=1}^N s_{mn} \psi_n(t)$$</p>
+            <div class="inline-example">
+                <em>Example:</em> \(s_1(t) = s_{11}\psi_1(t) + s_{12}\psi_2(t)\)
+            </div>
+            <p>The coefficients (coordinates) are found via the inner product:</p>
+            <p>$$s_{mn} = \int_{-\infty}^{\infty} s_m(t)\psi_n(t) dt$$</p>
+            <div class="inline-example">
+                <em>Example ($m=2, n=1$):</em> \(s_{21} = \int_{-\infty}^{\infty} s_2(t)\psi_1(t) dt\)
+            </div>
+            <p>So, the signal can be mapped exactly to a vector of coordinates: $\mathbf{s}_m = [s_{m1}, s_{m2}, \dots, s_{mN}]$.</p>
+            <div class="inline-example">
+                <em>Equivalence Example ($N=3$):</em> The vector representation \(\mathbf{s}_m = [s_{m1}, s_{m2}, s_{m3}]\) is mathematically and physically equivalent to the time-domain waveform \(s_m(t) = s_{m1}\psi_1(t) + s_{m2}\psi_2(t) + s_{m3}\psi_3(t)\).
+            </div>
+
+            <p><strong>Energy and Distance:</strong></p>
+            <p>The energy of the signal waveform is identical to the squared length of its vector (Parseval's theorem equivalent):</p>
+            <p>$$\mathcal{E}_m = \int_{-\infty}^{\infty} s_m^2(t) dt = \sum_{n=1}^N s_{mn}^2 = \|\mathbf{s}_m\|^2$$</p>
+            <p>The distance between any two signals is simply the Euclidean distance:</p>
+            <p>$$d_{mn}^2 = \int_{-\infty}^{\infty} [s_m(t) - s_n(t)]^2 dt = \|\mathbf{s}_m - \mathbf{s}_n\|^2 = \sum_{i=1}^N (s_{mi} - s_{ni})^2$$</p>
+        </div>
+
+        <div class="example-box">
+            <h4>✏️ Worked Example: Vector Coordinates</h4>
+            <p><strong>Problem:</strong> Using the signals and basis functions from the previous example, find the vector representation of $s_1(t)$ and calculate its energy using the vector method.</p>
+            <hr style="border-color: rgba(102, 252, 241, 0.4); margin: 20px 0;">
+            <p><strong style="color: var(--accent-cyan); font-size: 1.1em;">Solution:</strong></p>
+            
+            <div style="margin-bottom: 20px; padding: 15px; border-left: 3px solid var(--accent-teal); background: rgba(69, 162, 158, 0.1);">
+                <p>We know $\psi_1(t) = \frac{1}{\sqrt{2}}$ and $\psi_2(t) = \frac{s_2(t)}{\sqrt{2}}$.</p>
+                <p>Since $s_1(t) = 1$, it is exactly $\sqrt{2} \times \psi_1(t)$.</p>
+                <p><strong>Coordinate 1:</strong> $$s_{11} = \int_0^2 s_1(t)\psi_1(t) dt = \int_0^2 (1)\left(\frac{1}{\sqrt{2}}\right) dt = \frac{2}{\sqrt{2}} = \sqrt{2}$$</p>
+                <p><strong>Coordinate 2:</strong> $$s_{12} = \int_0^2 s_1(t)\psi_2(t) dt = 0 \quad \text{(because they are orthogonal)}$$</p>
+                <p style="font-size: 1.15em; color: var(--accent-green); margin-top: 15px;">So, the vector is <strong>$\mathbf{s}_1 = [\sqrt{2}, 0]$</strong>.</p>
+            </div>
+            
+            <div style="margin-bottom: 20px; padding: 15px; border-left: 3px solid var(--accent-yellow); background: rgba(249, 224, 118, 0.1);">
+                <p><strong>Energy Calculation:</strong></p>
+                <p>$$\mathcal{E}_1 = \|\mathbf{s}_1\|^2 = (\sqrt{2})^2 + (0)^2 = 2$$</p>
+                <p style="color: var(--accent-yellow); font-style: italic;">This perfectly matches our time-domain calculation!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MISCONCEPTIONS -->
+    <div id="misconceptions" class="chapter" style="border-left-color: var(--accent-orange); box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);">
+        <h2 style="color: var(--accent-orange); border-bottom-color: var(--accent-orange); margin-top: 0;">Exam Traps & Misconceptions</h2>
+        <p style="margin-bottom: 30px; font-size: 1.15em;">Gram-Schmidt and signal spaces are notorious for a few classic exam tricks. Don't fall for them!</p>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 1: The Dimension <span style="font-family:serif;">N</span> is always equal to the number of Signals <span style="font-family:serif;">M</span></h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>The dimension $N$ is always less than or equal to $M$ ($N \le M$).</div>
+                </div>
+                <p>You only get a new dimension (basis function) if a signal introduces something completely new. If $s_3(t)$ is just $s_1(t) + s_2(t)$ (linearly dependent), it carries no "new" direction. The Gram-Schmidt process will yield $d_3(t) = 0$, meaning no $\psi_3(t)$ is created. $N$ only equals $M$ when every single signal in the set is linearly independent of the others.</p>
+            </div>
+        </div>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 2: A different basis set means your system is not optimized</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>The set of orthonormal basis functions $\{\psi_n(t)\}$ is <strong>not unique</strong>, and any valid basis works perfectly!</div>
+                </div>
+                <p>The basis functions generated by Gram-Schmidt depend entirely on the <em>order</em> in which you input the signals. Starting the process with $s_4$ instead of $s_1$ will give you a completely different set of $\psi$ functions. Think of it like choosing coordinate axes: measuring a physical room relative to the North wall versus the East wall gives different coordinates, but the room itself (and the distances between objects) remains exactly the same. The geometric relationships (distances, error probability) remain perfectly identical regardless of the basis.</p>
+            </div>
+        </div>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 3: $\mathcal{E}_k$ is the energy of the actual signal $s_k(t)$</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>$\mathcal{E}_k$ computed during Gram-Schmidt is the energy of the <em>intermediate orthogonal piece</em> $d_k(t)$, <strong>not</strong> $s_k(t)$.</div>
+                </div>
+                <p>During the procedure, after subtracting the projections from $s_3(t)$, you are left with a residual signal $d_3(t)$. It is this residual signal that you calculate the energy for ($\mathcal{E}_3$) in order to normalize it into $\psi_3$.</p>
+                <p style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 5px; border-left: 3px solid var(--accent-cyan);"><strong>Distance Rule:</strong> If you want the actual energy of $s_k(t)$, you compute $\int s_k^2(t) dt$ or find its squared distance from the origin in the signal space: $\|\mathbf{s}_k\|^2 = \sum s_{ki}^2$.</p>
+            </div>
+        </div>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 4: Mixing up a signal's Amplitude with its Energy</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>A rectangular pulse with an amplitude of 2 does NOT have an energy of 2.</div>
+                </div>
+                <p>Energy is the integral of the <em>squared</em> signal over its entire duration ($\int s^2(t) dt$). For a rectangular pulse of amplitude $A$ and duration $T$, the energy is actually $A^2 \times T$. You must always account for both the amplitude squared <em>and</em> the duration of the signal (like the bit interval $T_b$). Forgetting to square the amplitude or multiply by $T$ is the #1 cause of calculation errors in exams!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOSSARY - FORMULAS -->
+    <div id="glossary-formulas">
+        <h2>Formula & Equation Glossary ⚡</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Equation / Formula</th>
+                    <th>Name</th>
+                    <th>Variables & Usage Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>\(d_k(t) = s_k(t) - \sum_{i=1}^{k-1} c_{ki}\psi_i(t)\)</td>
+                    <td>Orthogonal Component</td>
+                    <td>The part of signal \(s_k\) that is orthogonal to all previous basis functions.<br><span style="opacity: 0.8; font-size: 0.9em;"><em>Example: \(d_3(t) = s_3(t) - c_{31}\psi_1(t) - c_{32}\psi_2(t)\)</em></span></td>
+                </tr>
+                <tr>
+                    <td>\(\psi_k(t) = \frac{d_k(t)}{\sqrt{\mathcal{E}_k}}\)</td>
+                    <td>Basis Function Normalization</td>
+                    <td>\(\psi_k(t)\): Unit-energy basis function.<br>\(d_k(t)\): Orthogonal intermediate signal.<br>\(\mathcal{E}_k\): Energy of \(d_k(t)\).</td>
+                </tr>
+                <tr>
+                    <td>\(c_{ki} = \int_{-\infty}^{\infty} s_k(t)\psi_i(t)dt\)</td>
+                    <td>Projection Coefficient</td>
+                    <td>Calculates how much of signal \(s_k\) overlaps with basis \(\psi_i\). Used in Gram-Schmidt to subtract out overlaps.<br><span style="opacity: 0.8; font-size: 0.9em;"><em>Example: \(c_{31} = \int_{-\infty}^{\infty} s_3(t)\psi_1(t)dt\)</em></span></td>
+                </tr>
+                <tr>
+                    <td>\(s_{mn} = \int_{-\infty}^{\infty} s_m(t)\psi_n(t) dt\)</td>
+                    <td>Signal Coordinate (Coefficient)</td>
+                    <td>The coefficient representing the projection of signal \(s_m(t)\) onto basis function \(\psi_n(t)\).<br><span style="opacity: 0.8; font-size: 0.9em;"><em>Example: \(s_{21} = \int_{-\infty}^{\infty} s_2(t)\psi_1(t) dt\)</em></span></td>
+                </tr>
+                <tr>
+                    <td>\(s_m(t) = \sum_{n=1}^N s_{mn}\psi_n(t)\)</td>
+                    <td>Linear Combination (Synthesis)</td>
+                    <td>Expressing a time-domain signal exactly as a weighted sum of the basis functions.</td>
+                </tr>
+                <tr>
+                    <td>\(\mathcal{E}_m = \sum_{n=1}^N s_{mn}^2 = \|\mathbf{s}_m\|^2\)</td>
+                    <td>Signal Energy (Geometric)</td>
+                    <td>The energy of a signal is simply the squared Euclidean length of its vector from the origin.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- GLOSSARY - TERMS -->
+    <div id="glossary-terms">
+        <h2>Key Terms Glossary</h2>
+        <ul>
+            <li><strong>AWGN (Additive White Gaussian Noise):</strong> The simplest mathematical model for channel noise, assuming noise is added to the signal and its power is spread evenly across all frequencies.</li>
+            <li><strong>Basis Functions ($\psi$):</strong> A set of basic, non-overlapping (orthogonal) functions of unit energy that act as the axes of the signal space.</li>
+            <li><strong>Gram-Schmidt Orthogonalization:</strong> A mathematical procedure to convert a set of overlapping vectors (or signals) into a set of orthogonal basis vectors.</li>
+            <li><strong>Linear Independence:</strong> A condition where no signal in a set can be created by simply scaling and adding the other signals together.</li>
+            <li><strong>Orthogonal:</strong> Mutually perpendicular. In signals, it means their inner product (integral of their product) is exactly zero.</li>
+            <li><strong>Signal Space:</strong> An $N$-dimensional geometric space where every point represents a unique signal waveform.</li>
+        </ul>
+    </div>
+
+    <!-- SUMMARY -->
+    <div id="summary">
+        <div class="summary-box">
+            <h4>📌 Summary & Revision Notes</h4>
+            <ul>
+                <li>Any set of $M$ signals can be represented geometrically in a signal space of dimension $N \le M$.</li>
+                <li>The <strong>Gram-Schmidt procedure</strong> is used to systematically find the $N$ orthonormal basis functions. It relies on finding projections and subtracting them.</li>
+                <li>Once the basis is found, signals lose their complex time-domain representation and become simple vectors $\mathbf{s}_m = [s_{m1}, s_{m2}, \dots, s_{mN}]$.</li>
+                <li>This vector representation drastically simplifies analysis. The <strong>energy</strong> of a signal is its distance from the origin squared. The difference between two signals is the Euclidean distance between their points.</li>
+                <li>Communication channels can now be analyzed as <em>vector channels</em> rather than continuous waveform channels, simplifying optimum receiver design.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Script for Interactive Charts -->
+    <script>
+        // CHART 1: Gram Schmidt Projection Animation
+        const ctx1 = document.getElementById('gramSchmidtChart').getContext('2d');
+        let projChart = new Chart(ctx1, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Basis ψ₁ (Axis)',
+                        data: [{x: -1, y: 0}, {x: 5, y: 0}],
+                        borderColor: '#C5C6C7',
+                        borderWidth: 2,
+                        showLine: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Signal s₂',
+                        data: [{x: 0, y: 0}, {x: 3, y: 4}],
+                        borderColor: '#FF007F',
+                        backgroundColor: '#FF007F',
+                        borderWidth: 3,
+                        showLine: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Projection c₂₁ * ψ₁',
+                        data: [{x: 0, y: 0}, {x: 0, y: 0}], // Starts hidden
+                        borderColor: '#66FCF1',
+                        backgroundColor: '#66FCF1',
+                        borderDash: [5, 5],
+                        borderWidth: 3,
+                        showLine: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Orthogonal d₂',
+                        data: [{x: 3, y: 0}, {x: 3, y: 0}], // Starts hidden
+                        borderColor: '#9D4EDD',
+                        backgroundColor: '#9D4EDD',
+                        borderDash: [5, 5],
+                        borderWidth: 3,
+                        showLine: true,
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'Normalized ψ₂',
+                        data: [{x: 3, y: 0}, {x: 3, y: 0}], // Starts hidden
+                        borderColor: '#00FF7F',
+                        backgroundColor: '#00FF7F',
+                        borderWidth: 4,
+                        showLine: true,
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                scales: {
+                    x: { min: -1, max: 5, display: false },
+                    y: { min: -1, max: 5, display: false }
+                },
+                plugins: {
+                    legend: { labels: { color: 'black' } }
+                },
+                animation: { duration: 1000 }
+            },
+            plugins: [{
+                id: 'vectorLabels',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.font = 'bold 18px sans-serif';
+                    
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        if (!meta.hidden && dataset.data.length > 1) {
+                            const dataPoint = dataset.data[1];
+                            const viewPoint = meta.data[1];
+                            if (!viewPoint) return;
+                            
+                            let text = '';
+                            let xOffset = 10;
+                            let yOffset = -10;
+                            
+                            if (dataset.label.includes('Basis ψ₁')) {
+                                text = 'ψ₁';
+                                ctx.fillStyle = '#000000';
+                                xOffset = -25;
+                                yOffset = 25;
+                            } else if (dataset.label.includes('Signal s₂')) {
+                                text = 's₂';
+                                ctx.fillStyle = '#FF007F';
+                            } else if (dataset.label.includes('Projection') && dataPoint.x > 0) {
+                                text = 'c₂₁ψ₁';
+                                ctx.fillStyle = '#45A29E';
+                                xOffset = -35;
+                                yOffset = 25;
+                            } else if (dataset.label.includes('Orthogonal d₂') && dataPoint.y > 0) {
+                                text = 'd₂';
+                                ctx.fillStyle = '#9D4EDD';
+                            } else if (dataset.label.includes('Normalized ψ₂') && dataPoint.y > 0) {
+                                text = 'ψ₂';
+                                ctx.fillStyle = '#00A859';
+                            }
+                            
+                            if (text) {
+                                ctx.fillText(text, viewPoint.x + xOffset, viewPoint.y + yOffset);
+                            }
+                        }
+                    });
+                    ctx.restore();
+                }
+            }]
+        });
+
+        let currentStep = 0;
+
+        function nextProjectionStep() {
+            let status = document.getElementById('animStatus');
+            let nextBtn = document.getElementById('nextBtn');
+            currentStep++;
+            
+            if (currentStep === 1) {
+                // Step 1: Project
+                status.innerHTML = "<strong>Step 1:</strong> Find the projection of $s_2$ onto $\\psi_1$.<br>This gives us the overlap $c_{21}\\psi_1$.";
+                if (window.MathJax) { MathJax.typesetPromise([status]); }
+                projChart.data.datasets[2].data = [{x: 0, y: 0}, {x: 3, y: 0}];
+                projChart.update();
+            } else if (currentStep === 2) {
+                // Step 2: Subtract to get d2
+                status.innerHTML = "<strong>Step 2:</strong> Subtract the projection from $s_2$.<br>This gives us the orthogonal part $d_2 = s_2 - c_{21}\\psi_1$.";
+                if (window.MathJax) { MathJax.typesetPromise([status]); }
+                projChart.data.datasets[3].data = [{x: 3, y: 0}, {x: 3, y: 4}];
+                projChart.update();
+            } else if (currentStep === 3) {
+                // Step 3: Normalize to get psi2
+                status.innerHTML = "<strong>Step 3:</strong> Normalize $d_2$ to unit energy.<br>This becomes our new basis function $\\psi_2$!";
+                if (window.MathJax) { MathJax.typesetPromise([status]); }
+                // Shorten d2 vector to length 1 (visually scale y from 4 to 1)
+                projChart.data.datasets[4].data = [{x: 3, y: 0}, {x: 3, y: 1}];
+                projChart.update();
+                if (nextBtn) nextBtn.disabled = true;
+            }
+        }
+
+        function resetChart1() {
+            let status = document.getElementById('animStatus');
+            let nextBtn = document.getElementById('nextBtn');
+            currentStep = 0;
+            if (nextBtn) nextBtn.disabled = false;
+            status.innerHTML = "<strong>Click 'Next Step' to start!</strong>";
+            projChart.data.datasets[2].data = [{x: 0, y: 0}, {x: 0, y: 0}];
+            projChart.data.datasets[3].data = [{x: 3, y: 0}, {x: 3, y: 0}];
+            projChart.data.datasets[4].data = [{x: 3, y: 0}, {x: 3, y: 0}];
+            projChart.update();
+        }
+
+        // CHART 2: Signal Space Constellation
+        const ctx2 = document.getElementById('constellationChart').getContext('2d');
+        let constChart = new Chart(ctx2, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Signal Vector sₘ',
+                    data: [{x: 1.414, y: 0}],
+                    backgroundColor: '#66FCF1',
+                    pointRadius: 8,
+                    borderColor: '#45A29E',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                scales: {
+                    x: { 
+                        min: -4, max: 4, 
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        title: { display: true, text: 'Basis Function ψ₁', color: 'black', font:{weight:'bold'} },
+                        ticks: { color: 'black' }
+                    },
+                    y: { 
+                        min: -4, max: 4, 
+                        grid: { color: 'rgba(0,0,0,0.1)' },
+                        title: { display: true, text: 'Basis Function ψ₂', color: 'black', font:{weight:'bold'} },
+                        ticks: { color: 'black' }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                },
+                animation: { duration: 0 }
+            },
+            plugins: [{
+                id: 'constLabels',
+                afterDatasetsDraw(chart) {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.font = 'bold 18px sans-serif';
+                    
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        if (!meta.hidden && dataset.data.length > 0) {
+                            const viewPoint = meta.data[0];
+                            if (!viewPoint) return;
+                            
+                            ctx.fillStyle = '#45A29E';
+                            ctx.fillText('sₘ', viewPoint.x + 12, viewPoint.y - 12);
+                        }
+                    });
+                    ctx.restore();
+                }
+            }]
+        });
+
+        function updateConstellation() {
+            let s1 = parseFloat(document.getElementById('s1Range').value);
+            let s2 = parseFloat(document.getElementById('s2Range').value);
+            
+            document.getElementById('s1Val').innerText = s1.toFixed(2);
+            document.getElementById('s2Val').innerText = s2.toFixed(2);
+            
+            let energy = (s1*s1) + (s2*s2);
+            document.getElementById('energyVal').innerText = energy.toFixed(2);
+            
+            constChart.data.datasets[0].data = [{x: s1, y: s2}];
+            constChart.update();
+        }
+    </script>
+</body>
+</html>

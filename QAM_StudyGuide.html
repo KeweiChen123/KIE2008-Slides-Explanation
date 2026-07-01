@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadrature Amplitude Modulation (QAM)</title>
+    <!-- MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            /* VIVID & LIVELY COLOR PALETTE */
+            --bg-color: #050b14; 
+            --surface: #0a1324;
+            --surface-elevated: #11203b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-cyan: #00e5ff; 
+            --accent-green: #00ff66; 
+            --accent-purple: #c040ff; 
+            --accent-pink: #ff2a6d; 
+            --accent-yellow: #ffdf00; 
+            --border-radius: 16px; 
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 0%, #0a1835 0%, var(--bg-color) 40%);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 2.0; 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1200px; 
+            margin: 0 auto;
+            padding: 80px 30px;
+        }
+
+        /* Titles */
+        .title-section { text-align: center; margin-bottom: 50px; }
+
+        h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            line-height: 1.2;
+            letter-spacing: -1px;
+            filter: drop-shadow(0px 4px 10px rgba(192, 64, 255, 0.2));
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: var(--accent-cyan);
+            border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 15px;
+            margin-top: 100px;
+            margin-bottom: 50px;
+            scroll-margin-top: 40px;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h3 i { color: var(--accent-purple); filter: drop-shadow(0 0 8px rgba(192, 64, 255, 0.4)); }
+        p { margin-bottom: 25px; font-size: 1.1rem; }
+
+        /* Table of Contents */
+        .toc {
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-bottom: 80px;
+        }
+        .toc a {
+            background: rgba(0, 229, 255, 0.05); color: var(--accent-cyan); text-decoration: none;
+            padding: 12px 24px; border-radius: 30px; font-size: 1rem; font-weight: 600;
+            border: 1px solid rgba(0, 229, 255, 0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0, 229, 255, 0.05);
+        }
+        .toc a:hover {
+            background: var(--accent-cyan); color: #000; transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 229, 255, 0.4);
+        }
+
+        /* Grids */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; margin-bottom: 60px; }
+
+        /* Cards */
+        .card {
+            background: var(--surface); border: 1px solid var(--surface-elevated);
+            border-radius: var(--border-radius); padding: 45px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column;
+        }
+        .card:hover {
+            transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+        .card-highlight { border-left: 5px solid var(--accent-pink); }
+        .card-math {
+            border-left: 5px solid var(--accent-green);
+            background: linear-gradient(180deg, rgba(0, 255, 102, 0.04) 0%, transparent 100%);
+        }
+
+        /* Lists */
+        ul.clean-list { list-style: none; padding-left: 0; margin: 0; }
+        ul.clean-list li { margin-bottom: 22px; padding-left: 40px; position: relative; font-size: 1.1rem; }
+        ul.clean-list li:last-child { margin-bottom: 0; }
+        ul.clean-list li::before {
+            content: "\f0a4"; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; left: 0; top: 2px; color: var(--accent-cyan); font-size: 1.2rem;
+        }
+
+        /* Interactive Sections */
+        .interactive-container {
+            background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface) 100%);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: var(--border-radius);
+            padding: 50px; margin-bottom: 70px; box-shadow: inset 0 2px 15px rgba(0,0,0,0.3);
+        }
+        .interactive-layout { display: flex; align-items: center; justify-content: space-between; gap: 50px; flex-wrap: wrap; }
+        .chart-wrapper { flex: 1; min-width: 320px; max-width: 550px; margin: 0 auto; }
+        .controls-wrapper { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 25px; }
+
+        /* Highlight Boxes for Math */
+        .highlight-box {
+            background: rgba(5, 11, 20, 0.9); padding: 30px; border-radius: 12px; 
+            text-align: center; font-size: 1.4rem; margin: 30px 0; border: 1px solid rgba(255,255,255,0.1);
+            transition: box-shadow 0.3s; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .highlight-box:hover { box-shadow: 0 0 20px rgba(0, 229, 255, 0.2); border-color: rgba(0, 229, 255, 0.3); }
+        
+        .solution-box {
+            border-left: 4px solid var(--accent-cyan); 
+            background: linear-gradient(135deg, rgba(0, 229, 255, 0.08) 0%, transparent 100%); 
+            margin-top: 40px; padding: 35px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 25px 30px; text-align: left; border-bottom: 1px solid var(--surface-elevated); vertical-align: middle; font-size: 1.15rem; }
+        th { background: rgba(0, 229, 255, 0.08); color: var(--accent-cyan); font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-size: 0.95rem; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(0, 229, 255, 0.05); }
+
+        @media (max-width: 900px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            .interactive-layout { flex-direction: column; }
+            .controls-wrapper { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="title-section">
+        <h1>Quadrature Amplitude Modulation (QAM)</h1>
+        <p style="font-size: 1.3rem; color: var(--text-secondary); max-width: 700px; margin: 0 auto; line-height: 1.8;">Beyond the Circle: Combining Digital Amplitude and Phase Modulation for Maximum Data Density.</p>
+    </div>
+
+    <!-- Quick Navigation (TOC) -->
+    <div class="toc">
+        <a href="#sec-core">1. Breaking the Circle</a>
+        <a href="#sec-math">2. Mathematical Form</a>
+        <a href="#sec-constellation">3. Geometric Representation</a>
+        <a href="#sec-error">4. Error Probability & Energy</a>
+        <a href="#sec-qam-vs-psk">5. QAM vs M-ary PSK</a>
+        <a href="#sec-example">6. Example Walkthrough</a>
+    </div>
+
+    <!-- 1. INTUITION -->
+    <h2 id="sec-core">1. Breaking the Circle: The Core Concept</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-lock-open"></i> Removing the Energy Restriction</h3>
+            <ul class="clean-list">
+                <li><strong>The PSK Limitation:</strong> In PSK, all symbols have perfectly identical energy (\( \mathcal{E}_s \)), forcing them onto a tight 1D circle in the vector plane.</li>
+                <li><strong>The QAM Solution:</strong> QAM completely removes this constant energy restriction.</li>
+                <li><strong>The Result:</strong> Symbols can now be scattered anywhere across the entire 2D Cartesian plane, allowing us to pack vastly more data without crowding the points together as severely!</li>
+            </ul>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3><i class="fa-solid fa-layer-group"></i> Combined Modulation</h3>
+            <ul class="clean-list">
+                <li><strong>Two-in-One:</strong> QAM is fundamentally a combination of both <strong>Amplitude Modulation (PAM)</strong> and <strong>Phase Modulation (PSK)</strong>.</li>
+                <li><strong>Quadrature Carriers:</strong> We impress separate information bits onto two orthogonal carriers simultaneously:</li>
+            </ul>
+            <div style="background: rgba(255, 42, 109, 0.08); padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center;">
+                <code style="color: var(--accent-cyan); font-size: 1.2rem;">cos(2&pi;f<sub>c</sub>t)</code> &nbsp; and &nbsp; <code style="color: var(--accent-pink); font-size: 1.2rem;">-sin(2&pi;f<sub>c</sub>t)</code>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2. MATH -->
+    <h2 id="sec-math">2. Mathematical Formulation & Derivations</h2>
+    
+    <div class="card card-math" style="margin-bottom: 50px;">
+        <h3><i class="fa-solid fa-square-root-variable"></i> The General QAM Waveform</h3>
+        <ul class="clean-list" style="margin-bottom: 20px;">
+            <li>The transmitted QAM signal dynamically modulates the amplitude of <strong>both</strong> the In-Phase and Quadrature carriers:</li>
+        </ul>
+        <div class="highlight-box">
+            \( u_m(t) = A_{mc} g_T(t) \cos(2\pi f_c t) - A_{ms} g_T(t) \sin(2\pi f_c t) \)
+        </div>
+        <ul class="clean-list">
+            <li>\( \{A_{mc}\} \) and \( \{A_{ms}\} \): Sets of discrete amplitude levels generated by mapping \( k \)-bit sequences.</li>
+        </ul>
+    </div>
+
+    <div class="grid-2">
+        <div class="card" style="border-left: 5px solid var(--accent-cyan);">
+            <h4 style="color: var(--accent-cyan); margin-top:0; font-size: 1.3rem;"><i class="fa-solid fa-code-compare"></i> Deriving Cartesian from Polar</h4>
+            <p>QAM can also be viewed in polar form (simultaneous amplitude and phase modulation):</p>
+            <p style="text-align:center; font-size: 1.2rem; color: #fff;">\( u_{mn}(t) = A_m g_T(t) \cos(2\pi f_c t + \theta_n) \)</p>
+            
+            <p style="margin-top: 25px;"><strong>Derivation:</strong> Using the trig identity \( \cos(A+B) = \cos A \cos B - \sin A \sin B \):</p>
+            <ul class="clean-list">
+                <li>Expand: \( A_m \cos(2\pi f_c t + \theta_n) \) <br>\( = A_m \left[ \cos(\theta_n)\cos(2\pi f_c t) - \sin(\theta_n)\sin(2\pi f_c t) \right] \)</li>
+                <li style="margin-top: 15px;">By substituting: <br>\( A_{mc} = A_m \cos(\theta_n) \) <br>\( A_{ms} = A_m \sin(\theta_n) \)</li>
+                <li>We return precisely to our Cartesian Equation!</li>
+            </ul>
+        </div>
+        
+        <div class="card" style="border-left: 5px solid var(--accent-purple);">
+            <h4 style="color: var(--accent-purple); margin-top:0; font-size: 1.3rem;"><i class="fa-solid fa-bolt"></i> Symbol Rate & Bit Rate</h4>
+            <p>If we combine two PAM signals, where the In-Phase carrier uses \( M_1 \) levels and Quadrature uses \( M_2 \) levels:</p>
+            <ul class="clean-list">
+                <li>Let \( M_1 = 2^{k_1} \) and \( M_2 = 2^{k_2} \).</li>
+                <li>The total number of unique symbols is \( M = M_1 \times M_2 \).</li>
+                <li>The total bits transmitted per symbol is \( k = k_1 + k_2 = \log_2(M_1 M_2) \).</li>
+                <li><strong>Symbol Rate Equation:</strong> The speed at which symbols are sent (\( R_s \)) relates to the bit rate (\( R_b \)) by:</li>
+            </ul>
+            <p style="text-align: center; font-size: 1.4rem; color: var(--accent-yellow); margin-top: 20px;">
+                \( R_s = \frac{R_b}{k_1 + k_2} \)
+            </p>
+        </div>
+    </div>
+
+    <!-- INTERACTIVE CONSTELLATION -->
+    <h2 id="sec-constellation">3. Geometric Representation (16-QAM)</h2>
+
+    <div class="interactive-container" style="display: flex; flex-direction: column; align-items: center;">
+        <h3 style="justify-content: center; margin-bottom: 15px;"><i class="fa-solid fa-border-all"></i> The 16-QAM Rectangular Grid</h3>
+        <p style="color: var(--text-secondary); text-align: center; margin-bottom: 40px; font-size: 1.15rem; max-width: 800px;">
+            Unlike PSK, which forms a single ring, QAM forms a densely packed 2D grid. 16-QAM is created by combining two independent 4-PAM signals on orthogonal axes.
+        </p>
+        
+        <div style="width: 100%; max-width: 600px; aspect-ratio: 1;">
+            <canvas id="qamChart"></canvas>
+        </div>
+        
+        <div class="grid-3" style="width: 100%; margin-top: 50px; margin-bottom: 0;">
+            <div class="card" style="box-shadow: none; border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); padding: 30px;">
+                <h4 style="color: var(--accent-cyan); margin-top: 0;"><i class="fa-solid fa-vector-square"></i> Vector Coordinates</h4>
+                <p style="margin-bottom: 0;">\( \mathbf{s}_m = \left[ \sqrt{\mathcal{E}_s} A_{mc}, \ \sqrt{\mathcal{E}_s} A_{ms} \right] \)</p>
+            </div>
+            
+            <div class="card" style="box-shadow: none; border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); padding: 30px;">
+                <h4 style="color: var(--accent-green); margin-top: 0;"><i class="fa-solid fa-ruler-combined"></i> Orthonormal Basis</h4>
+                <p style="margin-bottom: 15px; font-size: 0.95rem;">\( \psi_1(t) = \frac{1}{\sqrt{\mathcal{E}_s}} g_T(t) \cos(2\pi f_c t) \)</p>
+                <p style="margin-bottom: 0; font-size: 0.95rem;">\( \psi_2(t) = -\frac{1}{\sqrt{\mathcal{E}_s}} g_T(t) \sin(2\pi f_c t) \)</p>
+            </div>
+            
+            <div class="card" style="box-shadow: none; border-color: rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); padding: 30px;">
+                <h4 style="color: var(--accent-purple); margin-top: 0;"><i class="fa-solid fa-ruler"></i> Euclidean Distance</h4>
+                <p style="margin-bottom: 0;">\( d_{mn} = \|\mathbf{s}_m - \mathbf{s}_n\| \)<br><span style="font-size: 0.9rem; color: var(--text-secondary);">(Calculated via Pythagorean theorem)</span></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. ERROR & ENERGY -->
+    <h2 id="sec-error">4. Average Energy & Error Probability Derivations</h2>
+    
+    <div class="grid-2">
+        <div class="card">
+            <h3><i class="fa-solid fa-battery-half"></i> Average Symbol Energy (\( \mathcal{E}_{av} \))</h3>
+            <ul class="clean-list">
+                <li>Because points are scattered at different distances from the origin, <strong>symbols do not have the same energy</strong>!</li>
+                <li>The corners of the 16-QAM grid require much more power to transmit than the inner four points.</li>
+                <li><strong>The Derivation:</strong> Assuming all \( M \) symbols are equally likely to be transmitted, the average transmitted energy is exactly the statistical expected value (the sum of the squared distances from the origin to each point, divided by \( M \)):</li>
+            </ul>
+            <div class="highlight-box" style="padding: 15px; font-size: 1.4rem;">
+                \( \mathcal{E}_{av} = \frac{1}{M} \sum_{m=1}^{M} \|\mathbf{s}_m\|^2 \)
+            </div>
+        </div>
+        
+        <div class="card card-highlight">
+            <h3><i class="fa-solid fa-chart-line"></i> Probability of Error Bounds</h3>
+            <ul class="clean-list">
+                <li>Because QAM is essentially two independent PAM signals running in parallel, the total probability of correct reception is the product of the probabilities of correct reception for each PAM signal.</li>
+                <li>This allows us to firmly bound the Error Probability (\( P_M \)) for a rectangular QAM constellation:</li>
+            </ul>
+            
+            <div class="highlight-box" style="font-size: 1.35rem; border-color: var(--accent-pink); background: rgba(255, 42, 109, 0.08); padding: 15px;">
+                \( P_M \le 1 - \left[1 - 2Q \left( \sqrt{ \frac{3\mathcal{E}_{av}}{(M-1)N_0} } \right) \right]^2 \)
+            </div>
+            
+            <p>Which simplifies to our primary upper bound formula (where \( k = \log_2 M \) and \( \mathcal{E}_{b,av}/N_0 \) is the SNR per bit):</p>
+            
+            <div style="text-align: center; font-size: 1.4rem; color: var(--accent-pink); margin-top: 20px;">
+                \( \mathbf{P_M \le 4Q \left( \sqrt{ \frac{3k \mathcal{E}_{b,av}}{(M-1)N_0} } \right)} \)
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 5. QAM VS PSK -->
+    <h2 id="sec-qam-vs-psk">5. The Ultimate Showdown: M-ary QAM vs M-ary PSK</h2>
+    
+    <div class="card" style="margin-bottom: 70px; border-left: 5px solid var(--accent-yellow);">
+        <h3><i class="fa-solid fa-trophy"></i> Why QAM Dominates for Large Data</h3>
+        
+        <ul class="clean-list" style="margin-bottom: 25px;">
+            <li>If we want to transmit an immense amount of data, we need a large \( M \). But which modulation scheme is better?</li>
+            <li>We can compare their performance mathematically by taking the ratio of the arguments inside their respective \( Q \)-functions.</li>
+            <li><strong>Derivation Intuition:</strong> The argument inside the \( Q \)-function represents the effective Signal-to-Noise Ratio (SNR). A higher argument inside the \( Q \)-function means a lower error probability.</li>
+        </ul>
+        
+        <div class="solution-box" style="background: rgba(255, 223, 0, 0.05); border-left-color: var(--accent-yellow);">
+            <h4 style="color: var(--accent-yellow); margin-top: 0; margin-bottom: 25px; font-size: 1.3rem;"><i class="fa-solid fa-scale-balanced"></i> The SNR Advantage Ratio (\( \Re_M \))</h4>
+            
+            <p style="text-align: center; font-size: 1.5rem; margin: 30px 0;">
+                \( \Re_M = \frac{(P_M)_{QAM}}{(P_M)_{PSK}} = \frac{3 / (M-1)}{2 \sin^2\left(\frac{\pi}{M}\right)} \)
+            </p>
+            
+            <p style="font-size: 1.15rem; margin-top: 30px;">Let's plug in the numbers to see what happens as \( M \) grows:</p>
+            
+            <div class="table-wrapper" style="margin-top: 25px; box-shadow: none;">
+                <table>
+                    <tr>
+                        <th style="color: var(--accent-yellow);">Constellation Size (\( M \))</th>
+                        <th style="color: var(--accent-yellow);">Ratio \( \Re_M \) (QAM Advantage)</th>
+                    </tr>
+                    <tr>
+                        <td><strong>M = 4</strong> (4-QAM vs QPSK)</td>
+                        <td>Ratio is exactly <strong>1.0</strong> (They are mathematically identical)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>M = 8</strong> (8-QAM vs 8-PSK)</td>
+                        <td>Ratio is \( \approx \) <strong>1.46</strong> (QAM pulls ahead)</td>
+                    </tr>
+                    <tr>
+                        <td style="color: var(--accent-pink);"><strong>M = 16</strong> (16-QAM vs 16-PSK)</td>
+                        <td style="color: var(--accent-pink);">Ratio is \( \approx \) <strong>2.63</strong> (QAM absolutely dominates)</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <p style="margin-top: 30px; margin-bottom: 0; font-size: 1.15rem; line-height: 1.9;">
+                <em><strong>Conclusion:</strong> A large ratio indicates a massive SNR advantage for QAM. Because QAM utilizes the <strong>entire 2D plane</strong> rather than just the perimeter of a circle, it keeps symbols spaced much further apart, drastically reducing the error rate for high-speed internet!</em>
+            </p>
+        </div>
+    </div>
+
+
+    <!-- 6. EXAMPLE WALKTHROUGH -->
+    <h2 id="sec-example">6. Example Walkthrough: Average Power of 8-QAM</h2>
+    
+    <div class="card" style="margin-bottom: 70px;">
+        <h3><i class="fa-solid fa-person-chalkboard"></i> Exam Question: Constellation Efficiency</h3>
+        
+        <ul class="clean-list" style="margin-bottom: 20px;">
+            <li><strong>Problem:</strong> Consider an \( M=8 \) rectangular signal constellation (Constellation A) and an \( M=8 \) combined PAM-PSK circular constellation (Constellation B).</li>
+            <li>Assuming that adjacent signal points in each constellation are separated by a minimum distance of \( d = 2 \)...</li>
+            <li><span style="color: var(--accent-cyan); font-weight: 700;">Question:</span> Determine the average transmitted power for each constellation, and determine which is more power efficient.</li>
+        </ul>
+        
+        <div class="solution-box" style="border-left-color: var(--accent-cyan);">
+            <h4 style="color: var(--accent-cyan); margin-top: 0; margin-bottom: 25px; font-size: 1.3rem;"><i class="fa-solid fa-key"></i> Step-by-Step Solution</h4>
+            
+            <p style="font-size: 1.15rem; margin-bottom: 10px;"><strong>Part 1: Constellation A (Rectangular Grid)</strong></p>
+            <ul class="clean-list">
+                <li>In a standard 8-point rectangular grid where points are separated by \( d=2 \), the points sit at coordinates like \( (\pm 1, \pm 1) \) and \( (\pm 3, \pm 1) \).</li>
+                <li><strong>4 inner points:</strong> Have a distance to the origin of \( \sqrt{1^2 + 1^2} = \sqrt{2} \).</li>
+                <li><strong>4 outer points:</strong> Have a distance to the origin of \( \sqrt{3^2 + 1^2} = \sqrt{10} \).</li>
+                <li><strong>Average Power (\( P_A \)):</strong> <br>
+                    \( P_A = \frac{1}{8} \left[ 4 \times (\sqrt{2})^2 + 4 \times (\sqrt{10})^2 \right] = \frac{1}{8} [ 4(2) + 4(10) ] = \frac{48}{8} = 6 \)
+                </li>
+                <li>In Decibels: \( 10 \log_{10}(6) \approx \mathbf{7.8 \ dB} \)</li>
+            </ul>
+            
+            <hr style="border: none; border-top: 1px solid rgba(0, 229, 255, 0.2); margin: 35px 0;">
+            
+            <p style="font-size: 1.15rem; margin-bottom: 10px;"><strong>Part 2: Constellation B (Combined PAM-PSK)</strong></p>
+            <ul class="clean-list">
+                <li>In this circular layout, points sit on two rings. For \( d=2 \):</li>
+                <li><strong>4 inner ring points:</strong> Have a distance to the origin of \( 2 \).</li>
+                <li><strong>4 outer ring points:</strong> Have a distance to the origin of \( 1 + \sqrt{3} \).</li>
+                <li><strong>Average Power (\( P_B \)):</strong> <br>
+                    \( P_B = \frac{1}{8} \left[ 4 \times (2)^2 + 4 \times (1 + \sqrt{3})^2 \right] \approx 4.7 \)
+                </li>
+                <li>In Decibels: \( 10 \log_{10}(4.7) \approx \mathbf{6.7 \ dB} \)</li>
+            </ul>
+            
+            <hr style="border: none; border-top: 1px solid rgba(0, 229, 255, 0.2); margin: 35px 0;">
+
+            <p style="margin-bottom: 0; font-size: 1.15rem; line-height: 1.9;">
+                <em><strong>Final Answer:</strong> Constellation B is more power efficient. Because its average power is \( 6.7 \text{ dB} \) compared to Constellation A's \( 7.8 \text{ dB} \), Constellation B requires about <strong>1.1 dB less power</strong> to transmit the exact same signal with the exact same error protection (\( d=2 \)).</em>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    /* Chart.js Global Setup */
+    Chart.defaults.color = '#94a3b8';
+    Chart.defaults.font.family = 'Inter, sans-serif';
+    Chart.defaults.font.size = 14;
+
+    /* --- 16-QAM CONSTELLATION CHART --- */
+    const ctxQam = document.getElementById('qamChart').getContext('2d');
+    
+    // Generate 16-QAM Data Points
+    const qamData = [];
+    for (let i = -3; i <= 3; i+=2) {
+        for (let j = -3; j <= 3; j+=2) {
+            // Give different colors to different energy rings for educational effect
+            let energy = i*i + j*j;
+            let pColor = '#c040ff'; // default
+            if(energy === 18) pColor = '#ff2a6d'; // outer corners
+            else if (energy === 2) pColor = '#00ff66'; // inner square
+            
+            qamData.push({x: i, y: j, customColor: pColor});
+        }
+    }
+
+    const qamChart = new Chart(ctxQam, {
+        type: 'scatter',
+        data: {
+            datasets: [{
+                label: 'Signal Points',
+                data: qamData,
+                backgroundColor: (ctx) => {
+                    return ctx.raw ? ctx.raw.customColor : '#c040ff';
+                },
+                borderColor: '#fff',
+                borderWidth: 2,
+                pointRadius: 15,
+                pointHoverRadius: 20
+            }]
+        },
+        options: {
+            aspectRatio: 1,
+            scales: {
+                x: { 
+                    min: -4, max: 4, 
+                    grid: { color: 'rgba(255,255,255,0.08)' }, 
+                    title: { display: true, text: 'In-Phase (I)', color: '#94a3b8', font: { size: 15 } } 
+                },
+                y: { 
+                    min: -4, max: 4, 
+                    grid: { color: 'rgba(255,255,255,0.08)' }, 
+                    title: { display: true, text: 'Quadrature (Q)', color: '#94a3b8', font: { size: 15 } } 
+                }
+            },
+            plugins: {
+                tooltip: { 
+                    callbacks: { 
+                        label: (ctx) => `Symbol ${ctx.dataIndex}: [${ctx.raw.x}, ${ctx.raw.y}]` 
+                    },
+                    backgroundColor: 'rgba(5, 11, 20, 0.9)',
+                    titleFont: { size: 15 },
+                    bodyFont: { size: 15 },
+                    padding: 12,
+                    borderColor: 'rgba(0, 229, 255, 0.3)',
+                    borderWidth: 1
+                },
+                legend: { display: false }
+            },
+            animation: { duration: 800, easing: 'easeOutBounce' }
+        }
+    });
+    
+    /* Smooth Scrolling for TOC */
+    document.querySelectorAll('.toc a').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

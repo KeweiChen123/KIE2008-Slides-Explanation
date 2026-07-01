@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary Antipodal Signaling (PAM) - Study Guide</title>
+    <!-- MathJax for Equations -->
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- Chart.js for Interactive Diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            /* Dark tech/galaxy theme */
+            --bg-color: #0B0C10;
+            --text-color: #C5C6C7;
+            --accent-cyan: #66FCF1;
+            --accent-teal: #45A29E;
+            --accent-pink: #FF007F;
+            --accent-purple: #9D4EDD;
+            --accent-yellow: #F9E076;
+            --accent-orange: #FF8C00;
+            --accent-green: #00FF7F;
+            --box-bg: #1F2833;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+            font-size: 1.1em;
+        }
+
+        h1, h2, h3, h4 {
+            color: var(--accent-cyan);
+        }
+
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid var(--accent-cyan);
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+        }
+
+        h2 {
+            border-bottom: 1px solid var(--accent-teal);
+            padding-bottom: 5px;
+            margin-top: 50px;
+        }
+
+        .chapter {
+            margin-bottom: 60px;
+            background: var(--box-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            border-left: 5px solid var(--accent-purple);
+        }
+
+        .concept-box {
+            background-color: rgba(69, 162, 158, 0.1);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .concept-box h4 {
+            margin-top: 0;
+            color: var(--accent-cyan);
+        }
+
+        .derivation-box {
+            background-color: rgba(157, 78, 221, 0.1);
+            border: 1px dashed var(--accent-purple);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .inline-example {
+            display: inline-block;
+            background-color: rgba(249, 224, 118, 0.15);
+            border: 1px solid var(--accent-yellow);
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #FFF;
+        }
+
+        .interactive-container {
+            background: #fff; /* White background for charts */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--accent-teal);
+            margin: 30px 0;
+        }
+        
+        /* Trap Card Styles */
+        .trap-card {
+            background-color: var(--box-bg);
+            border: 1px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            margin: 30px 0;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .trap-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.15);
+        }
+
+        .trap-header {
+            background: linear-gradient(135deg, rgba(255, 140, 0, 0.15) 0%, rgba(255, 140, 0, 0.05) 100%);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .trap-header h4 {
+            color: var(--accent-orange);
+            margin: 0;
+            font-size: 1.15em;
+            line-height: 1.4;
+        }
+        
+        .trap-body {
+            padding: 25px;
+        }
+
+        .truth-section {
+            background: rgba(0, 255, 127, 0.08);
+            border-left: 4px solid var(--accent-green);
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #E0E0E0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .truth-section strong {
+            color: var(--accent-green);
+            white-space: nowrap;
+        }
+
+        .icon {
+            font-size: 1.5em;
+            line-height: 1;
+        }
+        
+        nav {
+            background: var(--box-bg);
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-purple);
+            margin-bottom: 40px;
+            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.2);
+        }
+
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav li {
+            margin: 10px 0;
+        }
+
+        nav a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--accent-pink);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Binary Antipodal Signaling (PAM) 📡</h1>
+    <p style="text-align: center; color: var(--accent-teal);">A comprehensive student guide bridging the gap between Gram-Schmidt Mathematics and Digital Modulation.</p>
+    
+    <nav>
+        <h3 style="margin-top: 0;">Table of Contents</h3>
+        <ul>
+            <li><a href="#chap1">1. The Bridge – From Math to Modulation</a></li>
+            <li><a href="#chap2">2. What is Binary Antipodal Signaling?</a></li>
+            <li><a href="#chap3">3. The Proof – Why N = 1</a></li>
+            <li><a href="#chap4">4. Geometric Representation & Signal Space</a></li>
+            <li><a href="#chap5">5. Exam Traps & Misconceptions</a></li>
+            <li><a href="Gram_Schmidt_Study_Guide.html" style="color: var(--accent-purple);">🔙 Back to Gram-Schmidt Guide</a></li>
+        </ul>
+    </nav>
+
+    <!-- CHAPTER 1 -->
+    <div id="chap1" class="chapter">
+        <h2>Chapter 1: The Bridge – From Math to Modulation</h2>
+        
+        <div class="concept-box">
+            <h4>💡 The "Why" behind Gram-Schmidt</h4>
+            <p>You just spent hours learning the <strong>Gram-Schmidt Orthogonalization Procedure</strong>. But why? How does finding orthogonal vectors have anything to do with transmitting bits across a cable or through the air?</p>
+            <p>Here is the reality: <strong>Cables and antennas don't understand abstract 1s and 0s.</strong> They only understand physical, continuous voltage or electromagnetic waves over time (like $s_1(t)$ and $s_2(t)$).</p>
+        </div>
+        
+        <p>The <em>choice</em> of what $s_1(t)$ and $s_2(t)$ actually look like is called <strong>Modulation</strong>. For example, if you want to send a '1', you send a positive voltage pulse. To send a '0', you send a negative voltage pulse. That's modulation in the physical world!</p>
+
+        <h3 style="color: var(--accent-pink);">So where does Gram-Schmidt fit in?</h3>
+        <p>Imagine trying to calculate how much a physical signal degrades when random noise (static) is added to it in a wire. Trying to do math on squiggly, noisy time-domain waveforms $s(t)$ is incredibly difficult and messy.</p>
+        
+        <p><strong>Gram-Schmidt is the map.</strong> It allows us to take those complex physical waveforms and plot them as simple <strong>geometric points (vectors)</strong> on a graph called a <strong>Signal Space</strong>.</p>
+        
+        <ul>
+            <li><strong>Modulation</strong> is picking the physical waves to send.</li>
+            <li><strong>Gram-Schmidt</strong> creates the $X$ and $Y$ axes (the basis functions $\psi_1, \psi_2$) so we can map those waves into dots on a screen.</li>
+        </ul>
+
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 8px; border: 1px solid var(--accent-cyan); margin-top: 20px;">
+            <h4 style="color: var(--accent-cyan); margin-top: 0; text-align: center;">Visualizing the Bridge: Reality vs. Math</h4>
+            <p style="text-align: center; margin-bottom: 20px; font-size: 0.9em;">On the left, what travels through the wire (Modulation). On the right, how we analyze it (Gram-Schmidt Signal Space).</p>
+            <div style="background: #fff; padding: 10px; border-radius: 8px;">
+                <canvas id="bridgeChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAPTER 2 -->
+    <div id="chap2" class="chapter">
+        <h2>Chapter 2: What is Binary Antipodal Signaling?</h2>
+        
+        <p>There are many ways to choose $s_1(t)$ and $s_2(t)$. One of the most famous and efficient methods is called <strong>Binary Antipodal Signaling</strong>.</p>
+        
+        <ul>
+            <li><strong>"Binary"</strong> = We are dealing with exactly $M = 2$ signals (to send 1 bit per symbol).</li>
+            <li><strong>"Antipodal"</strong> = The two waveforms are exact geometric opposites of each other (like the North and South poles).</li>
+        </ul>
+
+        <div class="inline-example">
+            <strong>Definition:</strong> For a given base pulse $s(t)$, we define:<br>
+            Bit '1': $s_1(t) = s(t)$<br>
+            Bit '0': $s_2(t) = -s(t)$
+        </div>
+
+        <h3 style="color: var(--accent-pink);">Why is this the same as PAM?</h3>
+        <p>Your lecturer mentioned that this is the same as <strong>Pulse Amplitude Modulation (PAM)</strong>. Why? Because we are taking a basic pulse shape $p(t)$ and modulating its <em>amplitude</em>.</p>
+        <p>If we set our amplitude to either $+A$ or $-A$, our signals become:</p>
+        <ul>
+            <li>$s_1(t) = +A \cdot p(t)$</li>
+            <li>$s_2(t) = -A \cdot p(t)$</li>
+        </ul>
+        <p>Notice that $s_2(t)$ is just exactly $-s_1(t)$. We are just flipping the signal upside down. Because we are only changing the amplitude of a pulse, this is fundamentally a 2-level PAM system (also known as 2-PAM or BPSK if the pulse is a sine wave).</p>
+
+        <div class="derivation-box" style="border-color: var(--accent-cyan); background-color: rgba(102, 252, 241, 0.05); margin-top: 30px; margin-bottom: 30px;">
+            <h4 style="color: var(--accent-cyan);">The Energy of Antipodal Signals</h4>
+            <p style="line-height: 1.6;">Let's use the most straightforward mathematical approach to prove that both bits have the exact same energy. The energy of any signal is simply the integral of its square.</p>
+            <p style="line-height: 1.6;">We defined $s_1(t) = s(t)$ and $s_2(t) = -s(t)$. Let's calculate the energy of each:</p>
+            
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+                $$ \mathcal{E}_1 = \int_0^{T_b} (s_1(t))^2 dt = \int_0^{T_b} (s(t))^2 dt = \mathcal{E}_b $$
+            </div>
+            
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+                $$ \mathcal{E}_2 = \int_0^{T_b} (s_2(t))^2 dt = \int_0^{T_b} (-s(t))^2 dt $$
+            </div>
+            
+            <p style="line-height: 1.6;">When we square $-s(t)$, the negative sign mathematically vanishes: $(-s(t))^2 = (s(t))^2$. Therefore:</p>
+            
+            <div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+                $$ \mathcal{E}_2 = \int_0^{T_b} (s(t))^2 dt = \mathcal{E}_b $$
+            </div>
+            
+            <p style="line-height: 1.6;"><strong>Conclusion:</strong> $\mathcal{E}_1 = \mathcal{E}_2 = \mathcal{E}_b$. In Binary Antipodal Signaling, transmitting a '0' costs the exact same amount of energy as transmitting a '1'!</p>
+        </div>
+
+        <h3 style="color: var(--accent-cyan); margin-top: 30px;">What is $g_T(t)$ and how does it relate to $T_b$?</h3>
+        <p>You will often see the base pulse $p(t)$ or $s(t)$ written as $g_T(t)$ in textbooks. This stands for the <strong>Transmitter Pulse Shape</strong>. It is the physical electrical waveform used to carry a bit.</p>
+        
+        <p><strong>$T_b$ (Bit Duration)</strong> is the physical amount of time allocated to transmit a single bit (e.g., if you transmit 1000 bits per second, $T_b = 1/1000 = 1$ ms).</p>
+        
+        <div class="concept-box" style="border-left-color: var(--accent-green); background-color: rgba(0, 255, 127, 0.05);">
+            <h4 style="color: var(--accent-green);">The Relationship</h4>
+            <ul>
+                <li><strong style="color: var(--accent-green);">Timing:</strong> In a basic system, the pulse $g_T(t)$ is emitted once every $T_b$ seconds. It typically turns "on" at $t=0$ and "off" at $t=T_b$.</li>
+                <li><strong style="color: var(--accent-green);">Energy ($\mathcal{E}_b$):</strong> The energy of your transmitted bit is dictated by the shape of $g_T(t)$ and how long it lasts ($T_b$). We calculate it by integrating the squared pulse over the bit duration: $$\mathcal{E}_b = \int_0^{T_b} g_T^2(t) dt$$</li>
+                <li><strong style="color: var(--accent-green);">Bandwidth:</strong> A shorter $T_b$ (faster internet) compresses $g_T(t)$ in time. Physics dictates that compressing a signal in time spreads it out in frequency, meaning you need more bandwidth!</li>
+            </ul>
+        </div>
+
+        <div class="trap-card" style="border-color: var(--accent-pink); background-color: rgba(255, 0, 127, 0.05); margin-top: 30px;">
+            <div class="trap-header" style="background: rgba(255, 0, 127, 0.1); border-bottom-color: rgba(255, 0, 127, 0.2);">
+                <span class="icon">🤔</span>
+                <h4 style="color: var(--accent-pink);">The Energy Formula Confusion: $s(t)$ vs $g_T(t)$</h4>
+            </div>
+            <div class="trap-body">
+                <p>You might be wondering: <em>"Is the energy formula $\int s^2$? Or $\int A^2 g_T^2$? Or just $\int g_T^2$?"</em></p>
+                <p>The absolute, fundamental formula for Energy of ANY signal $x(t)$ in the universe is simply: <strong>$\int x^2(t) dt$</strong></p>
+                <p>The confusion comes from how textbooks define the signals:</p>
+                <ol>
+                    <li>If the entire physical waveform is called $s(t)$, then Energy = <strong>$\int s^2(t) dt$</strong></li>
+                    <li>If the textbook splits the waveform into an amplitude $A$ and a basic shape $g_T(t)$ (so $s(t) = A \cdot g_T(t)$), then Energy = $\int (A \cdot g_T(t))^2 dt$ = <strong>$A^2 \int g_T^2(t) dt$</strong></li>
+                    <li>If $g_T(t)$ is defined as the <em>entire</em> waveform (including its amplitude), then Energy = <strong>$\int g_T^2(t) dt$</strong></li>
+                </ol>
+                <p>Don't let the letters confuse you! Just square whatever the entire physical voltage is, and integrate it over time.</p>
+            </div>
+        </div>
+
+        <div class="derivation-box" style="border-color: var(--accent-orange); background-color: rgba(255, 140, 0, 0.05); margin-top: 30px;">
+            <h4 style="color: var(--accent-orange);">📝 Lecturer's Example 2: The Split-Phase (Manchester) Pulse</h4>
+            
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 300px;">
+                    <p>Your lecturer showed an example where the pulse changes sign halfway through the bit duration. The physical voltage (which they called $g_T(t)$) is defined as:</p>
+                    <ul>
+                        <li>$g_T(t) = +\sqrt{\frac{\mathcal{E}_b}{T_b}}$ for the first half: $0 \le t \le \frac{T_b}{2}$</li>
+                        <li>$g_T(t) = -\sqrt{\frac{\mathcal{E}_b}{T_b}}$ for the second half: $\frac{T_b}{2} \le t \le T_b$</li>
+                    </ul>
+                    <p>Because the signal splits, we break the energy integral ($\int g_T^2(t) dt$) into two parts:</p>
+                </div>
+                <div style="flex: 1; min-width: 300px; background: #fff; padding: 20px 20px 40px 70px; border-radius: 8px; box-shadow: 0 0 15px var(--accent-orange); position: relative;">
+                    <!-- Y Axis Labels -->
+                    <div style="position: absolute; top: 20px; left: 10px; font-size: 0.9em; color: #000;">
+                        \( +\sqrt{\frac{\mathcal{E}_b}{T_b}} \)
+                    </div>
+                    <div style="position: absolute; top: 102px; left: 55px; font-size: 0.9em; color: #000;">
+                        \( 0 \)
+                    </div>
+                    <div style="position: absolute; bottom: 50px; left: 10px; font-size: 0.9em; color: #000;">
+                        \( -\sqrt{\frac{\mathcal{E}_b}{T_b}} \)
+                    </div>
+                    <div style="position: absolute; top: 102px; left: -10px; font-size: 1.1em; color: #000; transform: rotate(-90deg);">
+                        \( g_T(t) \)
+                    </div>
+
+                    <canvas id="manchesterChart" height="200" style="width: 100%;"></canvas>
+                    
+                    <!-- X Axis Labels -->
+                    <div style="position: absolute; bottom: 25px; left: 70px; font-size: 0.9em; color: #000;">
+                        \( 0 \)
+                    </div>
+                    <div style="position: absolute; bottom: 25px; left: calc(50% + 25px); font-size: 0.9em; color: #000; transform: translateX(-50%);">
+                        \( \frac{T_b}{2} \)
+                    </div>
+                    <div style="position: absolute; bottom: 25px; right: 15px; font-size: 0.9em; color: #000;">
+                        \( T_b \)
+                    </div>
+                    <div style="position: absolute; bottom: -5px; left: calc(50% + 25px); font-size: 1.1em; color: #000; transform: translateX(-50%);">
+                        \( \text{Time } (t) \)
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px; margin-bottom: 20px;">
+                $$ \text{Energy} = \int_{0}^{T_b/2} \left( +\sqrt{\frac{\mathcal{E}_b}{T_b}} \right)^2 dt + \int_{T_b/2}^{T_b} \left( -\sqrt{\frac{\mathcal{E}_b}{T_b}} \right)^2 dt $$
+            </div>
+            
+            <p style="margin-bottom: 15px; line-height: 1.6;">When you square the negative second half, the minus sign disappears! Both amplitudes simply become $\frac{\mathcal{E}_b}{T_b}$:</p>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                $$ \text{Energy} = \int_{0}^{T_b/2} \frac{\mathcal{E}_b}{T_b} dt + \int_{T_b/2}^{T_b} \frac{\mathcal{E}_b}{T_b} dt $$
+            </div>
+            
+            <p style="margin-bottom: 15px; line-height: 1.6;">Now, evaluate the integrals by multiplying the constant squared-amplitude by the duration of each half (which is exactly $\frac{T_b}{2}$):</p>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                $$ \text{Energy} = \left[ \frac{\mathcal{E}_b}{T_b} \times \frac{T_b}{2} \right] + \left[ \frac{\mathcal{E}_b}{T_b} \times \frac{T_b}{2} \right] $$
+            </div>
+            
+            <div style="text-align: center; font-size: 1.3em; font-weight: bold; color: var(--accent-pink); margin-top: 30px; margin-bottom: 30px; padding: 15px; background: rgba(255,0,127,0.05); border-radius: 8px;">
+                $$ \text{Energy} = \frac{\mathcal{E}_b}{2} + \frac{\mathcal{E}_b}{2} = \mathcal{E}_b $$
+            </div>
+            <p style="line-height: 1.6;"><strong>The Takeaway:</strong> Even though the signal flips upside down halfway through, its total energy still perfectly equals $\mathcal{E}_b$ because squaring a negative voltage yields positive energy. This is a very common trick question in exams!</p>
+
+            <hr style="border-color: rgba(255, 140, 0, 0.4); margin: 30px 0;">
+            
+            <h4 style="color: var(--accent-orange);">Finding the Basis Function $\psi_1(t)$</h4>
+            <p style="line-height: 1.6;">To find the geometric representation of this system, we must apply the first step of Gram-Schmidt: finding the basis function $\psi_1(t)$ by normalizing our signal $s_1(t)$ (which is $g_T(t)$).</p>
+            
+            <div style="text-align: center; margin: 15px 0;">
+                $$ \psi_1(t) = \frac{s_1(t)}{\sqrt{\mathcal{E}_1}} = \frac{g_T(t)}{\sqrt{\mathcal{E}_b}} $$
+            </div>
+            
+            <p style="line-height: 1.6;">Because we divide the signal by $\sqrt{\mathcal{E}_b}$, the amplitude of the pulse changes! We divide both halves by $\sqrt{\mathcal{E}_b}$:</p>
+            <ul>
+                <li>First half: $+\sqrt{\frac{\mathcal{E}_b}{T_b}} \div \sqrt{\mathcal{E}_b} = \mathbf{+\frac{1}{\sqrt{T_b}}}$</li>
+                <li>Second half: $-\sqrt{\frac{\mathcal{E}_b}{T_b}} \div \sqrt{\mathcal{E}_b} = \mathbf{-\frac{1}{\sqrt{T_b}}}$</li>
+            </ul>
+
+            <div style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 20px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <p style="line-height: 1.6;">Notice that the shape of $\psi_1(t)$ is completely identical to $g_T(t)$! It is still a split-phase pulse. The only difference is the Y-axis amplitude, which now depends purely on time ($T_b$) and guarantees that $\psi_1(t)$ has exactly unit energy ($1$ Joule).</p>
+                    <p style="line-height: 1.6;"><strong>The Geometric Coordinates:</strong></p>
+                    <p style="line-height: 1.6;">Now we map our physical signals onto this new axis (by calculating $s_{ij} = \int s_i(t)\psi_1(t)dt$):</p>
+                    <ul>
+                        <li>For Bit 1 ($s_1(t) = +g_T(t)$): $\mathbf{s_1 = +\sqrt{\mathcal{E}_b}}$</li>
+                        <li>For Bit 0 ($s_2(t) = -g_T(t)$): $\mathbf{s_2 = -\sqrt{\mathcal{E}_b}}$</li>
+                    </ul>
+                </div>
+                <div style="flex: 1; min-width: 300px; background: #fff; padding: 20px 20px 40px 70px; border-radius: 8px; box-shadow: 0 0 15px var(--accent-orange); position: relative;">
+                    <!-- Y Axis Labels -->
+                    <div style="position: absolute; top: 20px; left: 15px; font-size: 1em; color: #000;">
+                        \( +\frac{1}{\sqrt{T_b}} \)
+                    </div>
+                    <div style="position: absolute; top: 102px; left: 55px; font-size: 0.9em; color: #000;">
+                        \( 0 \)
+                    </div>
+                    <div style="position: absolute; bottom: 50px; left: 15px; font-size: 1em; color: #000;">
+                        \( -\frac{1}{\sqrt{T_b}} \)
+                    </div>
+                    <div style="position: absolute; top: 102px; left: -10px; font-size: 1.2em; color: #000; transform: rotate(-90deg);">
+                        \( \psi_1(t) \)
+                    </div>
+
+                    <canvas id="psiChart" height="200" style="width: 100%;"></canvas>
+                    
+                    <!-- X Axis Labels -->
+                    <div style="position: absolute; bottom: 25px; left: 70px; font-size: 0.9em; color: #000;">
+                        \( 0 \)
+                    </div>
+                    <div style="position: absolute; bottom: 25px; left: calc(50% + 25px); font-size: 0.9em; color: #000; transform: translateX(-50%);">
+                        \( \frac{T_b}{2} \)
+                    </div>
+                    <div style="position: absolute; bottom: 25px; right: 15px; font-size: 0.9em; color: #000;">
+                        \( T_b \)
+                    </div>
+                    <div style="position: absolute; bottom: -5px; left: calc(50% + 25px); font-size: 1.1em; color: #000; transform: translateX(-50%);">
+                        \( \text{Time } (t) \)
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHAPTER 3 -->
+    <div id="chap3" class="chapter">
+        <h2>Chapter 3: The Proof – Why N = 1</h2>
+        
+        <div class="concept-box" style="border-left-color: var(--accent-yellow);">
+            <h4 style="color: var(--accent-yellow);">The Core Question</h4>
+            <p>If we have 2 signals ($M=2$), you might instinctively think we need a 2-dimensional space ($N=2$) with a $\psi_1(t)$ and a $\psi_2(t)$ to represent them. However, for Binary Antipodal Signaling, your lecturer stated that <strong>$N=1$</strong>. Let's prove exactly why $\psi_2(t)$ does not exist using Gram-Schmidt!</p>
+        </div>
+
+        <div class="derivation-box">
+            <h4>📐 Step-by-Step Gram-Schmidt Proof</h4>
+            <p>We are given our two signals: $s_1(t)$ and $s_2(t) = -s_1(t)$.</p>
+            
+            <p><strong>Step 1: Find the first basis function $\psi_1(t)$</strong></p>
+            <p>The energy of the first signal is $\mathcal{E}_1 = \int s_1^2(t) dt$. We normalize $s_1(t)$ to find our first axis:</p>
+            <p>$$\psi_1(t) = \frac{s_1(t)}{\sqrt{\mathcal{E}_1}}$$</p>
+            
+            <hr style="border-color: rgba(157, 78, 221, 0.4); margin: 20px 0;">
+            
+            <p><strong>Step 2: Try to find the second basis function $\psi_2(t)$</strong></p>
+            <p>To find the second axis, we must first find how much of $s_2(t)$ overlaps with $\psi_1(t)$. This is the projection coefficient $c_{21}$:</p>
+            <p>$$c_{21} = \int s_2(t)\psi_1(t) dt$$</p>
+            <p>Substitute $s_2(t) = -s_1(t)$ and $\psi_1(t) = \frac{s_1(t)}{\sqrt{\mathcal{E}_1}}$:</p>
+            <p>$$c_{21} = \int (-s_1(t)) \left( \frac{s_1(t)}{\sqrt{\mathcal{E}_1}} \right) dt = \frac{-1}{\sqrt{\mathcal{E}_1}} \int s_1^2(t) dt$$</p>
+            <p>Since $\int s_1^2(t) dt = \mathcal{E}_1$, this simplifies to:</p>
+            <p>$$c_{21} = \frac{-\mathcal{E}_1}{\sqrt{\mathcal{E}_1}} = -\sqrt{\mathcal{E}_1}$$</p>
+
+            <p>Now, we subtract this projection from $s_2(t)$ to find the remaining orthogonal piece $d_2(t)$:</p>
+            <p>$$d_2(t) = s_2(t) - c_{21}\psi_1(t)$$</p>
+            <p>Substitute $s_2(t) = -s_1(t)$ and $c_{21} = -\sqrt{\mathcal{E}_1}$:</p>
+            <p>$$d_2(t) = -s_1(t) - (-\sqrt{\mathcal{E}_1})\left( \frac{s_1(t)}{\sqrt{\mathcal{E}_1}} \right)$$</p>
+            <p>$$d_2(t) = -s_1(t) - (-s_1(t))$$</p>
+            <p style="font-size: 1.3em; text-align: center; color: var(--accent-pink); font-weight: bold;">$$d_2(t) = -s_1(t) + s_1(t) = 0$$</p>
+
+            <p><strong>Conclusion:</strong> Because $d_2(t) = 0$, there is absolutely no signal energy left that is perpendicular to $\psi_1(t)$. We cannot normalize $0$ to create $\psi_2(t)$. Therefore, the process stops. The entire system can be perfectly represented using only ONE basis function ($N=1$).</p>
+        </div>
+    </div>
+
+    <!-- CHAPTER 4 -->
+    <div id="chap4" class="chapter">
+        <h2>Chapter 4: Geometric Representation & Signal Space</h2>
+        
+        <p>Since $N=1$, our signal space is no longer a 2D plane—it is a simple 1-dimensional number line. The axis is our basis function $\psi_1(t)$.</p>
+        
+        <p>From our proof above, we can map our signals into vectors (coordinates):</p>
+        <ul>
+            <li>For bit 1: $\mathbf{s}_1 = [+\sqrt{\mathcal{E}_b}]$</li>
+            <li>For bit 0: $\mathbf{s}_2 = [-\sqrt{\mathcal{E}_b}]$</li>
+        </ul>
+        <p><em>(Note: We use $\mathcal{E}_b$ here to denote the average Energy per bit, since $\mathcal{E}_1 = \mathcal{E}_2 = \mathcal{E}_b$)</em></p>
+
+        <h3>Interactive Visual ⚡: The 1D Signal Space</h3>
+        <p>Look at the diagram below. Both signals sit on exactly the same axis, just on opposite sides of the origin. This represents maximum separation for a given amount of energy!</p>
+
+        <div class="interactive-container">
+            <canvas id="antipodalChart" height="150"></canvas>
+        </div>
+
+        <div style="background: rgba(102, 252, 241, 0.1); border-left: 4px solid var(--accent-cyan); padding: 15px; border-radius: 4px;">
+            <p><strong>The Distance Metric ($d$):</strong></p>
+            <p>The distance between the two signals dictates how easily noise can cause an error. A larger distance is better.</p>
+            <p>$$d_{12} = \sqrt{(s_{11} - s_{21})^2} = \sqrt{(\sqrt{\mathcal{E}_b} - (-\sqrt{\mathcal{E}_b}))^2} = \sqrt{(2\sqrt{\mathcal{E}_b})^2} = 2\sqrt{\mathcal{E}_b}$$</p>
+            <p>Antipodal signaling is optimal because it maximizes this distance ($2\sqrt{\mathcal{E}_b}$) for a given average signal energy. If they weren't antipodal, they would be closer together, making it easier for noise to confuse the receiver!</p>
+        </div>
+    </div>
+
+    <!-- CHAPTER 5 -->
+    <div id="chap5" class="chapter" style="border-left-color: var(--accent-orange);">
+        <h2 style="color: var(--accent-orange); border-bottom-color: var(--accent-orange);">Chapter 5: Exam Traps & Misconceptions</h2>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 1: "There are two signals ($s_1, s_2$), so it must be a 2D space ($N=2$)."</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>The dimension $N$ is determined by the number of <strong>linearly independent</strong> signals, not just the total number of signals.</div>
+                </div>
+                <p>Because $s_2(t) = -s_1(t)$, it is just a scaled version (scaled by -1) of the first signal. It is completely linearly dependent. As we proved mathematically, the Gram-Schmidt process will yield $d_2(t) = 0$, meaning no $\psi_2$ is created. The space is strictly 1D.</p>
+            </div>
+        </div>
+
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 2: "Antipodal Signaling requires sine waves (like BPSK)."</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>The base pulse shape $s(t)$ can be <strong>absolutely anything</strong>!</div>
+                </div>
+                <p>Antipodal signaling is defined by the relationship $s_2(t) = -s_1(t)$, NOT by the shape of the pulse. The pulse could be a square wave, a triangle, a raised cosine pulse, or a high-frequency sine wave. As long as you are flipping that exact pulse upside down to send the other bit, it is antipodal signaling and it operates in a 1D signal space.</p>
+            </div>
+        </div>
+        
+        <div class="trap-card">
+            <div class="trap-header">
+                <span class="icon">🚨</span>
+                <h4>Trap 3: "The energy of $s_2(t)$ is negative because its amplitude is negative."</h4>
+            </div>
+            <div class="trap-body">
+                <div class="truth-section">
+                    <span class="icon">✅</span> 
+                    <div>Energy is ALWAYS positive. $\mathcal{E}_1 = \mathcal{E}_2 = \mathcal{E}_b$.</div>
+                </div>
+                <p>Energy is calculated by integrating the <strong>squared</strong> signal ($\int s^2(t) dt$). When you square a negative signal, $(-s_1(t))^2 = s_1^2(t)$. Therefore, the energy of a negative pulse is exactly the same as the energy of the positive pulse. In the signal space, both points are at a distance of exactly $\sqrt{\mathcal{E}_b}$ from the origin.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- GLOSSARY - FORMULAS -->
+    <div id="glossary-formulas" class="chapter">
+        <h2>Formula & Equation Glossary ⚡</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead>
+                <tr style="background: rgba(102, 252, 241, 0.1); border-bottom: 2px solid var(--accent-cyan);">
+                    <th style="padding: 15px; text-align: left; color: var(--accent-cyan);">Equation / Formula</th>
+                    <th style="padding: 15px; text-align: left; color: var(--accent-cyan);">Name</th>
+                    <th style="padding: 15px; text-align: left; color: var(--accent-cyan);">Context</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 15px; font-size: 1.1em;">\(s_1(t) = s(t)\)<br>\(s_2(t) = -s(t)\)</td>
+                    <td style="padding: 15px; font-weight: bold;">Binary Antipodal Definition</td>
+                    <td style="padding: 15px;">The fundamental property where the two waveforms are exact geometric opposites.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 15px; font-size: 1.1em;">\(N = 1\)</td>
+                    <td style="padding: 15px; font-weight: bold;">Dimension of Signal Space</td>
+                    <td style="padding: 15px;">Because \(s_2(t)\) is a scaled version of \(s_1(t)\), Gram-Schmidt yields only one basis function.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 15px; font-size: 1.1em;">\(\psi_1(t) = \frac{s_1(t)}{\sqrt{\mathcal{E}_b}}\)</td>
+                    <td style="padding: 15px; font-weight: bold;">Basis Function</td>
+                    <td style="padding: 15px;">The single normalized axis that defines the entire 1D signal space.</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <td style="padding: 15px; font-size: 1.1em;">\(d_{12} = 2\sqrt{\mathcal{E}_b}\)</td>
+                    <td style="padding: 15px; font-weight: bold;">Euclidean Distance</td>
+                    <td style="padding: 15px;">The distance between the two signal points in space. Maximized in antipodal signaling to fight noise.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Draw Bridge Chart
+        const bridgeCtx = document.getElementById('bridgeChart').getContext('2d');
+        
+        // Custom Plugin for Bridge Chart labels and drawing
+        const bridgePlugin = {
+            id: 'bridgePlugin',
+            afterDraw(chart) {
+                const ctx = chart.ctx;
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+                
+                // Draw a vertical divider line
+                const midX = xAxis.getPixelForValue(5);
+                ctx.save();
+                ctx.beginPath();
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(midX, chart.chartArea.top);
+                ctx.lineTo(midX, chart.chartArea.bottom);
+                ctx.stroke();
+                
+                // Labels for the two domains
+                ctx.font = 'bold 16px sans-serif';
+                ctx.fillStyle = '#0B0C10';
+                ctx.textAlign = 'center';
+                ctx.fillText('Real World (Time Domain)', xAxis.getPixelForValue(2.5), chart.chartArea.top + 20);
+                ctx.fillText('Math World (Signal Space)', xAxis.getPixelForValue(7.5), chart.chartArea.top + 20);
+                
+                ctx.font = '14px sans-serif';
+                ctx.fillText('Waves travel in time', xAxis.getPixelForValue(2.5), chart.chartArea.top + 40);
+                ctx.fillText('Waves become static points', xAxis.getPixelForValue(7.5), chart.chartArea.top + 40);
+
+                // Draw noise cloud circle around the point
+                ctx.beginPath();
+                ctx.arc(xAxis.getPixelForValue(8), yAxis.getPixelForValue(0.5), 30, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(255, 0, 127, 0.1)';
+                ctx.fill();
+                ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)';
+                ctx.stroke();
+
+                ctx.fillStyle = '#C70039';
+                ctx.font = 'italic 12px sans-serif';
+                ctx.fillText('Noise Cloud', xAxis.getPixelForValue(8), yAxis.getPixelForValue(0.5) + 45);
+                
+                // Draw Vector Arrow from origin to point
+                const originX = xAxis.getPixelForValue(6);
+                const originY = yAxis.getPixelForValue(0);
+                const pointX = xAxis.getPixelForValue(8);
+                const pointY = yAxis.getPixelForValue(0.5);
+                
+                ctx.beginPath();
+                ctx.moveTo(originX, originY);
+                ctx.lineTo(pointX, pointY);
+                ctx.strokeStyle = '#66FCF1';
+                ctx.setLineDash([]);
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.restore();
+            }
+        };
+
+        new Chart(bridgeCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    // Waveform (Real World)
+                    {
+                        label: 'Wave',
+                        data: Array.from({length: 50}, (_, i) => ({x: i/10, y: Math.sin(i/10 * Math.PI)})),
+                        borderColor: '#66FCF1',
+                        borderWidth: 2,
+                        showLine: true,
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    // Origin Point (Math World)
+                    {
+                        label: 'Origin',
+                        data: [{x: 6, y: 0}],
+                        backgroundColor: '#000',
+                        pointRadius: 4
+                    },
+                    // Signal Point (Math World)
+                    {
+                        label: 'Signal Vector',
+                        data: [{x: 8, y: 0.5}],
+                        backgroundColor: '#FF007F',
+                        pointRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { min: 0, max: 10, display: false },
+                    y: { min: -1.5, max: 2.5, display: false }
+                },
+                plugins: { legend: { display: false } },
+                animation: { duration: 0 }
+            },
+            plugins: [bridgePlugin]
+        });
+
+        // Draw Manchester Chart
+        const manchesterCtx = document.getElementById('manchesterChart').getContext('2d');
+        
+        new Chart(manchesterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Positive Half',
+                        data: [{x: 0, y: 1}, {x: 0.5, y: 1}],
+                        borderColor: '#00FF7F',
+                        borderWidth: 4,
+                        showLine: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Vertical Drop',
+                        data: [{x: 0.5, y: 1}, {x: 0.5, y: -1}],
+                        borderColor: '#C5C6C7',
+                        borderWidth: 2,
+                        showLine: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Negative Half',
+                        data: [{x: 0.5, y: -1}, {x: 1, y: -1}],
+                        borderColor: '#FF007F',
+                        borderWidth: 4,
+                        showLine: true,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 20, right: 30, bottom: 10, left: 10 } },
+                scales: {
+                    x: {
+                        min: 0, max: 1,
+                        display: true,
+                        title: { display: false },
+                        ticks: { display: false },
+                        grid: { display: true, color: 'rgba(0,0,0,0.1)' }
+                    },
+                    y: {
+                        min: -1.5, max: 1.5,
+                        display: true,
+                        title: { display: false },
+                        ticks: { display: false },
+                        grid: { display: true, color: 'rgba(0,0,0,0.1)' }
+                    }
+                },
+                plugins: { legend: { display: false } },
+                animation: { duration: 0 }
+            }
+        });
+
+        // Draw Psi Chart (Identical to Manchester but for basis function)
+        const psiCtx = document.getElementById('psiChart').getContext('2d');
+        
+        new Chart(psiCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Positive Half',
+                        data: [{x: 0, y: 1}, {x: 0.5, y: 1}],
+                        borderColor: '#9D4EDD', // distinct purple color for psi
+                        borderWidth: 4,
+                        showLine: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Vertical Drop',
+                        data: [{x: 0.5, y: 1}, {x: 0.5, y: -1}],
+                        borderColor: '#C5C6C7',
+                        borderWidth: 2,
+                        showLine: true,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'Negative Half',
+                        data: [{x: 0.5, y: -1}, {x: 1, y: -1}],
+                        borderColor: '#9D4EDD',
+                        borderWidth: 4,
+                        showLine: true,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { top: 20, right: 30, bottom: 10, left: 10 } },
+                scales: {
+                    x: {
+                        min: 0, max: 1,
+                        display: true,
+                        title: { display: false },
+                        ticks: { display: false },
+                        grid: { display: true, color: 'rgba(0,0,0,0.1)' }
+                    },
+                    y: {
+                        min: -1.5, max: 1.5,
+                        display: true,
+                        title: { display: false },
+                        ticks: { display: false },
+                        grid: { display: true, color: 'rgba(0,0,0,0.1)' }
+                    }
+                },
+                plugins: { legend: { display: false } },
+                animation: { duration: 0 }
+            }
+        });
+        
+        // Draw 1D Antipodal Chart
+        const ctx = document.getElementById('antipodalChart').getContext('2d');
+        
+        // Custom Plugin to draw text labels
+        const antipodalLabels = {
+            id: 'antipodalLabels',
+            afterDatasetsDraw(chart) {
+                const ctx = chart.ctx;
+                ctx.save();
+                
+                chart.data.datasets.forEach((dataset, i) => {
+                    const meta = chart.getDatasetMeta(i);
+                    if (meta.type === 'scatter') {
+                        const point = meta.data[0];
+                        if (point) {
+                            ctx.fillStyle = dataset.borderColor;
+                            
+                            if (dataset.label.includes('s1') || dataset.label.includes('s2')) {
+                                ctx.textAlign = 'left';
+                                let isS1 = dataset.label.includes('s1');
+                                let text1 = isS1 ? 's₁ [+√ℰ' : 's₂ [-√ℰ';
+                                let text2 = 'b';
+                                let text3 = ']';
+                                
+                                ctx.font = 'bold 16px sans-serif';
+                                let w1 = ctx.measureText(text1).width;
+                                ctx.font = 'bold 12px sans-serif';
+                                let w2 = ctx.measureText(text2).width;
+                                ctx.font = 'bold 16px sans-serif';
+                                let w3 = ctx.measureText(text3).width;
+                                
+                                let totalW = w1 + w2 + w3;
+                                let startX = point.x - totalW / 2;
+                                
+                                ctx.fillText(text1, startX, point.y - 15);
+                                ctx.font = 'bold 12px sans-serif';
+                                ctx.fillText(text2, startX + w1, point.y - 10);
+                                ctx.font = 'bold 16px sans-serif';
+                                ctx.fillText(text3, startX + w1 + w2, point.y - 15);
+                            } else if (dataset.label.includes('Origin')) {
+                                ctx.font = 'bold 16px sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.fillText('Origin (0)', point.x, point.y - 15);
+                            }
+                        }
+                    }
+                });
+                
+                // Draw arrow heads for the axis
+                const xAxis = chart.scales.x;
+                const yAxis = chart.scales.y;
+                const yCenter = yAxis.getPixelForValue(0);
+                const xEnd = xAxis.getPixelForValue(2.5);
+                const xStart = xAxis.getPixelForValue(-2.5);
+                
+                ctx.fillStyle = '#C5C6C7';
+                ctx.beginPath();
+                ctx.moveTo(xEnd, yCenter);
+                ctx.lineTo(xEnd - 10, yCenter - 5);
+                ctx.lineTo(xEnd - 10, yCenter + 5);
+                ctx.fill();
+                
+                ctx.font = 'bold 18px sans-serif';
+                ctx.fillText('ψ₁ Axis', xEnd - 20, yCenter + 35);
+                
+                ctx.restore();
+            }
+        };
+
+        new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Axis',
+                        data: [{x: -2.5, y: 0}, {x: 2.5, y: 0}],
+                        borderColor: '#C5C6C7',
+                        borderWidth: 2,
+                        showLine: true,
+                        pointRadius: 0,
+                        type: 'line'
+                    },
+                    {
+                        label: 's1 (Bit 1)',
+                        data: [{x: 1.5, y: 0}],
+                        backgroundColor: '#66FCF1',
+                        borderColor: '#45A29E',
+                        pointRadius: 10,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 's2 (Bit 0)',
+                        data: [{x: -1.5, y: 0}],
+                        backgroundColor: '#FF007F',
+                        borderColor: '#C70039',
+                        pointRadius: 10,
+                        borderWidth: 3
+                    },
+                    {
+                        label: 'Origin',
+                        data: [{x: 0, y: 0}],
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#000000',
+                        pointRadius: 5,
+                        borderWidth: 2
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        min: -3,
+                        max: 3,
+                        display: false
+                    },
+                    y: {
+                        min: -1,
+                        max: 1,
+                        display: false
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                animation: {
+                    duration: 0
+                }
+            },
+            plugins: [antipodalLabels]
+        });
+    </script>
+</body>
+</html>
